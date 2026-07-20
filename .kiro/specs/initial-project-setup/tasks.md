@@ -6,7 +6,7 @@ Scaffold the Hecatoncheires monorepo as a pnpm workspace with four packages (`@h
 
 ## Tasks
 
-- [ ] 1. Set up workspace root configuration
+- [x] 1. Set up workspace root configuration
   - [x] 1.1 Create root package.json, pnpm-workspace.yaml, .nvmrc, and .gitignore
     - Run `git init` at the workspace root to initialize the repository
     - Create `pnpm-workspace.yaml` with `packages: ['packages/*']`
@@ -21,7 +21,7 @@ Scaffold the Hecatoncheires monorepo as a pnpm workspace with four packages (`@h
     - Create `.gitignore` excluding `node_modules/`, `dist/`, `cdk.out/`, `.cdk.staging/`, `*.tsbuildinfo`, `coverage/`, `.env`, `.env.*`
     - _Requirements: 1.1, 1.2, 1.3, 1.4_
 
-  - [ ] 1.2 Create tsconfig.base.json with strict compiler options
+  - [x] 1.2 Create tsconfig.base.json with strict compiler options
     - Set `target: ES2022`, `module: Node16`, `moduleResolution: Node16`, `lib: ["ES2022"]`
     - Enable all strict options: `strict`, `noImplicitAny`, `strictNullChecks`, `noUnusedLocals`, `noUnusedParameters`
     - Enable incremental build: `composite: true`, `incremental: true`
@@ -30,7 +30,7 @@ Scaffold the Hecatoncheires monorepo as a pnpm workspace with four packages (`@h
     - Set `outDir: "./dist"` and `rootDir: "./src"`
     - _Requirements: 2.1, 2.2, 2.3, 12.5_
 
-  - [ ] 1.3 Create shared ESLint configuration with import boundary rules
+  - [x] 1.3 Create shared ESLint configuration with import boundary rules
     - Install and configure `@typescript-eslint/parser`, `@typescript-eslint/eslint-plugin`, `eslint-plugin-import`
     - Enforce import boundary rules via `no-restricted-imports` or `eslint-plugin-import` restricted patterns:
       - `@hecaton/core` cannot import from `@hecaton/api`, `@hecaton/cdk`, `@hecaton/web`
@@ -42,7 +42,7 @@ Scaffold the Hecatoncheires monorepo as a pnpm workspace with four packages (`@h
     - Add rule to disallow `@ts-ignore`, `@ts-expect-error`, and explicit `any` annotations
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.9, 12.6_
 
-  - [ ] 1.4 Create .prettierrc and Vitest workspace configuration
+  - [x] 1.4 Create .prettierrc and Vitest workspace configuration
     - Create `.prettierrc` with shared formatting rules (singleQuote, trailingComma, printWidth, semi)
     - Create `vitest.workspace.ts` referencing all four packages with test glob `**/*.test.ts`
     - _Requirements: 3.8, 11.1, 11.2, 11.3, 11.4_
