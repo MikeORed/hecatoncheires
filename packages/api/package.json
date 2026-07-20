@@ -1,0 +1,19 @@
+{
+  "name": "@hecaton/api",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --build",
+    "test": "vitest run",
+    "lint": "eslint src/",
+    "clean": "rm -rf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@hecaton/core": "workspace:*",
+    "@aws-sdk/client-dynamodb": "^3",
+    "@aws-sdk/client-iam": "^3",
+    "@aws-sdk/client-eventbridge": "^3",
+    "@aws-sdk/client-cloudwatch": "^3",
+    "esbuild": "^0.21"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "@hecaton/web",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --build",
+    "test": "vitest run",
+    "lint": "eslint src/",
+    "clean": "rm -rf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@hecaton/core": "workspace:*"
+  }
+}

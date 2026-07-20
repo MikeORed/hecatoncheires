@@ -1,0 +1,22 @@
+{
+  "name": "@hecaton/core",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "./dist/public-api.js",
+  "types": "./dist/public-api.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/public-api.d.ts",
+      "import": "./dist/public-api.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "test": "vitest run",
+    "lint": "eslint src/",
+    "clean": "rm -rf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "zod": "^3.23"
+  }
+}

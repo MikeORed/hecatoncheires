@@ -1,0 +1,20 @@
+{
+  "name": "@hecaton/cdk",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --build",
+    "test": "vitest run",
+    "lint": "eslint lib/ bin/",
+    "synth": "cdk synth",
+    "clean": "rm -rf dist cdk.out *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@hecaton/core": "workspace:*",
+    "aws-cdk-lib": "^2.258.0",
+    "constructs": "^10.0"
+  },
+  "devDependencies": {
+    "aws-cdk": "^2.258.0"
+  }
+}

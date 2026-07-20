@@ -47,8 +47,8 @@ Scaffold the Hecatoncheires monorepo as a pnpm workspace with four packages (`@h
     - Create `vitest.workspace.ts` referencing all four packages with test glob `**/*.test.ts`
     - _Requirements: 3.8, 11.1, 11.2, 11.3, 11.4_
 
-- [ ] 2. Scaffold @hecaton/core package
-  - [ ] 2.1 Create core package.json, tsconfig.json, and directory structure
+- [x] 2. Scaffold @hecaton/core package
+  - [x] 2.1 Create core package.json, tsconfig.json, and directory structure
     - Create `packages/core/package.json` with name `@hecaton/core`, version `0.0.1`, `type: "module"`
     - Set `main: "./dist/public-api.js"`, `types: "./dist/public-api.d.ts"`
     - Set `exports: { ".": { "types": "./dist/public-api.d.ts", "import": "./dist/public-api.js" } }`
@@ -59,8 +59,8 @@ Scaffold the Hecatoncheires monorepo as a pnpm workspace with four packages (`@h
     - Create `src/public-api.ts` as a valid empty barrel export (e.g., `export {};`)
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 8.1_
 
-- [ ] 3. Scaffold @hecaton/api package
-  - [ ] 3.1 Create api package.json, tsconfig.json, and directory structure
+- [x] 3. Scaffold @hecaton/api package
+  - [x] 3.1 Create api package.json, tsconfig.json, and directory structure
     - Create `packages/api/package.json` with name `@hecaton/api`, version `0.0.1`, `type: "module"`
     - Add scripts: `build: "tsc --build"`, `test: "vitest run"`, `lint: "eslint src/"`, `clean: "rm -rf dist *.tsbuildinfo"`
     - Add `dependencies`: `@hecaton/core: "workspace:*"`, `@aws-sdk/client-dynamodb: "^3"`, `@aws-sdk/client-iam: "^3"`, `@aws-sdk/client-eventbridge: "^3"`, `@aws-sdk/client-cloudwatch: "^3"`, `esbuild: "^0.21"`
@@ -69,8 +69,8 @@ Scaffold the Hecatoncheires monorepo as a pnpm workspace with four packages (`@h
     - Create `src/public-api.ts` as a valid empty barrel export
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 8.2_
 
-- [ ] 4. Scaffold @hecaton/cdk package
-  - [ ] 4.1 Create cdk package.json, tsconfig.json, cdk.json, and directory structure
+- [x] 4. Scaffold @hecaton/cdk package
+  - [x] 4.1 Create cdk package.json, tsconfig.json, cdk.json, and directory structure
     - Create `packages/cdk/package.json` with name `@hecaton/cdk`, version `0.0.1`, `type: "module"`
     - Add scripts: `build: "tsc --build"`, `test: "vitest run"`, `lint: "eslint lib/ bin/"`, `synth: "cdk synth"`, `clean: "rm -rf dist cdk.out *.tsbuildinfo"`
     - Add `dependencies`: `@hecaton/core: "workspace:*"`, `aws-cdk-lib: "^2.258.0"`, `constructs: "^10.0"`
@@ -81,8 +81,8 @@ Scaffold the Hecatoncheires monorepo as a pnpm workspace with four packages (`@h
     - Create `bin/app.ts` with minimal CDK App instantiation (`#!/usr/bin/env node`, import App from aws-cdk-lib, new App())
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 6.8, 8.2_
 
-- [ ] 5. Scaffold @hecaton/web package
-  - [ ] 5.1 Create web package.json, tsconfig.json, and directory structure
+- [x] 5. Scaffold @hecaton/web package
+  - [x] 5.1 Create web package.json, tsconfig.json, and directory structure
     - Create `packages/web/package.json` with name `@hecaton/web`, version `0.0.1`, `type: "module"`
     - Add scripts: `build: "tsc --build"`, `test: "vitest run"`, `lint: "eslint src/"`, `clean: "rm -rf dist *.tsbuildinfo"`
     - Add `dependencies`: `@hecaton/core: "workspace:*"`
