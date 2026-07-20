@@ -6,21 +6,21 @@ Implement the pure domain layer (Layer 0) for the Hecatoncheires governance plat
 
 ## Tasks
 
-- [ ] 1. Set up errors module and utilities
-  - [ ] 1.1 Implement domain error classes
+- [x] 1. Set up errors module and utilities
+  - [x] 1.1 Implement domain error classes
     - Create `src/errors/domain-error.ts` with the abstract `DomainError` base class
     - Create `src/errors/validation-error.ts`, `src/errors/shape-not-found-error.ts`, `src/errors/invalid-shape-parameters-error.ts`, `src/errors/grant-conflict-error.ts`, `src/errors/config-not-found-error.ts`, `src/errors/internal-error.ts`
     - Create `src/errors/index.ts` barrel re-exporting all error classes
     - Each error must extend `DomainError`, have a readonly `code` property, accept `message` and optional `details: Record<string, unknown>`
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7_
 
-  - [ ] 1.2 Implement ID generator utility
+  - [x] 1.2 Implement ID generator utility
     - Create `src/utilities/id-generator.ts` implementing UUIDv7 generation (timestamp + random bits, version nibble `7`, variant bits `10xx`)
     - Create `src/utilities/index.ts` barrel
     - The function `generateId()` must return a valid UUIDv7 string that is K-sortable by creation time
     - _Requirements: 10.1, 10.2, 10.3, 10.6_
 
-  - [ ] 1.3 Write property tests for ID generator
+  - [x] 1.3 Write property tests for ID generator
     - **Property 17: ID generator produces valid UUIDv7 format**
     - **Property 18: ID generator produces time-sortable identifiers**
     - **Validates: Requirements 10.1, 10.2, 10.3, 10.4**
