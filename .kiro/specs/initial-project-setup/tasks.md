@@ -91,22 +91,22 @@ Scaffold the Hecatoncheires monorepo as a pnpm workspace with four packages (`@h
     - Create `src/public-api.ts` as a valid empty barrel export
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 8.2_
 
-- [ ] 6. Checkpoint - Verify workspace integrity
+- [x] 6. Checkpoint - Verify workspace integrity
   - Ensure all tests pass, ask the user if questions arise.
   - Run `pnpm install` and verify exit code 0 with no unresolved workspace references
   - Run `pnpm build` and verify all four packages produce `dist/` directories
   - _Requirements: 1.5, 8.3, 9.1, 9.2_
 
-- [ ] 7. Create CI workflow stubs
-  - [ ] 7.1 Create GitHub Actions workflow files for all four packages
+- [x] 7. Create CI workflow stubs
+  - [x] 7.1 Create GitHub Actions workflow files for all four packages
     - Create `.github/workflows/core.yml`, `api.yml`, `cdk.yml`, `web.yml`
     - Each workflow triggers on push to `main`
     - Steps in order: checkout, setup Node 20, setup pnpm, `pnpm install --frozen-lockfile`, build, lint, test
     - Use `pnpm install --frozen-lockfile` for deterministic resolution
     - _Requirements: 10.1, 10.2, 10.3, 10.4_
 
-- [ ] 8. Final validation checkpoint
-  - [ ] 8.1 Run full build pipeline and verify green state
+- [x] 8. Final validation checkpoint
+  - [x] 8.1 Run full build pipeline and verify green state
     - Execute `pnpm install` → exit 0
     - Execute `pnpm build` → exit 0, all packages have `dist/` with `.js` and `.d.ts` files
     - Execute `pnpm test` → exit 0 (zero tests = pass)

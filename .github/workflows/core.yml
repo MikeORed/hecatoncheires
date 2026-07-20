@@ -1,0 +1,33 @@
+name: CI - @hecaton/core
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm --filter @hecaton/core build
+
+      - name: Lint
+        run: pnpm --filter @hecaton/core lint
+
+      - name: Test
+        run: pnpm --filter @hecaton/core test
