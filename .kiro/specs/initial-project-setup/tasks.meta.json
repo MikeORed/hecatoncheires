@@ -1,0 +1,17 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1.1 Create root package.json, pnpm-workspace.yaml, .nvmrc, and .gitignore": [
+      {
+        "executionId": "dbe68dd5-a21f-4d76-ac95-1edd86b8ed40",
+        "chatSessionId": "sess_68d3465e-a50d-4dc2-ae1a-246a00492726",
+        "timestamp": 1784578758778
+      },
+      {
+        "executionId": "dbe68dd5-a21f-4d76-ac95-1edd86b8ed40",
+        "chatSessionId": "sess_68d3465e-a50d-4dc2-ae1a-246a00492726",
+        "timestamp": 1784578820957
+      }
+    ]
+  }
+}

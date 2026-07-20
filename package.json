@@ -1,0 +1,12 @@
+{
+  "name": "hecatoncheires",
+  "private": true,
+  "scripts": {
+    "build": "pnpm -r --workspace-concurrency=1 run build",
+    "test": "vitest run --workspace vitest.workspace.ts",
+    "lint": "eslint --ext .ts packages/",
+    "format": "prettier --write \"packages/**/*.ts\"",
+    "format:check": "prettier --check \"packages/**/*.ts\"",
+    "clean": "pnpm -r run clean"
+  }
+}
