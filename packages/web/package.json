@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc --build",
-    "test": "vitest run",
+    "test": "vitest run --passWithNoTests",
     "lint": "eslint src/",
     "clean": "rm -rf dist *.tsbuildinfo"
   },

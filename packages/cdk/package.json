@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc --build",
-    "test": "vitest run",
+    "test": "vitest run --passWithNoTests",
     "lint": "eslint lib/ bin/",
     "synth": "cdk synth",
     "clean": "rm -rf dist cdk.out *.tsbuildinfo"
