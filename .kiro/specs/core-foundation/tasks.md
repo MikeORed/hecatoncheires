@@ -116,15 +116,15 @@ Implement the pure domain layer (Layer 0) for the Hecatoncheires governance plat
     - **Property 11: Naming generator rejects empty or whitespace-only stage**
     - **Validates: Requirements 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.8, 7.9, 7.10, 7.11, 7.12, 7.13, 7.14, 7.15**
 
-- [ ] 6. Implement shared algorithms (shape resolution and policy assembly)
-  - [ ] 6.1 Implement shape resolution algorithm
+- [x] 6. Implement shared algorithms (shape resolution and policy assembly)
+  - [x] 6.1 Implement shape resolution algorithm
     - Create `src/shared/algorithms/resolve-shape.ts`
     - Function `resolveShape(template: ShapeTemplate, parameters: Record<string, string>): IamStatement[]`
     - Substitute all `${paramName}` placeholders in Resource fields
     - Throw `InvalidShapeParametersError` if required parameters are missing
     - _Requirements: 3.5, 3.6_
 
-  - [ ] 6.2 Implement policy assembly algorithm
+  - [x] 6.2 Implement policy assembly algorithm
     - Create `src/shared/algorithms/assemble-policy.ts`
     - Function `assemblePolicy(grants: GrantRecord[], catalog: readonly ShapeTemplate[]): IamPolicyDocument`
     - Empty grants → deny-by-default (single Deny * statement)
@@ -132,49 +132,49 @@ Implement the pure domain layer (Layer 0) for the Hecatoncheires governance plat
     - Throw `ShapeNotFoundError` for unknown shape names
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 3.7_
 
-  - [ ] 6.3 Create shared algorithms index barrel
+  - [x] 6.3 Create shared algorithms index barrel
     - Create `src/shared/algorithms/index.ts` re-exporting `resolveShape` and `assemblePolicy`
     - _Requirements: 11.8_
 
-  - [ ] 6.4 Write property tests for shape resolution
+  - [x] 6.4 Write property tests for shape resolution
     - **Property 5: Shape resolution substitutes all placeholders**
     - **Property 6: Shape resolution rejects incomplete parameter sets**
     - **Property 7: Shape resolution rejects unknown shape names**
     - **Validates: Requirements 3.5, 3.6, 3.7**
 
-  - [ ] 6.5 Write property tests for policy assembly
+  - [x] 6.5 Write property tests for policy assembly
     - **Property 8: Policy assembly preserves all resolved statements without deduplication**
     - **Property 9: Policy assembly always produces a valid IAM policy structure**
     - **Validates: Requirements 5.2, 5.3, 5.4**
 
-- [ ] 7. Checkpoint - Algorithms verified
+- [x] 7. Checkpoint - Algorithms verified
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 8. Implement validators
-  - [ ] 8.1 Implement grant validator
+- [x] 8. Implement validators
+  - [x] 8.1 Implement grant validator
     - Create `src/validators/grant.validator.ts`
     - Function `validateGrant(grant: GrantRecord, catalog: readonly ShapeTemplate[]): ValidationResult`
     - Check shapeName exists in catalog, all required parameters present, expiresAt > grantedAt if present
     - Return `{ valid: true }` or `{ valid: false, error: DomainError }`
     - _Requirements: 8.1, 8.2, 8.3_
 
-  - [ ] 8.2 Implement grant set validator
+  - [x] 8.2 Implement grant set validator
     - Create `src/validators/grant-set.validator.ts`
     - Function `validateGrantSet(grants: GrantRecord[]): ValidationResult`
     - Detect duplicate grants (same configName + shapeName + parameters deep equality) and return `GrantConflictError`
     - _Requirements: 8.4_
 
-  - [ ] 8.3 Implement policy size validator
+  - [x] 8.3 Implement policy size validator
     - Create `src/validators/policy-size.validator.ts`
     - Function `validatePolicySize(policy: IamPolicyDocument): ValidationResult`
     - Check JSON serialization size against `AWS_INLINE_POLICY_SIZE_LIMIT` (10,240 bytes)
     - _Requirements: 8.5_
 
-  - [ ] 8.4 Create validators index barrel
+  - [x] 8.4 Create validators index barrel
     - Create `src/validators/index.ts` re-exporting all validators
     - _Requirements: 11.7_
 
-  - [ ] 8.5 Write property tests for validators
+  - [x] 8.5 Write property tests for validators
     - **Property 12: Grant validator rejects references to unknown shapes**
     - **Property 13: Grant validator rejects incomplete parameter sets**
     - **Property 14: Grant validator rejects invalid expiry timestamps**
@@ -182,23 +182,23 @@ Implement the pure domain layer (Layer 0) for the Hecatoncheires governance plat
     - **Property 16: Policy size validator rejects oversized policies**
     - **Validates: Requirements 8.1, 8.2, 8.3, 8.4, 8.5, 4.7**
 
-- [ ] 9. Implement test generators and wire public API
-  - [ ] 9.1 Implement fast-check arbitraries (test generators)
+- [x] 9. Implement test generators and wire public API
+  - [x] 9.1 Implement fast-check arbitraries (test generators)
     - Create `src/test-generators/agent-configuration.arb.ts`, `runtime-tunables.arb.ts`, `grant-record.arb.ts`, `shape-template.arb.ts`
     - Create `src/test-generators/index.ts` barrel
     - Each arbitrary produces valid instances conforming to their respective schemas
     - Include combinators for generating invalid variants where needed by property tests
 
-  - [ ] 9.2 Wire public API barrel
+  - [x] 9.2 Wire public API barrel
     - Update `src/public-api.ts` to re-export from all module barrels: schemas, types, entity, errors, constants, config, validators, shared/algorithms, utilities
     - Ensure no internal module paths are exposed — consumers import only from `@hecaton/core`
     - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5, 11.6, 11.7, 11.8, 11.9_
 
-  - [ ] 9.3 Add fast-check dev dependency
+  - [x] 9.3 Add fast-check dev dependency
     - Add `fast-check` to devDependencies in `packages/core/package.json`
     - Run install to update lockfile
 
-- [ ] 10. Final checkpoint - Full verification
+- [x] 10. Final checkpoint - Full verification
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes
