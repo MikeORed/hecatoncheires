@@ -3,6 +3,10 @@
     "3.5 Write property tests for entity factories": {
       "status": "passed",
       "lastRunTimestamp": 1784594256747
+    },
+    "5.5 Write property tests for NamingGenerator": {
+      "status": "passed",
+      "lastRunTimestamp": 1784598504120
     }
   },
   "executionHistory": {
@@ -193,6 +197,215 @@
         "executionId": "80df8fa4-8445-4f6a-adb9-97b12f025860",
         "chatSessionId": "sess_d0b342bb-1ead-4e20-9015-09752c043bba",
         "timestamp": 1784594270911
+      }
+    ],
+    "4. Checkpoint - Core entities verified": [
+      {
+        "executionId": "7b73c408-1422-43f5-87a6-fb685a88795e",
+        "chatSessionId": "sess_2324478d-cd74-46ae-b733-bf0cd6f4815a",
+        "timestamp": 1784596162309
+      },
+      {
+        "executionId": "7b73c408-1422-43f5-87a6-fb685a88795e",
+        "chatSessionId": "sess_2324478d-cd74-46ae-b733-bf0cd6f4815a",
+        "timestamp": 1784596231800
+      }
+    ],
+    "5.1 Implement AWS limits constants": [
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596258707
+      },
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596266696
+      },
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596348557
+      }
+    ],
+    "5.2 Implement NamingGenerator class": [
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596258759
+      },
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596354398
+      },
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596557176
+      }
+    ],
+    "5.3 Create constants index barrel": [
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596258807
+      },
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596561027
+      },
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596791360
+      }
+    ],
+    "5.4 Implement shape catalog configuration": [
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596258854
+      },
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596561767
+      },
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596792079
+      }
+    ],
+    "5.5 Write property tests for NamingGenerator": [
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596258902
+      },
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596797462
+      },
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784598517147
+      }
+    ],
+    "6.1 Implement shape resolution algorithm": [
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596258962
+      }
+    ],
+    "6.2 Implement policy assembly algorithm": [
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596259003
+      }
+    ],
+    "6.3 Create shared algorithms index barrel": [
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596259050
+      }
+    ],
+    "6.4 Write property tests for shape resolution": [
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596259102
+      }
+    ],
+    "6.5 Write property tests for policy assembly": [
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596259154
+      }
+    ],
+    "7. Checkpoint - Algorithms verified": [
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596259195
+      }
+    ],
+    "8.1 Implement grant validator": [
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596259237
+      }
+    ],
+    "8.2 Implement grant set validator": [
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596259281
+      }
+    ],
+    "8.3 Implement policy size validator": [
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596259324
+      }
+    ],
+    "8.4 Create validators index barrel": [
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596259367
+      }
+    ],
+    "8.5 Write property tests for validators": [
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596259406
+      }
+    ],
+    "9.1 Implement fast-check arbitraries (test generators)": [
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596259451
+      }
+    ],
+    "9.2 Wire public API barrel": [
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596259514
+      }
+    ],
+    "9.3 Add fast-check dev dependency": [
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596259576
+      }
+    ],
+    "10. Final checkpoint - Full verification": [
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784596259634
+      }
+    ],
+    "5. Implement constants, config, and naming": [
+      {
+        "executionId": "8b535949-601e-469f-a350-081350264498",
+        "chatSessionId": "sess_313c3253-919e-406c-b0e2-133138ec8cf1",
+        "timestamp": 1784598517185
       }
     ]
   }

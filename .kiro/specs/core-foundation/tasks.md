@@ -87,31 +87,31 @@ Implement the pure domain layer (Layer 0) for the Hecatoncheires governance plat
     - **Property 4: Grant Record factory auto-generates a valid UUIDv7 grantId**
     - **Validates: Requirements 1.7, 1.8, 2.6, 2.7, 4.8, 4.9, 1.5, 4.1, 10.1, 10.2**
 
-- [ ] 4. Checkpoint - Core entities verified
+- [x] 4. Checkpoint - Core entities verified
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 5. Implement constants, config, and naming
-  - [ ] 5.1 Implement AWS limits constants
+- [x] 5. Implement constants, config, and naming
+  - [x] 5.1 Implement AWS limits constants
     - Create `src/constants/limits.ts` with `AWS_INLINE_POLICY_SIZE_LIMIT = 10240` and any other relevant AWS limits
     - _Requirements: 8.5_
 
-  - [ ] 5.2 Implement NamingGenerator class
+  - [x] 5.2 Implement NamingGenerator class
     - Create `src/constants/naming.ts` with the `NamingGenerator` class
     - Constructor takes `stage` (non-empty string, throws ValidationError otherwise)
     - Implement methods: `roleName`, `profileName`, `guardrailName`, `alarmNames`, `queueNames`, `lambdaName`, `ruleName`, `harnessName`, `stackName`, `tableName`, `tags`
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.8, 7.9, 7.10, 7.11, 7.12, 7.13, 7.14, 7.15_
 
-  - [ ] 5.3 Create constants index barrel
+  - [x] 5.3 Create constants index barrel
     - Create `src/constants/index.ts` re-exporting limits and NamingGenerator
     - _Requirements: 11.5_
 
-  - [ ] 5.4 Implement shape catalog configuration
+  - [x] 5.4 Implement shape catalog configuration
     - Create `src/config/shape-catalog.ts` with `SHAPE_CATALOG` frozen array containing built-in shapes: `core-invocation`, `s3-prefix-read`, `s3-prefix-write`, `cloudwatch-logs-read`
     - Each shape must have correct riskTier, requiredParameters, and IAM statement templates with `${param}` placeholders
     - Create `src/config/index.ts` barrel
     - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 11.6_
 
-  - [ ] 5.5 Write property tests for NamingGenerator
+  - [x] 5.5 Write property tests for NamingGenerator
     - **Property 10: Naming generator produces pattern-conforming resource names**
     - **Property 11: Naming generator rejects empty or whitespace-only stage**
     - **Validates: Requirements 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.8, 7.9, 7.10, 7.11, 7.12, 7.13, 7.14, 7.15**

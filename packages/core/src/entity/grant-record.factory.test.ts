@@ -27,15 +27,6 @@ const isoDateTimeArb = fc
   })
   .map((d) => d.toISOString());
 
-const validInputArb = fc.record({
-  grantId: fc.constant(undefined),
-  configName: configNameArb,
-  shapeName: nonEmptyStringArb,
-  parameters: parametersArb,
-  grantedAt: isoDateTimeArb,
-  grantedBy: nonEmptyStringArb,
-});
-
 const validInputWithGrantIdArb = fc.record({
   grantId: fc.constant('018f6b2e-7c3a-7000-8000-000000000001'),
   configName: configNameArb,
