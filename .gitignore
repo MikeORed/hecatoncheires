@@ -6,3 +6,6 @@ cdk.out/
 coverage/
 .env
 .env.*
+
+# Agent temp files (test output capture)
+*.tmp

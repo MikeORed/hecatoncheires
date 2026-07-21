@@ -378,6 +378,7 @@ interface OpenClawHarnessProps extends AgentTypeHarnessProps {
   eventBridgeChannel?: {
     queueUrl?: string;
     sourceNamespace?: string;
+    signalSubscriptions?: Array<{ detailType: string; source: string }>;
   };
 }
 ```
@@ -446,10 +447,11 @@ Each adapter boundary owns its own DTO folder with request shapes, response shap
   "modelId": "string (Bedrock model ID)",
   "guardrailId": "string",
   "guardrailVersion": "string (default: DRAFT)",
-  "owningTeam": "string",
-  "signalSubscriptions": [{ "detailType": "string", "source": "string" }]
+  "owner": "string"
 }
 ```
+
+> **Note:** Signal subscriptions (EventBridge detailType + source patterns) were originally part of the base agent configuration. They have been moved to the OpenClaw harness-specific configuration (`OpenClawHarnessProps.eventBridgeChannel`) as they are a delivery concern specific to that harness type.
 
 ### Runtime tunables (AppConfig, changeable without deploy)
 
@@ -489,22 +491,24 @@ Grant state does not live in AppConfig. It lives in the grant ledger (DynamoDB, 
 
 | Resource type | Pattern | Example |
 |---|---|---|
-| IAM role | `hecaton-{configName}-agent-role` | `hecaton-sre-ops-agent-role` |
-| Inference profile | `hecaton-{configName}-profile` | `hecaton-sre-ops-profile` |
-| Guardrail | `hecaton-{configName}-guardrail` | `hecaton-sre-ops-guardrail` |
-| CW alarm (tokens) | `hecaton-{configName}-token-alarm` | `hecaton-sre-ops-token-alarm` |
-| CW alarm (blocks) | `hecaton-{configName}-block-alarm` | `hecaton-sre-ops-block-alarm` |
-| SQS FIFO queue | `hecaton-{configName}-signals.fifo` | `hecaton-sre-ops-signals.fifo` |
-| SQS DLQ | `hecaton-{configName}-signals-dlq.fifo` | `hecaton-sre-ops-signals-dlq.fifo` |
-| Lambda | `hecaton-{handler-name}` | `hecaton-grant-shape` |
-| EventBridge rule | `hecaton-{configName}-{purpose}` | `hecaton-sre-ops-ingest` |
-| CfnHarness | `hecaton-{configName}-harness` | `hecaton-test-managed-harness` |
-| Stack | `Hecaton-{Purpose}` or `Hecaton-{ConfigName}` | `Hecaton-SharedInfra`, `Hecaton-SreOps` |
-| DynamoDB table | `hecaton-grant-ledger` | (single table, shared) |
+| IAM role | `hecaton-{stage}-{configName}-agent-role` | `hecaton-dev-sre-ops-agent-role` |
+| Inference profile | `hecaton-{stage}-{configName}-profile` | `hecaton-dev-sre-ops-profile` |
+| Guardrail | `hecaton-{stage}-{configName}-guardrail` | `hecaton-dev-sre-ops-guardrail` |
+| CW alarm (tokens) | `hecaton-{stage}-{configName}-token-alarm` | `hecaton-dev-sre-ops-token-alarm` |
+| CW alarm (blocks) | `hecaton-{stage}-{configName}-block-alarm` | `hecaton-dev-sre-ops-block-alarm` |
+| CW alarm (observations) | `hecaton-{stage}-{configName}-observation-alarm` | `hecaton-dev-sre-ops-observation-alarm` |
+| SQS FIFO queue | `hecaton-{stage}-{configName}-signals.fifo` | `hecaton-dev-sre-ops-signals.fifo` |
+| SQS DLQ | `hecaton-{stage}-{configName}-signals-dlq.fifo` | `hecaton-dev-sre-ops-signals-dlq.fifo` |
+| Lambda | `hecaton-{stage}-{handler-name}` | `hecaton-dev-grant-shape` |
+| EventBridge rule | `hecaton-{stage}-{configName}-{purpose}` | `hecaton-dev-sre-ops-ingest` |
+| CfnHarness | `hecaton-{stage}-{configName}-harness` | `hecaton-dev-test-managed-harness` |
+| Stack | `Hecaton-{Stage}-{Purpose}` or `Hecaton-{Stage}-{ConfigName}` | `Hecaton-Dev-SharedInfra`, `Hecaton-Dev-SreOps` |
+| DynamoDB table | `hecaton-{stage}-grant-ledger` | `hecaton-dev-grant-ledger` |
 
 Tags on all resources:
 - `hecatoncheires:managed = true`
 - `hecatoncheires:config = {configName}`
+- `hecatoncheires:stage = {stage}`
 - `hecatoncheires:phase = {1|2|3|4}`
 - `hecatoncheires:harness-type = {agentcore-managed|openclaw|agentcore-runtime}`
 
@@ -514,9 +518,9 @@ Tags on all resources:
 
 ```
 pnpm --filter @hecaton/core build
-pnpm --filter @hecaton/cdk deploy Hecaton-SharedInfra
-pnpm --filter @hecaton/cdk deploy Hecaton-TestManaged Hecaton-SreOps ...
-pnpm --filter @hecaton/cdk deploy Hecaton-Telemetry
+pnpm --filter @hecaton/cdk deploy Hecaton-Dev-SharedInfra
+pnpm --filter @hecaton/cdk deploy Hecaton-Dev-TestManaged Hecaton-Dev-SreOps ...
+pnpm --filter @hecaton/cdk deploy Hecaton-Dev-Telemetry
 ```
 
 Or: `pnpm --filter @hecaton/cdk deploy --all`
@@ -610,12 +614,14 @@ Error flow:
 3. Handler catches at the top level, maps the error class to an HTTP status and error code, and returns the envelope.
 
 Typed error classes in `packages/core/src/errors/`:
-- `ShapeNotFoundError` → 404
-- `InvalidShapeParametersError` → 400
-- `GrantConflictError` → 409
-- `ConfigNotFoundError` → 404
-- `ValidationError` → 400
-- `InternalError` → 500 (catch-all, logs full context, returns sanitized message)
+- `ShapeNotFoundError` (code: `SHAPE_NOT_FOUND`)
+- `InvalidShapeParametersError` (code: `INVALID_SHAPE_PARAMETERS`)
+- `GrantConflictError` (code: `GRANT_CONFLICT`)
+- `ConfigNotFoundError` (code: `CONFIG_NOT_FOUND`)
+- `ValidationError` (code: `VALIDATION_ERROR`)
+- `InternalError` (code: `INTERNAL_ERROR`, catch-all, logs full context, returns sanitized message)
+
+Domain errors carry only `code`, `message`, and optional `details`. They do not carry transport-specific status codes. The adapter layer in `packages/api` maintains a `code → status` map for each access pattern (HTTP status codes for REST handlers, gRPC status codes for future transports).
 
 Start verbose: return full error details in the envelope. Redact later if needed for security (Phase 3 redaction work). Internal errors never expose stack traces externally.
 
