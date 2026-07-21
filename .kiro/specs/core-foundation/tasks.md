@@ -25,37 +25,37 @@ Implement the pure domain layer (Layer 0) for the Hecatoncheires governance plat
     - **Property 18: ID generator produces time-sortable identifiers**
     - **Validates: Requirements 10.1, 10.2, 10.3, 10.4**
 
-- [ ] 2. Implement schemas and types modules
-  - [ ] 2.1 Implement ID schema
+- [x] 2. Implement schemas and types modules
+  - [x] 2.1 Implement ID schema
     - Create `src/schemas/id.schema.ts` with `IdSchema` validating UUIDv7 regex pattern
     - _Requirements: 10.4, 10.5_
 
-  - [ ] 2.2 Implement Agent Configuration schema
+  - [x] 2.2 Implement Agent Configuration schema
     - Create `src/schemas/agent-configuration.schema.ts` with `AgentConfigurationSchema` Zod object
     - Enforce configName pattern `^[a-z][a-z0-9-][a-z0-9]$`, max 40 chars, agentType enum, non-empty modelId/guardrailId/owner, guardrailVersion default to `DRAFT`
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6_
 
-  - [ ] 2.3 Implement Runtime Tunables schema
+  - [x] 2.3 Implement Runtime Tunables schema
     - Create `src/schemas/runtime-tunables.schema.ts` with `RuntimeTunablesSchema` Zod object
     - Enforce positive integers for thresholds, booleans for feature flags
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
-  - [ ] 2.4 Implement IAM policy and statement schemas
+  - [x] 2.4 Implement IAM policy and statement schemas
     - Create `src/schemas/iam-policy.schema.ts` with `IamStatementSchema` and `IamPolicyDocumentSchema`
     - Version literal `2012-10-17`, Statement array min 1, Effect enum, Action/Resource as string or string[]
     - _Requirements: 5.3_
 
-  - [ ] 2.5 Implement Shape Template schema
+  - [x] 2.5 Implement Shape Template schema
     - Create `src/schemas/shape-template.schema.ts` with `ShapeTemplateSchema` and `IamStatementTemplateSchema`
     - Validate shapeName, riskTier enum, requiredParameters array, statements array
     - _Requirements: 3.1, 3.2, 3.3, 3.4_
 
-  - [ ] 2.6 Implement Grant Record schema
+  - [x] 2.6 Implement Grant Record schema
     - Create `src/schemas/grant-record.schema.ts` with `GrantRecordSchema`
     - grantId optional (UUIDv7 via IdSchema), configName pattern, shapeName non-empty, parameters record, grantedAt/grantedBy/expiresAt
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7_
 
-  - [ ] 2.7 Create schemas index barrel and types module
+  - [x] 2.7 Create schemas index barrel and types module
     - Create `src/schemas/index.ts` re-exporting all schemas
     - Create `src/types/index.ts` with inferred types: `AgentConfiguration`, `RuntimeTunables`, `ShapeTemplate`, `GrantRecord`, `IamPolicyDocument`, `IamStatement`
     - _Requirements: 11.1, 11.2_

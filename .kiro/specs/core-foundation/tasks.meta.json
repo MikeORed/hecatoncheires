@@ -31,6 +31,97 @@
         "chatSessionId": "sess_e3ff2f85-0f7d-4ab8-a7a8-e8d4602e1e68",
         "timestamp": 1784590648419
       }
+    ],
+    "2.1 Implement ID schema": [
+      {
+        "executionId": "d98f2900-a7cf-4b97-8e49-1144293f0183",
+        "chatSessionId": "sess_6697df66-60a2-4042-900c-cf06baf2ef95",
+        "timestamp": 1784591279257
+      },
+      {
+        "executionId": "d98f2900-a7cf-4b97-8e49-1144293f0183",
+        "chatSessionId": "sess_6697df66-60a2-4042-900c-cf06baf2ef95",
+        "timestamp": 1784591767093
+      }
+    ],
+    "2.2 Implement Agent Configuration schema": [
+      {
+        "executionId": "d98f2900-a7cf-4b97-8e49-1144293f0183",
+        "chatSessionId": "sess_6697df66-60a2-4042-900c-cf06baf2ef95",
+        "timestamp": 1784591279980
+      },
+      {
+        "executionId": "d98f2900-a7cf-4b97-8e49-1144293f0183",
+        "chatSessionId": "sess_6697df66-60a2-4042-900c-cf06baf2ef95",
+        "timestamp": 1784591767870
+      }
+    ],
+    "2.3 Implement Runtime Tunables schema": [
+      {
+        "executionId": "d98f2900-a7cf-4b97-8e49-1144293f0183",
+        "chatSessionId": "sess_6697df66-60a2-4042-900c-cf06baf2ef95",
+        "timestamp": 1784591280767
+      },
+      {
+        "executionId": "d98f2900-a7cf-4b97-8e49-1144293f0183",
+        "chatSessionId": "sess_6697df66-60a2-4042-900c-cf06baf2ef95",
+        "timestamp": 1784591768653
+      }
+    ],
+    "2.4 Implement IAM policy and statement schemas": [
+      {
+        "executionId": "d98f2900-a7cf-4b97-8e49-1144293f0183",
+        "chatSessionId": "sess_6697df66-60a2-4042-900c-cf06baf2ef95",
+        "timestamp": 1784591281531
+      },
+      {
+        "executionId": "d98f2900-a7cf-4b97-8e49-1144293f0183",
+        "chatSessionId": "sess_6697df66-60a2-4042-900c-cf06baf2ef95",
+        "timestamp": 1784591769570
+      }
+    ],
+    "2.5 Implement Shape Template schema": [
+      {
+        "executionId": "d98f2900-a7cf-4b97-8e49-1144293f0183",
+        "chatSessionId": "sess_6697df66-60a2-4042-900c-cf06baf2ef95",
+        "timestamp": 1784591282323
+      },
+      {
+        "executionId": "d98f2900-a7cf-4b97-8e49-1144293f0183",
+        "chatSessionId": "sess_6697df66-60a2-4042-900c-cf06baf2ef95",
+        "timestamp": 1784591770300
+      }
+    ],
+    "2.6 Implement Grant Record schema": [
+      {
+        "executionId": "d98f2900-a7cf-4b97-8e49-1144293f0183",
+        "chatSessionId": "sess_6697df66-60a2-4042-900c-cf06baf2ef95",
+        "timestamp": 1784591283092
+      },
+      {
+        "executionId": "d98f2900-a7cf-4b97-8e49-1144293f0183",
+        "chatSessionId": "sess_6697df66-60a2-4042-900c-cf06baf2ef95",
+        "timestamp": 1784591771028
+      }
+    ],
+    "2.7 Create schemas index barrel and types module": [
+      {
+        "executionId": "d98f2900-a7cf-4b97-8e49-1144293f0183",
+        "chatSessionId": "sess_6697df66-60a2-4042-900c-cf06baf2ef95",
+        "timestamp": 1784591774479
+      },
+      {
+        "executionId": "d98f2900-a7cf-4b97-8e49-1144293f0183",
+        "chatSessionId": "sess_6697df66-60a2-4042-900c-cf06baf2ef95",
+        "timestamp": 1784592309309
+      }
+    ],
+    "2. Implement schemas and types modules": [
+      {
+        "executionId": "d98f2900-a7cf-4b97-8e49-1144293f0183",
+        "chatSessionId": "sess_6697df66-60a2-4042-900c-cf06baf2ef95",
+        "timestamp": 1784592309344
+      }
     ]
   }
 }
