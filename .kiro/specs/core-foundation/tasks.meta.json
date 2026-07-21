@@ -1,5 +1,10 @@
 {
-  "pbtResults": {},
+  "pbtResults": {
+    "3.5 Write property tests for entity factories": {
+      "status": "passed",
+      "lastRunTimestamp": 1784594256747
+    }
+  },
   "executionHistory": {
     "1.1 Implement domain error classes": [
       {
@@ -121,6 +126,73 @@
         "executionId": "d98f2900-a7cf-4b97-8e49-1144293f0183",
         "chatSessionId": "sess_6697df66-60a2-4042-900c-cf06baf2ef95",
         "timestamp": 1784592309344
+      }
+    ],
+    "3.1 Implement Agent Configuration factory": [
+      {
+        "executionId": "80df8fa4-8445-4f6a-adb9-97b12f025860",
+        "chatSessionId": "sess_d0b342bb-1ead-4e20-9015-09752c043bba",
+        "timestamp": 1784592399046
+      },
+      {
+        "executionId": "80df8fa4-8445-4f6a-adb9-97b12f025860",
+        "chatSessionId": "sess_d0b342bb-1ead-4e20-9015-09752c043bba",
+        "timestamp": 1784592692165
+      }
+    ],
+    "3.2 Implement Runtime Tunables factory": [
+      {
+        "executionId": "80df8fa4-8445-4f6a-adb9-97b12f025860",
+        "chatSessionId": "sess_d0b342bb-1ead-4e20-9015-09752c043bba",
+        "timestamp": 1784592399892
+      },
+      {
+        "executionId": "80df8fa4-8445-4f6a-adb9-97b12f025860",
+        "chatSessionId": "sess_d0b342bb-1ead-4e20-9015-09752c043bba",
+        "timestamp": 1784592692906
+      }
+    ],
+    "3.3 Implement Grant Record factory": [
+      {
+        "executionId": "80df8fa4-8445-4f6a-adb9-97b12f025860",
+        "chatSessionId": "sess_d0b342bb-1ead-4e20-9015-09752c043bba",
+        "timestamp": 1784592400743
+      },
+      {
+        "executionId": "80df8fa4-8445-4f6a-adb9-97b12f025860",
+        "chatSessionId": "sess_d0b342bb-1ead-4e20-9015-09752c043bba",
+        "timestamp": 1784592693716
+      }
+    ],
+    "3.4 Create entity index barrel": [
+      {
+        "executionId": "80df8fa4-8445-4f6a-adb9-97b12f025860",
+        "chatSessionId": "sess_d0b342bb-1ead-4e20-9015-09752c043bba",
+        "timestamp": 1784592697839
+      },
+      {
+        "executionId": "80df8fa4-8445-4f6a-adb9-97b12f025860",
+        "chatSessionId": "sess_d0b342bb-1ead-4e20-9015-09752c043bba",
+        "timestamp": 1784594270132
+      }
+    ],
+    "3.5 Write property tests for entity factories": [
+      {
+        "executionId": "80df8fa4-8445-4f6a-adb9-97b12f025860",
+        "chatSessionId": "sess_d0b342bb-1ead-4e20-9015-09752c043bba",
+        "timestamp": 1784592698856
+      },
+      {
+        "executionId": "80df8fa4-8445-4f6a-adb9-97b12f025860",
+        "chatSessionId": "sess_d0b342bb-1ead-4e20-9015-09752c043bba",
+        "timestamp": 1784594270878
+      }
+    ],
+    "3. Implement entity factories": [
+      {
+        "executionId": "80df8fa4-8445-4f6a-adb9-97b12f025860",
+        "chatSessionId": "sess_d0b342bb-1ead-4e20-9015-09752c043bba",
+        "timestamp": 1784594270911
       }
     ]
   }

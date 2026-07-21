@@ -60,27 +60,27 @@ Implement the pure domain layer (Layer 0) for the Hecatoncheires governance plat
     - Create `src/types/index.ts` with inferred types: `AgentConfiguration`, `RuntimeTunables`, `ShapeTemplate`, `GrantRecord`, `IamPolicyDocument`, `IamStatement`
     - _Requirements: 11.1, 11.2_
 
-- [ ] 3. Implement entity factories
-  - [ ] 3.1 Implement Agent Configuration factory
+- [x] 3. Implement entity factories
+  - [x] 3.1 Implement Agent Configuration factory
     - Create `src/entity/agent-configuration.factory.ts`
     - Parse input with `AgentConfigurationSchema.safeParse`, throw `ValidationError` on failure, return `Object.freeze(result.data)` on success
     - _Requirements: 1.7, 1.8_
 
-  - [ ] 3.2 Implement Runtime Tunables factory
+  - [x] 3.2 Implement Runtime Tunables factory
     - Create `src/entity/runtime-tunables.factory.ts`
     - Same pattern: safeParse, throw ValidationError or return frozen object
     - _Requirements: 2.6, 2.7_
 
-  - [ ] 3.3 Implement Grant Record factory
+  - [x] 3.3 Implement Grant Record factory
     - Create `src/entity/grant-record.factory.ts`
     - Parse input, auto-generate grantId via `generateId()` if not provided, throw ValidationError on failure, return frozen object
     - _Requirements: 4.8, 4.9_
 
-  - [ ] 3.4 Create entity index barrel
+  - [x] 3.4 Create entity index barrel
     - Create `src/entity/index.ts` re-exporting all factories
     - _Requirements: 11.3_
 
-  - [ ] 3.5 Write property tests for entity factories
+  - [x] 3.5 Write property tests for entity factories
     - **Property 1: Factory produces frozen, equivalent output for valid input**
     - **Property 2: Factory rejects all invalid input with ValidationError**
     - **Property 3: GuardrailVersion defaults to DRAFT when omitted**
