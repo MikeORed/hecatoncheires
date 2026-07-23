@@ -166,7 +166,7 @@ export abstract class AgentConfigStack extends cdk.Stack {
     }
 
     // Merge content filters: override filters replace default filters by type
-    let contentFilters = [...defaultConfig.contentFilters];
+    const contentFilters = [...defaultConfig.contentFilters];
     if (overrides.contentFilters) {
       for (const override of overrides.contentFilters) {
         const idx = contentFilters.findIndex((f) => f.type === override.type);
