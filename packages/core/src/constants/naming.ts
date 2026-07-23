@@ -74,6 +74,21 @@ export class NamingGenerator {
     return `hecaton-${this.stage}-grant-ledger`;
   }
 
+  /** Pattern: hecaton-{stage}-ops-bus */
+  busName(): string {
+    return `hecaton-${this.stage}-ops-bus`;
+  }
+
+  /** Pattern: hecaton-{stage}-notifications */
+  snsTopicName(): string {
+    return `hecaton-${this.stage}-notifications`;
+  }
+
+  /** Pattern: hecaton-{stage}-api */
+  apiGatewayName(): string {
+    return `hecaton-${this.stage}-api`;
+  }
+
   /** Resource tags for Hecatoncheires-managed resources. */
   tags(
     configName: string,

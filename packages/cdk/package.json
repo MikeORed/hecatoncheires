@@ -15,6 +15,7 @@
     "constructs": "^10.0"
   },
   "devDependencies": {
-    "aws-cdk": "^2.258.0"
+    "aws-cdk": "^2.258.0",
+    "fast-check": "^3.22.0"
   }
 }

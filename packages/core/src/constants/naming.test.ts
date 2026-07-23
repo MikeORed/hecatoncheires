@@ -69,6 +69,44 @@ describe('NamingGenerator', () => {
     it('tableName produces correct pattern', () => {
       expect(naming.tableName()).toBe('hecaton-dev-grant-ledger');
     });
+
+    it('busName produces correct pattern', () => {
+      expect(naming.busName()).toBe('hecaton-dev-ops-bus');
+    });
+
+    it('snsTopicName produces correct pattern', () => {
+      expect(naming.snsTopicName()).toBe('hecaton-dev-notifications');
+    });
+
+    it('apiGatewayName produces correct pattern', () => {
+      expect(naming.apiGatewayName()).toBe('hecaton-dev-api');
+    });
+  });
+
+  describe('infrastructure naming across stages', () => {
+    it.each([
+      { stage: 'prod', expected: 'hecaton-prod-ops-bus' },
+      { stage: 'staging', expected: 'hecaton-staging-ops-bus' },
+      { stage: 'sit', expected: 'hecaton-sit-ops-bus' },
+    ])('busName() for stage "$stage" → $expected', ({ stage, expected }) => {
+      expect(new NamingGenerator(stage).busName()).toBe(expected);
+    });
+
+    it.each([
+      { stage: 'prod', expected: 'hecaton-prod-notifications' },
+      { stage: 'staging', expected: 'hecaton-staging-notifications' },
+      { stage: 'sit', expected: 'hecaton-sit-notifications' },
+    ])('snsTopicName() for stage "$stage" → $expected', ({ stage, expected }) => {
+      expect(new NamingGenerator(stage).snsTopicName()).toBe(expected);
+    });
+
+    it.each([
+      { stage: 'prod', expected: 'hecaton-prod-api' },
+      { stage: 'staging', expected: 'hecaton-staging-api' },
+      { stage: 'sit', expected: 'hecaton-sit-api' },
+    ])('apiGatewayName() for stage "$stage" → $expected', ({ stage, expected }) => {
+      expect(new NamingGenerator(stage).apiGatewayName()).toBe(expected);
+    });
   });
 
   describe('tags', () => {

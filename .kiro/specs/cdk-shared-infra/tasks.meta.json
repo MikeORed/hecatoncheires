@@ -1,0 +1,239 @@
+{
+  "pbtResults": {
+    "4.2 Write property test for trust policy correctness per agent type": {
+      "status": "passed",
+      "lastRunTimestamp": 1784670370606
+    },
+    "4.3 Write property test for permission boundary condition key enforcement": {
+      "status": "passed",
+      "lastRunTimestamp": 1784670645551
+    },
+    "4.4 Write property test for deny-by-default operating policy": {
+      "status": "passed",
+      "lastRunTimestamp": 1784670806148
+    },
+    "4.5 Write property test for S3 resource scoping": {
+      "status": "passed",
+      "lastRunTimestamp": 1784676876686
+    },
+    "5.2 Write property test for resource naming consistency": {
+      "status": "passed",
+      "lastRunTimestamp": 1784763551636
+    },
+    "5.3 Write property test for tag propagation completeness": {
+      "status": "passed",
+      "lastRunTimestamp": 1784763391490
+    },
+    "5.4 Write property test for resource co-location": {
+      "status": "passed",
+      "lastRunTimestamp": 1784763392299
+    },
+    "8.2 Write property test for external principal validation": {
+      "status": "passed",
+      "lastRunTimestamp": 1784764006734
+    },
+    "8.3 Write property test for AgentConfigStack identity availability": {
+      "status": "passed",
+      "lastRunTimestamp": 1784764009776
+    }
+  },
+  "executionHistory": {
+    "1.1 Extend NamingGenerator with shared infrastructure naming methods": [
+      {
+        "executionId": "55673046-9b15-4c08-bb3c-e4ed72faefaa",
+        "chatSessionId": "sess_b0acdf78-b6ea-44b4-85c3-3ff14b491f36",
+        "timestamp": 1784668137980
+      },
+      {
+        "executionId": "55673046-9b15-4c08-bb3c-e4ed72faefaa",
+        "chatSessionId": "sess_b0acdf78-b6ea-44b4-85c3-3ff14b491f36",
+        "timestamp": 1784668249989
+      }
+    ],
+    "1.2 Update core-invocation shape to include Converse API actions": [
+      {
+        "executionId": "55673046-9b15-4c08-bb3c-e4ed72faefaa",
+        "chatSessionId": "sess_b0acdf78-b6ea-44b4-85c3-3ff14b491f36",
+        "timestamp": 1784668138823
+      },
+      {
+        "executionId": "55673046-9b15-4c08-bb3c-e4ed72faefaa",
+        "chatSessionId": "sess_b0acdf78-b6ea-44b4-85c3-3ff14b491f36",
+        "timestamp": 1784668251064
+      }
+    ],
+    "1.3 Write unit tests for NamingGenerator extensions": [
+      {
+        "executionId": "55673046-9b15-4c08-bb3c-e4ed72faefaa",
+        "chatSessionId": "sess_b0acdf78-b6ea-44b4-85c3-3ff14b491f36",
+        "timestamp": 1784668255549
+      },
+      {
+        "executionId": "55673046-9b15-4c08-bb3c-e4ed72faefaa",
+        "chatSessionId": "sess_b0acdf78-b6ea-44b4-85c3-3ff14b491f36",
+        "timestamp": 1784668674665
+      }
+    ],
+    "1.4 Write unit test for updated core-invocation shape": [
+      {
+        "executionId": "55673046-9b15-4c08-bb3c-e4ed72faefaa",
+        "chatSessionId": "sess_b0acdf78-b6ea-44b4-85c3-3ff14b491f36",
+        "timestamp": 1784668256423
+      },
+      {
+        "executionId": "55673046-9b15-4c08-bb3c-e4ed72faefaa",
+        "chatSessionId": "sess_b0acdf78-b6ea-44b4-85c3-3ff14b491f36",
+        "timestamp": 1784668675514
+      }
+    ],
+    "1. Upstream core changes": [
+      {
+        "executionId": "55673046-9b15-4c08-bb3c-e4ed72faefaa",
+        "chatSessionId": "sess_b0acdf78-b6ea-44b4-85c3-3ff14b491f36",
+        "timestamp": 1784668675552
+      }
+    ],
+    "2. Checkpoint - Ensure core tests pass": [
+      {
+        "executionId": "32b98f8a-5408-431c-a66c-e90654db8780",
+        "chatSessionId": "sess_e6d841ed-7de6-4eac-8ef1-54247c89c1f4",
+        "timestamp": 1784668829443
+      },
+      {
+        "executionId": "32b98f8a-5408-431c-a66c-e90654db8780",
+        "chatSessionId": "sess_e6d841ed-7de6-4eac-8ef1-54247c89c1f4",
+        "timestamp": 1784668888823
+      }
+    ],
+    "3.1 Create the GuardrailPolicyConfig interface and default config": [
+      {
+        "executionId": "1a1e3c33-65f6-43bf-819f-5733862348b6",
+        "chatSessionId": "sess_f1fd591e-5dd9-476a-8adc-21bbc62a8fa0",
+        "timestamp": 1784668945498
+      },
+      {
+        "executionId": "1a1e3c33-65f6-43bf-819f-5733862348b6",
+        "chatSessionId": "sess_f1fd591e-5dd9-476a-8adc-21bbc62a8fa0",
+        "timestamp": 1784669068045
+      }
+    ],
+    "3.2 Implement SharedInfraStack with all shared resources": [
+      {
+        "executionId": "1a1e3c33-65f6-43bf-819f-5733862348b6",
+        "chatSessionId": "sess_f1fd591e-5dd9-476a-8adc-21bbc62a8fa0",
+        "timestamp": 1784669071288
+      },
+      {
+        "executionId": "1a1e3c33-65f6-43bf-819f-5733862348b6",
+        "chatSessionId": "sess_f1fd591e-5dd9-476a-8adc-21bbc62a8fa0",
+        "timestamp": 1784669194174
+      }
+    ],
+    "3.3 Write CDK assertion tests for SharedInfraStack": [
+      {
+        "executionId": "1a1e3c33-65f6-43bf-819f-5733862348b6",
+        "chatSessionId": "sess_f1fd591e-5dd9-476a-8adc-21bbc62a8fa0",
+        "timestamp": 1784669197022
+      },
+      {
+        "executionId": "1a1e3c33-65f6-43bf-819f-5733862348b6",
+        "chatSessionId": "sess_f1fd591e-5dd9-476a-8adc-21bbc62a8fa0",
+        "timestamp": 1784669687535
+      }
+    ],
+    "3. Implement SharedInfraStack": [
+      {
+        "executionId": "1a1e3c33-65f6-43bf-819f-5733862348b6",
+        "chatSessionId": "sess_f1fd591e-5dd9-476a-8adc-21bbc62a8fa0",
+        "timestamp": 1784669687573
+      }
+    ],
+    "4.1 Create the AgentIdentity construct with IAM resources": [
+      {
+        "executionId": "a0e4ec3c-fabc-4994-9155-2df8a94e804b",
+        "chatSessionId": "sess_6755db24-b911-450d-b9a5-89ac80ac5df7",
+        "timestamp": 1784669824277
+      },
+      {
+        "executionId": "a0e4ec3c-fabc-4994-9155-2df8a94e804b",
+        "chatSessionId": "sess_6755db24-b911-450d-b9a5-89ac80ac5df7",
+        "timestamp": 1784669968486
+      }
+    ],
+    "4.2 Write property test for trust policy correctness per agent type": [
+      {
+        "executionId": "a0e4ec3c-fabc-4994-9155-2df8a94e804b",
+        "chatSessionId": "sess_6755db24-b911-450d-b9a5-89ac80ac5df7",
+        "timestamp": 1784669973104
+      },
+      {
+        "executionId": "0292eb47-e893-4d58-83b0-09f41e1c9e6e",
+        "chatSessionId": "sess_7e4a4866-618a-4719-8ff8-fc0d51c74f79",
+        "timestamp": 1784670208998
+      },
+      {
+        "executionId": "0292eb47-e893-4d58-83b0-09f41e1c9e6e",
+        "chatSessionId": "sess_7e4a4866-618a-4719-8ff8-fc0d51c74f79",
+        "timestamp": 1784670384570
+      }
+    ],
+    "4.3 Write property test for permission boundary condition key enforcement": [
+      {
+        "executionId": "a0e4ec3c-fabc-4994-9155-2df8a94e804b",
+        "chatSessionId": "sess_6755db24-b911-450d-b9a5-89ac80ac5df7",
+        "timestamp": 1784669973966
+      },
+      {
+        "executionId": "8b3155e4-ac87-4eed-8e52-e192f15539c6",
+        "chatSessionId": "sess_90b67ffe-e7c9-4b24-b984-eb577d208d20",
+        "timestamp": 1784670459640
+      },
+      {
+        "executionId": "8b3155e4-ac87-4eed-8e52-e192f15539c6",
+        "chatSessionId": "sess_90b67ffe-e7c9-4b24-b984-eb577d208d20",
+        "timestamp": 1784670658572
+      }
+    ],
+    "4.4 Write property test for deny-by-default operating policy": [
+      {
+        "executionId": "a0e4ec3c-fabc-4994-9155-2df8a94e804b",
+        "chatSessionId": "sess_6755db24-b911-450d-b9a5-89ac80ac5df7",
+        "timestamp": 1784669974814
+      },
+      {
+        "executionId": "74f7793b-432a-4bc9-a56e-6430fef47ccb",
+        "chatSessionId": "sess_c6168057-1f59-451e-a482-0ae022ffcbcc",
+        "timestamp": 1784670719589
+      },
+      {
+        "executionId": "74f7793b-432a-4bc9-a56e-6430fef47ccb",
+        "chatSessionId": "sess_c6168057-1f59-451e-a482-0ae022ffcbcc",
+        "timestamp": 1784670817395
+      }
+    ],
+    "4.5 Write property test for S3 resource scoping": [
+      {
+        "executionId": "a0e4ec3c-fabc-4994-9155-2df8a94e804b",
+        "chatSessionId": "sess_6755db24-b911-450d-b9a5-89ac80ac5df7",
+        "timestamp": 1784669975633
+      },
+      {
+        "executionId": "09c4b773-9cb2-4d52-8c28-92436b5da99b",
+        "chatSessionId": "sess_d4e44e4a-baf7-4448-a293-47d08133372c",
+        "timestamp": 1784670886434
+      },
+      {
+        "executionId": "09c4b773-9cb2-4d52-8c28-92436b5da99b",
+        "chatSessionId": "sess_d4e44e4a-baf7-4448-a293-47d08133372c",
+        "timestamp": 1784676887188
+      }
+    ],
+    "4. Implement AgentIdentity construct": [
+      {
+        "executionId": "09c4b773-9cb2-4d52-8c28-92436b5da99b",
+        "chatSessionId": "sess_d4e44e4a-baf7-4448-a293-47d08133372c",
+        "timestamp": 1784676887232
+      }
+    ]
+  }
+}
