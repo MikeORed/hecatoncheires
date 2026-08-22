@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import fc from 'fast-check';
 import type { APIGatewayProxyEvent } from 'aws-lambda';
 import { InternalError } from '@hecaton/core';
 
@@ -56,6 +57,34 @@ describe('onboard-agent.http handler', () => {
   });
 
   describe('Property 9: Validation failure produces 400 VALIDATION_ERROR', () => {
+    it('returns 400 VALIDATION_ERROR for any invalid request body', async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.oneof(
+            fc.constant({}), // missing all fields
+            fc.constant({ configName: 'UPPER-CASE' }), // invalid configName + missing roleName
+            fc.constant({ configName: 'valid-config', roleName: '' }), // empty roleName
+            fc.record({
+              configName: fc.constantFrom('123-bad', '-leading-dash', 'CAPS', 'a'),
+              roleName: fc.constant('role'),
+            }), // various invalid configName shapes
+            fc.record({
+              configName: fc.constant('valid-config'),
+              roleName: fc.constant(123 as unknown as string),
+            }), // wrong type for roleName
+          ),
+          async (body) => {
+            const result = await handler(makeEvent(body));
+            expect(result.statusCode).toBe(400);
+            const parsed = JSON.parse(result.body);
+            expect(parsed.success).toBe(false);
+            expect(parsed.error.code).toBe('VALIDATION_ERROR');
+          },
+        ),
+        { numRuns: 20 },
+      );
+    });
+
     it('returns 400 for missing required fields', async () => {
       const result = await handler(makeEvent({}));
       expect(result.statusCode).toBe(400);
