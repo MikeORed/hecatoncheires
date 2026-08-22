@@ -57,6 +57,9 @@ importers:
       '@types/aws-lambda':
         specifier: ^8.10.162
         version: 8.10.162
+      '@types/node':
+        specifier: ^20.14.0
+        version: 20.19.43
       fast-check:
         specifier: ^3.23.2
         version: 3.23.2

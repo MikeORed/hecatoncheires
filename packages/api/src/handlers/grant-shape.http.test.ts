@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fc from 'fast-check';
 import type { APIGatewayProxyEvent } from 'aws-lambda';
-import { ShapeNotFoundError, InternalError } from '@hecaton/core';
+import { ShapeNotFoundError } from '@hecaton/core';
 
 import { handler } from './grant-shape.http.js';
 
@@ -73,7 +73,7 @@ describe('grant-shape.http handler', () => {
               grantedBy: fc.constant('admin'),
             }),
           ),
-          (body) => {
+          (_body) => {
             // Need to return a promise for async assertions
           },
         ),
