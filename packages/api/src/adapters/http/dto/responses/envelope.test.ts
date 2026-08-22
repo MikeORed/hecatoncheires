@@ -17,7 +17,8 @@ describe('Feature: phase-1-api-package-setup', () => {
 
             const parsed = JSON.parse(result.body);
             expect(parsed.success).toBe(true);
-            expect(parsed.data).toEqual(data);
+            // Compare against JSON-round-tripped data since JSON.stringify drops undefined
+            expect(parsed.data).toEqual(JSON.parse(JSON.stringify(data)));
           },
         ),
         { numRuns: 100 },
@@ -44,7 +45,7 @@ describe('Feature: phase-1-api-package-setup', () => {
             expect(parsed.error.message).toBe(message);
 
             if (details !== undefined) {
-              expect(parsed.error.details).toEqual(details);
+              expect(parsed.error.details).toEqual(JSON.parse(JSON.stringify(details)));
             } else {
               expect(parsed.error).not.toHaveProperty('details');
             }

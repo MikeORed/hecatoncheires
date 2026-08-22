@@ -58,9 +58,9 @@ describe('grant-shape.http handler', () => {
   });
 
   describe('Property 9: Validation failure produces 400 VALIDATION_ERROR', () => {
-    it('returns 400 VALIDATION_ERROR for any invalid request body', () => {
-      fc.assert(
-        fc.property(
+    it('returns 400 VALIDATION_ERROR for any invalid request body', async () => {
+      await fc.assert(
+        fc.asyncProperty(
           fc.oneof(
             fc.constant({}), // missing all fields
             fc.constant({ configName: '123-invalid' }), // invalid configName
@@ -73,11 +73,15 @@ describe('grant-shape.http handler', () => {
               grantedBy: fc.constant('admin'),
             }),
           ),
-          (_body) => {
-            // Need to return a promise for async assertions
+          async (body) => {
+            const result = await handler(makeEvent(body));
+            expect(result.statusCode).toBe(400);
+            const parsed = JSON.parse(result.body);
+            expect(parsed.success).toBe(false);
+            expect(parsed.error.code).toBe('VALIDATION_ERROR');
           },
         ),
-        { numRuns: 10 },
+        { numRuns: 20 },
       );
     });
 
