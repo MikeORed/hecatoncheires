@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Generate PR Description",
+      "trigger": "UserPromptSubmit",
+      "description": "When triggered, determines the parent branch, diffs the current branch against it, reviews commits and specs, then writes a populated PR description to pr-description.tmp at the workspace root.",
+      "matcher": "(?i)pr|pull.?request|ready for review|primetime",
+      "action": {
+        "type": "agent",
+        "prompt": "The user wants to generate a PR description for the current branch. Follow these steps:\n\n1. **Determine the current branch and its parent:**\n   - Run `git branch --show-current` to get the current branch name.\n   - Run `git log --first-parent --merges --format=\"%H\" -1` or use `git merge-base HEAD main` (try main, then master) to find the common ancestor. The parent branch is typically `main`.\n\n2. **Gather the diff and commit history:**\n   - Run `git log --oneline main..HEAD` (or the detected parent) to get the commit list.\n   - Run `git diff main..HEAD --stat` to see which files changed.\n   - Run `git diff main..HEAD` to get the full diff (if too large, use `--stat` and read key changed files individually).\n\n3. **Check for spec files:**\n   - Look in `.kiro/specs/` for any spec files related to this branch's work. Read them if they exist — they contain requirements, design decisions, and task breakdowns that inform the PR description.\n\n4. **Determine affected packages:**\n   - From the diff stat, determine which of `packages/core`, `packages/api`, `packages/cdk`, `packages/web` have changes.\n\n5. **Write the PR description** using this exact template structure, populated with real content from your analysis:\n\n```markdown\n## Summary\n\n<!-- Generated from branch: {branch_name}, parent: {parent_branch} -->\n<!-- Commits: {commit_count} -->\n\n{A clear, concise description of what this PR does and why, synthesized from the commits, diffs, and any specs found.}\n\n## Packages affected\n\n- [{x if changed}] core\n- [{x if changed}] api\n- [{x if changed}] cdk\n- [{x if changed}] web\n\n## Testing\n\n{Describe what tests were added or modified. If test files appear in the diff, summarize what they validate. If no tests changed, note that and suggest what should be tested.}\n\n## Notes\n\n{Any breaking changes, infra implications, follow-ups needed, or design decisions worth calling out. Reference spec files if they informed the work.}\n```\n\n6. **Save the output** to `pr-description.tmp` at the workspace root. Tell the user the file is ready and they can copy its contents when creating the PR on GitHub."
+      }
+    }
+  ]
+}
