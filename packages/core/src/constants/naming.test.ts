@@ -81,6 +81,10 @@ describe('NamingGenerator', () => {
     it('apiGatewayName produces correct pattern', () => {
       expect(naming.apiGatewayName()).toBe('hecaton-dev-api');
     });
+
+    it('agentRegistryTableName produces correct pattern', () => {
+      expect(naming.agentRegistryTableName()).toBe('hecaton-dev-agent-registry');
+    });
   });
 
   describe('infrastructure naming across stages', () => {

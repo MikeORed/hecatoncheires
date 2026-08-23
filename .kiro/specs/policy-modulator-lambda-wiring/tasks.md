@@ -6,8 +6,8 @@ This plan implements Bundle A of Hecatoncheires Phase 1: the AgentPolicyModulato
 
 ## Tasks
 
-- [ ] 1. Core package extension
-  - [ ] 1.1 Add `agentRegistryTableName()` method to NamingGenerator
+- [x] 1. Core package extension
+  - [x] 1.1 Add `agentRegistryTableName()` method to NamingGenerator
     - Add a method returning `hecaton-{stage}-agent-registry` to `packages/core/src/constants/naming.ts`
     - Add a unit test in `packages/core/src/constants/naming.test.ts` verifying the new method
     - Export is already covered via the existing barrel chain
@@ -30,7 +30,7 @@ This plan implements Bundle A of Hecatoncheires Phase 1: the AgentPolicyModulato
     - getByProfileEntityId and getByConfigName perform a two-step lookup (query reverse-lookup → getByAgentId)
     - _Requirements: 11.10_
 
-  - [ ]* 2.4 Write unit tests for AgentRegistryAdapter
+  - [ ] 2.4 Write unit tests for AgentRegistryAdapter
     - Create `packages/api/src/adapters/dynamo/agent-registry.adapter.test.ts`
     - Mock DynamoDB client send() method
     - Test getByAgentId (found/not-found), getByProfileEntityId (two-step, found/not-found), getByConfigName (two-step), updateBreakerState (command construction)
@@ -41,7 +41,7 @@ This plan implements Bundle A of Hecatoncheires Phase 1: the AgentPolicyModulato
     - Uses SNSClient PublishCommand with topicArn and subject/message
     - _Requirements: 3.5_
 
-  - [ ]* 2.6 Write unit tests for SnsNotifierAdapter
+  - [ ] 2.6 Write unit tests for SnsNotifierAdapter
     - Create `packages/api/src/adapters/sns/sns-notifier.adapter.test.ts`
     - Mock SNSClient send(), verify PublishCommand parameters
     - _Requirements: 3.5_
@@ -69,7 +69,7 @@ This plan implements Bundle A of Hecatoncheires Phase 1: the AgentPolicyModulato
     - IAM write failure must propagate, other failures are swallowed
     - _Requirements: 3.3, 3.4, 3.5, 3.9, 3.10_
 
-  - [ ]* 5.2 Write unit tests for extended trip-breaker use-case
+  - [ ] 5.2 Write unit tests for extended trip-breaker use-case
     - Update `packages/api/src/use-cases/trip-breaker.test.ts`
     - Test deny-all written, registry updated (best-effort), event emitted (best-effort), SNS published (best-effort)
     - Test IAM failure propagates while registry/event/SNS failures are swallowed
@@ -79,7 +79,7 @@ This plan implements Bundle A of Hecatoncheires Phase 1: the AgentPolicyModulato
     - Update `packages/api/src/use-cases/grant-shape.ts` to handle policy size violation (>10,240 bytes): delete the newly written grant from ledger and throw PolicySizeExceededError
     - _Requirements: 2.3, 2.7_
 
-  - [ ]* 5.4 Write unit tests for grant-shape policy size rollback
+  - [ ] 5.4 Write unit tests for grant-shape policy size rollback
     - Update `packages/api/src/use-cases/grant-shape.test.ts`
     - Test that oversized policy triggers grant deletion and error
     - Test that unknown shapeName aborts operation
@@ -95,7 +95,7 @@ This plan implements Bundle A of Hecatoncheires Phase 1: the AgentPolicyModulato
     - Use `getBreakerDependencies()` factory
     - _Requirements: 3.1, 3.2, 3.6, 3.7, 3.8, 11.1, 11.2, 11.3, 11.4, 11.5, 11.6_
 
-  - [ ]* 6.2 Write unit tests for breaker-trip.alarm handler
+  - [ ] 6.2 Write unit tests for breaker-trip.alarm handler
     - Update `packages/api/src/handlers/breaker-trip.alarm.test.ts`
     - Test: profile entity ID extraction, registry resolution, non-ALARM no-op, missing dimensions logged + returns, registry miss logged + returns, use-case error propagates
     - _Requirements: 3.1, 3.6, 3.7, 3.8, 11.4, 11.5, 11.8_
@@ -107,7 +107,7 @@ This plan implements Bundle A of Hecatoncheires Phase 1: the AgentPolicyModulato
     - Update GrantShapeRequestSchema (agentId replaces configName/roleName in request)
     - _Requirements: 2.1, 2.10, 15.5, 15.7, 15.8_
 
-  - [ ]* 6.4 Write unit tests for grant-shape.http handler
+  - [ ] 6.4 Write unit tests for grant-shape.http handler
     - Update `packages/api/src/handlers/grant-shape.http.test.ts`
     - Test: agentId resolution success, 404 on unknown agent, validation error on bad body, full grant flow
     - _Requirements: 2.1, 2.10, 15.7, 15.8_
@@ -119,7 +119,7 @@ This plan implements Bundle A of Hecatoncheires Phase 1: the AgentPolicyModulato
     - Update RevokeShapeRequestSchema
     - _Requirements: 2.1, 2.10, 15.5, 15.7, 15.8_
 
-  - [ ]* 6.6 Write unit tests for revoke-shape.http handler
+  - [ ] 6.6 Write unit tests for revoke-shape.http handler
     - Update `packages/api/src/handlers/revoke-shape.http.test.ts`
     - Test: agentId resolution, 404 on unknown agent, full revoke flow
     - _Requirements: 2.1, 2.10, 15.7, 15.8_
@@ -129,7 +129,7 @@ This plan implements Bundle A of Hecatoncheires Phase 1: the AgentPolicyModulato
     - Response includes agentId, configName, agentType, modelId, status, breakerState, and grants per agent
     - _Requirements: 15.6_
 
-  - [ ]* 6.8 Write unit tests for query-fleet-state.http handler
+  - [ ] 6.8 Write unit tests for query-fleet-state.http handler
     - Update `packages/api/src/handlers/query-fleet-state.http.test.ts`
     - Test: response includes agentId, configName, status, breakerState per agent
     - _Requirements: 15.6_
@@ -211,7 +211,7 @@ This plan implements Bundle A of Hecatoncheires Phase 1: the AgentPolicyModulato
     - Add tests: Agent Registry table (key schema, GSI, PITR, billing); Breaker Lambda (env vars, runtime, memory, permissions); API Gateway methods (POST/DELETE/GET with AWS_PROXY); usage plan + API key; all methods apiKeyRequired; RestApi with correct name and ApiKeySourceType
     - _Requirements: 10.5, 10.6, 10.7, 10.8, 10.9, 10.10_
 
-  - [ ]* 12.3 Extend AgentConfigStack assertion tests
+  - [ ] 12.3 Extend AgentConfigStack assertion tests
     - Update `packages/cdk/test/stacks/agent-config.stack.test.ts`
     - Verify: AgentPolicyModulator instantiated, profileEntityId output exists, thresholds passed through
     - _Requirements: 14.1, 14.2, 14.3_
