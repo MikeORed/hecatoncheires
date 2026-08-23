@@ -13,35 +13,35 @@ This plan implements Bundle A of Hecatoncheires Phase 1: the AgentPolicyModulato
     - Export is already covered via the existing barrel chain
     - _Requirements: 14.5, 12.1_
 
-- [ ] 2. API layer — ports and adapters
-  - [ ] 2.1 Create AgentRegistryPort interface
+- [x] 2. API layer — ports and adapters
+  - [x] 2.1 Create AgentRegistryPort interface
     - Create `packages/api/src/ports/agent-registry.port.ts` with `AgentRegistryRecord` interface and `AgentRegistryPort` interface (getByAgentId, getByProfileEntityId, getByConfigName, updateBreakerState)
     - Re-export from `packages/api/src/ports/index.ts`
     - _Requirements: 11.9_
 
-  - [ ] 2.2 Create SnsNotifierPort interface
+  - [x] 2.2 Create SnsNotifierPort interface
     - Create `packages/api/src/ports/sns-notifier.port.ts` with `SnsNotifierPort` interface (publish method)
     - Re-export from `packages/api/src/ports/index.ts`
     - _Requirements: 3.5_
 
-  - [ ] 2.3 Implement AgentRegistryAdapter
+  - [x] 2.3 Implement AgentRegistryAdapter
     - Create `packages/api/src/adapters/dynamo/agent-registry.adapter.ts` implementing AgentRegistryPort
     - Uses DynamoDB GetItemCommand, QueryCommand, UpdateItemCommand with PK patterns (AGENT#, PROFILE#, CONFIG#)
     - getByProfileEntityId and getByConfigName perform a two-step lookup (query reverse-lookup → getByAgentId)
     - _Requirements: 11.10_
 
-  - [ ] 2.4 Write unit tests for AgentRegistryAdapter
+  - [x] 2.4 Write unit tests for AgentRegistryAdapter
     - Create `packages/api/src/adapters/dynamo/agent-registry.adapter.test.ts`
     - Mock DynamoDB client send() method
     - Test getByAgentId (found/not-found), getByProfileEntityId (two-step, found/not-found), getByConfigName (two-step), updateBreakerState (command construction)
     - _Requirements: 11.10_
 
-  - [ ] 2.5 Implement SnsNotifierAdapter
+  - [x] 2.5 Implement SnsNotifierAdapter
     - Create `packages/api/src/adapters/sns/sns-notifier.adapter.ts` implementing SnsNotifierPort
     - Uses SNSClient PublishCommand with topicArn and subject/message
     - _Requirements: 3.5_
 
-  - [ ] 2.6 Write unit tests for SnsNotifierAdapter
+  - [x] 2.6 Write unit tests for SnsNotifierAdapter
     - Create `packages/api/src/adapters/sns/sns-notifier.adapter.test.ts`
     - Mock SNSClient send(), verify PublishCommand parameters
     - _Requirements: 3.5_
