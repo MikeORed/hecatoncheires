@@ -9,11 +9,17 @@
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
-    "@hecaton/core": "workspace:*",
-    "@aws-sdk/client-dynamodb": "^3",
-    "@aws-sdk/client-iam": "^3",
-    "@aws-sdk/client-eventbridge": "^3",
     "@aws-sdk/client-cloudwatch": "^3",
-    "esbuild": "^0.21"
+    "@aws-sdk/client-dynamodb": "^3",
+    "@aws-sdk/client-eventbridge": "^3",
+    "@aws-sdk/client-iam": "^3",
+    "@hecaton/core": "workspace:*",
+    "esbuild": "^0.21",
+    "zod": "^3.23"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.162",
+    "@types/node": "^20.14.0",
+    "fast-check": "^3.23.2"
   }
 }

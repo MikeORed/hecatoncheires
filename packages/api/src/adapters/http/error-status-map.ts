@@ -1,0 +1,8 @@
+export const errorStatusMap: Record<string, number> = {
+  VALIDATION_ERROR: 400,
+  INVALID_SHAPE_PARAMETERS: 400,
+  SHAPE_NOT_FOUND: 404,
+  CONFIG_NOT_FOUND: 404,
+  GRANT_CONFLICT: 409,
+  INTERNAL_ERROR: 500,
+};
