@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fc from 'fast-check';
 import type { APIGatewayProxyEvent } from 'aws-lambda';
-import { ShapeNotFoundError } from '@hecaton/core';
 
 import { handler } from './grant-shape.http.js';
 
@@ -12,6 +11,8 @@ vi.mock('../shared/dependencies.js', () => ({
 }));
 
 import { getDependencies } from '../shared/dependencies.js';
+
+const TEST_AGENT_ID = '01912345-6789-7abc-8def-0123456789ab';
 
 function makeEvent(body: unknown): APIGatewayProxyEvent {
   return {
@@ -45,6 +46,24 @@ function createMockDeps() {
     busEmitter: {
       emit: vi.fn().mockResolvedValue(undefined),
     },
+    agentRegistry: {
+      getByAgentId: vi.fn().mockResolvedValue({
+        agentId: TEST_AGENT_ID,
+        configName: 'test-agent',
+        roleName: 'test-role',
+        profileEntityId: 'profile-123',
+        profileArn: 'arn:aws:bedrock:us-east-1:123:profile/test',
+        agentType: 'AgentCore Managed',
+        modelId: 'anthropic.claude-3',
+        guardrailId: 'gr-123',
+        status: 'active',
+        breakerState: 'armed',
+      }),
+      getByProfileEntityId: vi.fn().mockResolvedValue(null),
+      getByConfigName: vi.fn().mockResolvedValue(null),
+      updateBreakerState: vi.fn().mockResolvedValue(undefined),
+      listAll: vi.fn().mockResolvedValue([]),
+    },
   };
 }
 
@@ -63,11 +82,10 @@ describe('grant-shape.http handler', () => {
         fc.asyncProperty(
           fc.oneof(
             fc.constant({}), // missing all fields
-            fc.constant({ configName: '123-invalid' }), // invalid configName
-            fc.constant({ configName: 'valid-name', roleName: '' }), // empty roleName
+            fc.constant({ agentId: 'not-a-uuid' }), // invalid uuid
+            fc.constant({ agentId: TEST_AGENT_ID, shapeName: '' }), // empty shapeName
             fc.record({
-              configName: fc.constant('valid-name'),
-              roleName: fc.constant('role'),
+              agentId: fc.constant(TEST_AGENT_ID),
               shapeName: fc.constant('shape'),
               parameters: fc.constant('not-an-object'), // wrong type
               grantedBy: fc.constant('admin'),
@@ -93,11 +111,10 @@ describe('grant-shape.http handler', () => {
       expect(parsed.error.code).toBe('VALIDATION_ERROR');
     });
 
-    it('returns 400 for invalid configName pattern', async () => {
+    it('returns 400 for invalid agentId format', async () => {
       const result = await handler(
         makeEvent({
-          configName: '123-invalid',
-          roleName: 'role',
+          agentId: 'not-a-valid-uuid',
           shapeName: 'shape',
           parameters: {},
           grantedBy: 'admin',
@@ -109,16 +126,53 @@ describe('grant-shape.http handler', () => {
     });
   });
 
+  describe('agentId resolution', () => {
+    it('returns 404 AGENT_NOT_FOUND when agentId is not in registry', async () => {
+      const mockDeps = createMockDeps();
+      mockDeps.agentRegistry.getByAgentId.mockResolvedValue(null);
+      vi.mocked(getDependencies).mockReturnValue(mockDeps);
+
+      const result = await handler(
+        makeEvent({
+          agentId: TEST_AGENT_ID,
+          shapeName: 'core-invocation',
+          parameters: { inferenceProfileArn: 'arn:aws:bedrock:us-east-1:123:profile/test' },
+          grantedBy: 'admin@company.com',
+        }),
+      );
+
+      expect(result.statusCode).toBe(404);
+      const parsed = JSON.parse(result.body);
+      expect(parsed.error.code).toBe('AGENT_NOT_FOUND');
+      expect(parsed.error.message).toContain(TEST_AGENT_ID);
+    });
+
+    it('calls getByAgentId with the agentId from the request', async () => {
+      const mockDeps = createMockDeps();
+      vi.mocked(getDependencies).mockReturnValue(mockDeps);
+
+      await handler(
+        makeEvent({
+          agentId: TEST_AGENT_ID,
+          shapeName: 'core-invocation',
+          parameters: { inferenceProfileArn: 'arn:aws:bedrock:us-east-1:123:profile/test' },
+          grantedBy: 'admin@company.com',
+        }),
+      );
+
+      expect(mockDeps.agentRegistry.getByAgentId).toHaveBeenCalledWith(TEST_AGENT_ID);
+    });
+  });
+
   describe('happy path', () => {
-    it('returns 201 with grant record on success', async () => {
+    it('returns 201 with grant record including agentId on success', async () => {
       const mockDeps = createMockDeps();
       mockDeps.grantLedger.queryGrantsByConfig.mockResolvedValue([]);
       vi.mocked(getDependencies).mockReturnValue(mockDeps);
 
       const result = await handler(
         makeEvent({
-          configName: 'test-agent',
-          roleName: 'test-role',
+          agentId: TEST_AGENT_ID,
           shapeName: 'core-invocation',
           parameters: { inferenceProfileArn: 'arn:aws:bedrock:us-east-1:123:profile/test' },
           grantedBy: 'admin@company.com',
@@ -128,26 +182,43 @@ describe('grant-shape.http handler', () => {
       expect(result.statusCode).toBe(201);
       const parsed = JSON.parse(result.body);
       expect(parsed.success).toBe(true);
+      expect(parsed.data.agentId).toBe(TEST_AGENT_ID);
       expect(parsed.data.configName).toBe('test-agent');
       expect(parsed.data.grantId).toBeDefined();
+    });
+
+    it('uses resolved roleName for policy write', async () => {
+      const mockDeps = createMockDeps();
+      mockDeps.grantLedger.queryGrantsByConfig.mockResolvedValue([]);
+      vi.mocked(getDependencies).mockReturnValue(mockDeps);
+
+      await handler(
+        makeEvent({
+          agentId: TEST_AGENT_ID,
+          shapeName: 'core-invocation',
+          parameters: { inferenceProfileArn: 'arn:aws:bedrock:us-east-1:123:profile/test' },
+          grantedBy: 'admin@company.com',
+        }),
+      );
+
+      expect(mockDeps.operatingPolicy.writePolicy).toHaveBeenCalledWith(
+        'test-role',
+        expect.any(String),
+        expect.any(Object),
+      );
     });
   });
 
   describe('error mapping', () => {
     it('maps domain errors to correct HTTP status', async () => {
       const mockDeps = createMockDeps();
-      mockDeps.grantLedger.putGrant.mockRejectedValue(
-        new ShapeNotFoundError('Not found', { shapeName: 'unknown' }),
-      );
-      // Need the validation to pass first - use a valid shape that exists
       mockDeps.grantLedger.queryGrantsByConfig.mockResolvedValue([]);
       vi.mocked(getDependencies).mockReturnValue(mockDeps);
 
       // Use a shape that doesn't exist in catalog to trigger ShapeNotFoundError via validateGrant
       const result = await handler(
         makeEvent({
-          configName: 'test-agent',
-          roleName: 'test-role',
+          agentId: TEST_AGENT_ID,
           shapeName: 'nonexistent-shape',
           parameters: {},
           grantedBy: 'admin@company.com',
@@ -167,8 +238,7 @@ describe('grant-shape.http handler', () => {
 
       const result = await handler(
         makeEvent({
-          configName: 'test-agent',
-          roleName: 'test-role',
+          agentId: TEST_AGENT_ID,
           shapeName: 'core-invocation',
           parameters: { inferenceProfileArn: 'arn:aws:bedrock:us-east-1:123:profile/test' },
           grantedBy: 'admin@company.com',

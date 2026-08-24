@@ -16,4 +16,5 @@ export interface AgentRegistryPort {
   getByProfileEntityId(profileEntityId: string): Promise<AgentRegistryRecord | null>;
   getByConfigName(configName: string): Promise<AgentRegistryRecord | null>;
   updateBreakerState(agentId: string, breakerState: string, status: string): Promise<void>;
+  listAll(): Promise<AgentRegistryRecord[]>;
 }

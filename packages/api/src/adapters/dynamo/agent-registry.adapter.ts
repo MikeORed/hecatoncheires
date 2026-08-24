@@ -76,6 +76,39 @@ export class AgentRegistryAdapter implements AgentRegistryPort {
     }
   }
 
+  async listAll(): Promise<AgentRegistryRecord[]> {
+    try {
+      const records: AgentRegistryRecord[] = [];
+      let lastEvaluatedKey: Record<string, AttributeValue> | undefined;
+
+      do {
+        const result = await this.client.send(
+          new QueryCommand({
+            TableName: this.tableName,
+            IndexName: 'gsi1',
+            KeyConditionExpression: 'sk = :sk',
+            ExpressionAttributeValues: { ':sk': { S: '#META' } },
+            ExclusiveStartKey: lastEvaluatedKey,
+          }),
+        );
+
+        if (result.Items) {
+          for (const item of result.Items) {
+            records.push(this.mapToRecord(item));
+          }
+        }
+
+        lastEvaluatedKey = result.LastEvaluatedKey;
+      } while (lastEvaluatedKey);
+
+      return records;
+    } catch (err) {
+      throw new InternalError('Failed to list all agents', {
+        originalError: err instanceof Error ? err.message : String(err),
+      });
+    }
+  }
+
   async updateBreakerState(agentId: string, breakerState: string, status: string): Promise<void> {
     try {
       const now = new Date().toISOString();

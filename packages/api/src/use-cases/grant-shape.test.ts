@@ -5,6 +5,7 @@ import {
   ValidationError,
   ShapeNotFoundError,
   InvalidShapeParametersError,
+  PolicySizeExceededError,
 } from '@hecaton/core';
 import type { GrantRecord } from '@hecaton/core';
 
@@ -25,6 +26,13 @@ function createMockDeps(overrides?: Partial<Dependencies>): Dependencies {
     },
     busEmitter: {
       emit: vi.fn().mockResolvedValue(undefined),
+    },
+    agentRegistry: {
+      getByAgentId: vi.fn().mockResolvedValue(null),
+      getByProfileEntityId: vi.fn().mockResolvedValue(null),
+      getByConfigName: vi.fn().mockResolvedValue(null),
+      updateBreakerState: vi.fn().mockResolvedValue(undefined),
+      listAll: vi.fn().mockResolvedValue([]),
     },
     ...overrides,
   };
@@ -69,7 +77,7 @@ describe('Feature: phase-1-api-package-setup', () => {
       await fc.assert(
         fc.asyncProperty(arbInvalidShapeGrant, async (grant) => {
           const deps = createMockDeps();
-          await expect(grantShape(grant, deps)).rejects.toThrow(ShapeNotFoundError);
+          await expect(grantShape(grant, 'test-role', deps)).rejects.toThrow(ShapeNotFoundError);
           expect(deps.grantLedger.putGrant).not.toHaveBeenCalled();
         }),
         { numRuns: 50 },
@@ -86,7 +94,7 @@ describe('Feature: phase-1-api-package-setup', () => {
         grantedBy: 'admin@company.com',
       };
       const deps = createMockDeps();
-      await expect(grantShape(grant, deps)).rejects.toThrow(InvalidShapeParametersError);
+      await expect(grantShape(grant, 'test-role', deps)).rejects.toThrow(InvalidShapeParametersError);
       expect(deps.grantLedger.putGrant).not.toHaveBeenCalled();
     });
 
@@ -101,7 +109,7 @@ describe('Feature: phase-1-api-package-setup', () => {
         expiresAt: '2026-07-19T12:00:00.000Z', // before grantedAt
       };
       const deps = createMockDeps();
-      await expect(grantShape(grant, deps)).rejects.toThrow(ValidationError);
+      await expect(grantShape(grant, 'test-role', deps)).rejects.toThrow(ValidationError);
       expect(deps.grantLedger.putGrant).not.toHaveBeenCalled();
     });
   });
@@ -128,7 +136,7 @@ describe('Feature: phase-1-api-package-setup', () => {
         },
       });
 
-      const result = await grantShape(grant, deps);
+      const result = await grantShape(grant, 'test-role', deps);
       expect(result).toEqual(grant);
     });
   });
@@ -152,11 +160,131 @@ describe('Feature: phase-1-api-package-setup', () => {
         },
       });
 
-      const result = await grantShape(grant, deps);
+      const result = await grantShape(grant, 'test-role', deps);
       expect(result).toEqual(grant);
       expect(deps.grantLedger.putGrant).toHaveBeenCalledWith(grant);
       expect(deps.operatingPolicy.writePolicy).toHaveBeenCalled();
       expect(deps.busEmitter.emit).toHaveBeenCalled();
+    });
+  });
+
+  describe('Policy size rollback (Requirement 2.7)', () => {
+    it('deletes the newly written grant and throws PolicySizeExceededError when assembled policy exceeds 10,240 bytes', async () => {
+      // Create a grant with long ARN values that, when accumulated, exceed 10KB
+      const longArn = 'arn:aws:s3:::' + 'a'.repeat(200);
+      const longPrefix = 'x'.repeat(200) + '/';
+
+      // The new grant being added
+      const newGrant: GrantRecord = {
+        grantId: '01912345-aaaa-7abc-8def-000000000001',
+        configName: 'test-agent',
+        shapeName: 's3-prefix-read',
+        parameters: { bucketArn: longArn, prefix: longPrefix },
+        grantedAt: '2026-07-20T12:00:00.000Z',
+        grantedBy: 'admin@company.com',
+      };
+
+      // Generate enough existing grants to push the assembled policy over 10,240 bytes
+      // Each s3-prefix-read grant produces ~400+ bytes of policy statements with long ARNs
+      const existingGrants: GrantRecord[] = Array.from({ length: 30 }, (_, i) => ({
+        grantId: `01912345-bbbb-7abc-8def-${String(i).padStart(12, '0')}`,
+        configName: 'test-agent',
+        shapeName: 's3-prefix-read',
+        parameters: {
+          bucketArn: `arn:aws:s3:::bucket-${'z'.repeat(200)}-${i}`,
+          prefix: `prefix-${'y'.repeat(200)}-${i}/`,
+        },
+        grantedAt: '2026-07-20T12:00:00.000Z',
+        grantedBy: 'admin@company.com',
+      }));
+
+      const allGrants = [...existingGrants, newGrant];
+
+      const deps = createMockDeps({
+        grantLedger: {
+          putGrant: vi.fn().mockResolvedValue(undefined),
+          deleteGrant: vi.fn().mockResolvedValue(undefined),
+          queryGrantsByConfig: vi.fn().mockResolvedValue(allGrants),
+          scanAllConfigs: vi.fn().mockResolvedValue([]),
+        },
+      });
+
+      await expect(grantShape(newGrant, 'test-role', deps)).rejects.toThrow(PolicySizeExceededError);
+
+      // Grant was initially written to ledger
+      expect(deps.grantLedger.putGrant).toHaveBeenCalledWith(newGrant);
+      // Grant was rolled back (deleted) after policy size exceeded
+      expect(deps.grantLedger.deleteGrant).toHaveBeenCalledWith(
+        newGrant.configName,
+        newGrant.grantId,
+      );
+      // Policy was never written to IAM
+      expect(deps.operatingPolicy.writePolicy).not.toHaveBeenCalled();
+      // Event was never emitted
+      expect(deps.busEmitter.emit).not.toHaveBeenCalled();
+    });
+
+    it('does not roll back the grant when assembled policy is within size limit', async () => {
+      const grant: GrantRecord = {
+        grantId: '01912345-6789-7abc-8def-0123456789ab',
+        configName: 'test-agent',
+        shapeName: 'core-invocation',
+        parameters: { inferenceProfileArn: 'arn:aws:bedrock:us-east-1:123:profile/test' },
+        grantedAt: '2026-07-20T12:00:00.000Z',
+        grantedBy: 'admin@company.com',
+      };
+      const deps = createMockDeps({
+        grantLedger: {
+          putGrant: vi.fn().mockResolvedValue(undefined),
+          deleteGrant: vi.fn().mockResolvedValue(undefined),
+          queryGrantsByConfig: vi.fn().mockResolvedValue([grant]),
+          scanAllConfigs: vi.fn().mockResolvedValue([]),
+        },
+      });
+
+      const result = await grantShape(grant, 'test-role', deps);
+      expect(result).toEqual(grant);
+      expect(deps.grantLedger.deleteGrant).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Unknown shapeName abort (Requirement 2.9)', () => {
+    it('aborts the operation when a grant in the ledger references an unknown shapeName during policy assembly', async () => {
+      // The incoming grant is valid (core-invocation)
+      const validGrant: GrantRecord = {
+        grantId: '01912345-6789-7abc-8def-0123456789ab',
+        configName: 'test-agent',
+        shapeName: 'core-invocation',
+        parameters: { inferenceProfileArn: 'arn:aws:bedrock:us-east-1:123:profile/test' },
+        grantedAt: '2026-07-20T12:00:00.000Z',
+        grantedBy: 'admin@company.com',
+      };
+
+      // An existing grant in the ledger has an unknown shapeName
+      const corruptGrant: GrantRecord = {
+        grantId: '01912345-cccc-7abc-8def-000000000099',
+        configName: 'test-agent',
+        shapeName: 'nonexistent-shape-xyz',
+        parameters: {},
+        grantedAt: '2026-07-19T12:00:00.000Z',
+        grantedBy: 'admin@company.com',
+      };
+
+      const deps = createMockDeps({
+        grantLedger: {
+          putGrant: vi.fn().mockResolvedValue(undefined),
+          deleteGrant: vi.fn().mockResolvedValue(undefined),
+          queryGrantsByConfig: vi.fn().mockResolvedValue([corruptGrant, validGrant]),
+          scanAllConfigs: vi.fn().mockResolvedValue([]),
+        },
+      });
+
+      await expect(grantShape(validGrant, 'test-role', deps)).rejects.toThrow(ShapeNotFoundError);
+
+      // Grant was written before assembly was attempted
+      expect(deps.grantLedger.putGrant).toHaveBeenCalledWith(validGrant);
+      // Policy was never written to IAM
+      expect(deps.operatingPolicy.writePolicy).not.toHaveBeenCalled();
     });
   });
 });

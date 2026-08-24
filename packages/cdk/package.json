@@ -12,10 +12,14 @@
   "dependencies": {
     "@hecaton/core": "workspace:*",
     "aws-cdk-lib": "^2.258.0",
-    "constructs": "^10.0"
+    "constructs": "^10.0",
+    "uuid": "^11.0.0"
   },
   "devDependencies": {
+    "@aws-sdk/client-dynamodb": "^3",
+    "@types/node": "^20.14.0",
     "aws-cdk": "^2.258.0",
+    "esbuild": "^0.21.5",
     "fast-check": "^3.22.0"
   }
 }

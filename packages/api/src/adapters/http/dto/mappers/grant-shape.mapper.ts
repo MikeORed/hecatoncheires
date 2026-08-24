@@ -4,10 +4,10 @@ import { generateId } from '@hecaton/core';
 import type { GrantShapeRequest } from '../requests/grant-shape.request.js';
 
 /** Maps validated HTTP request DTO to domain GrantRecord (generates grantId + grantedAt) */
-export function toDomain(dto: GrantShapeRequest): GrantRecord {
+export function toDomain(dto: GrantShapeRequest, configName: string): GrantRecord {
   return {
     grantId: generateId(),
-    configName: dto.configName,
+    configName,
     shapeName: dto.shapeName,
     parameters: dto.parameters,
     grantedAt: new Date().toISOString(),
@@ -16,9 +16,10 @@ export function toDomain(dto: GrantShapeRequest): GrantRecord {
   };
 }
 
-/** Maps domain GrantRecord to the response payload shape */
-export function toResponse(grant: GrantRecord): Record<string, unknown> {
+/** Maps domain GrantRecord to the response payload shape, including agentId */
+export function toResponse(grant: GrantRecord, agentId: string): Record<string, unknown> {
   return {
+    agentId,
     grantId: grant.grantId,
     configName: grant.configName,
     shapeName: grant.shapeName,

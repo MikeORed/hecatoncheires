@@ -76,7 +76,7 @@ describe('validatePolicySize', () => {
     expect(result.valid).toBe(false);
 
     if (!result.valid) {
-      expect(result.error.code).toBe('VALIDATION_ERROR');
+      expect(result.error.code).toBe('POLICY_SIZE_EXCEEDED');
       expect(result.error.details).toEqual({
         actualSize,
         limit: AWS_INLINE_POLICY_SIZE_LIMIT,

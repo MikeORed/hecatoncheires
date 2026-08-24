@@ -1,8 +1,9 @@
 import * as cdk from 'aws-cdk-lib';
 import * as bedrock from 'aws-cdk-lib/aws-bedrock';
-import * as events from 'aws-cdk-lib/aws-events';
-import * as sns from 'aws-cdk-lib/aws-sns';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as events from 'aws-cdk-lib/aws-events';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as sns from 'aws-cdk-lib/aws-sns';
 import { Construct } from 'constructs';
 import { NamingGenerator, ConfigNamePattern } from '@hecaton/core';
 
@@ -10,6 +11,10 @@ import {
   AgentIdentity,
   AgentIdentityOutputs,
 } from '../constructs/agent-identity.construct.js';
+import {
+  AgentPolicyModulator,
+  AgentPolicyModulatorOutputs,
+} from '../constructs/agent-policy-modulator.construct.js';
 import { GuardrailPolicyConfig } from './shared-infra.stack.js';
 
 export interface AgentConfigStackProps extends cdk.StackProps {
@@ -25,12 +30,20 @@ export interface AgentConfigStackProps extends cdk.StackProps {
   guardrailOverrides?: Partial<GuardrailPolicyConfig>;
   /** Required when agentType === 'openclaw'. The IAM principal ARN trusted to assume this role. */
   externalPrincipalArn?: string;
+  /** CloudWatch alarm thresholds for the AgentPolicyModulator. */
+  thresholds: {
+    outputTokensPerHour: number;
+    guardrailBlocksPer10Min: number;
+    guardrailObservationsPerHour: number;
+  };
   /** Cross-stack references from SharedInfraStack. */
   sharedInfra: {
     opsBus: events.IEventBus;
     snsTopic: sns.ITopic;
     grantLedgerTable: dynamodb.ITable;
     defaultGuardrailConfig: GuardrailPolicyConfig;
+    breakerLambda: lambda.IFunction;
+    agentRegistryTable: dynamodb.ITable;
   };
 }
 
@@ -39,11 +52,18 @@ export interface AgentConfigStackProps extends cdk.StackProps {
  *
  * Validates configuration, creates the inference profile and guardrail resources,
  * then instantiates AgentIdentity passing the resolved profileArn and guardrailId.
- * Subclasses extend this to add further constructs (policy modulator, bus channel, etc.).
+ * After identity is established, instantiates AgentPolicyModulator with alarms and
+ * registry seeding. Subclasses extend this to add further constructs (bus channel, etc.).
  */
 export abstract class AgentConfigStack extends cdk.Stack {
   /** The AgentIdentity outputs — always available after construction. */
   readonly identity: AgentIdentityOutputs;
+
+  /** The inference profile entity ID (CloudFormation token at synth time). */
+  readonly profileEntityId: string;
+
+  /** The AgentPolicyModulator outputs — alarms exposed for cross-stack references. */
+  readonly modulator: AgentPolicyModulatorOutputs;
 
   constructor(scope: Construct, id: string, props: AgentConfigStackProps) {
     super(scope, id, props);
@@ -146,7 +166,34 @@ export abstract class AgentConfigStack extends cdk.Stack {
 
     this.identity = agentIdentity.outputs;
 
-    // --- 6. Apply standard tags ---
+    // --- 6. Expose profileEntityId ---
+    const profileEntityId = inferenceProfile.attrInferenceProfileId;
+    this.profileEntityId = profileEntityId;
+
+    // --- 7. Instantiate AgentPolicyModulator (alarms + registry seed) ---
+    const modulator = new AgentPolicyModulator(this, 'PolicyModulator', {
+      configName,
+      profileEntityId,
+      profileArn,
+      modelId,
+      agentRole: agentIdentity.outputs.role,
+      agentType,
+      guardrailId,
+      breakerLambda: sharedInfra.breakerLambda,
+      agentRegistryTable: sharedInfra.agentRegistryTable,
+      stage,
+      thresholds: props.thresholds,
+    });
+
+    this.modulator = modulator.outputs;
+
+    // --- 8. CfnOutput for profileEntityId ---
+    new cdk.CfnOutput(this, 'ProfileEntityId', {
+      value: profileEntityId,
+      exportName: `${id}-profileEntityId`,
+    });
+
+    // --- 9. Apply standard tags ---
     cdk.Tags.of(this).add('hecatoncheires:managed', 'true');
     cdk.Tags.of(this).add('hecatoncheires:config', configName);
     cdk.Tags.of(this).add('hecatoncheires:stage', stage);

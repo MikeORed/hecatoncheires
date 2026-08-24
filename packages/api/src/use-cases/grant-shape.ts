@@ -13,7 +13,11 @@ const DEFAULT_POLICY_NAME = 'hecaton-operating-policy';
  * validates policy size, writes the policy to IAM, and emits an event (best-effort).
  * If the assembled policy exceeds the size limit, the grant is rolled back.
  */
-export async function grantShape(grant: GrantRecord, deps: Dependencies): Promise<GrantRecord> {
+export async function grantShape(
+  grant: GrantRecord,
+  roleName: string,
+  deps: Dependencies,
+): Promise<GrantRecord> {
   // 1. Validate the grant against the shape catalog
   const validation = validateGrant(grant, SHAPE_CATALOG);
   if (!validation.valid) {
@@ -38,7 +42,7 @@ export async function grantShape(grant: GrantRecord, deps: Dependencies): Promis
   }
 
   // 6. Write the assembled policy to IAM
-  await deps.operatingPolicy.writePolicy(grant.configName, DEFAULT_POLICY_NAME, policyDocument);
+  await deps.operatingPolicy.writePolicy(roleName, DEFAULT_POLICY_NAME, policyDocument);
 
   // 7. Emit grant-changed event (best-effort)
   try {

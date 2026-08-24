@@ -17,6 +17,7 @@ export interface CapabilityChangedDetail {
 export interface BreakerTrippedDetail {
   configName: string;
   roleName: string;
+  alarmName: string;
   reason: string;
   timestamp: string;
 }

@@ -46,22 +46,22 @@ This plan implements Bundle A of Hecatoncheires Phase 1: the AgentPolicyModulato
     - Mock SNSClient send(), verify PublishCommand parameters
     - _Requirements: 3.5_
 
-- [ ] 3. API layer — dependencies extension
-  - [ ] 3.1 Extend Dependencies interface and getDependencies() factory
+- [x] 3. API layer — dependencies extension
+  - [x] 3.1 Extend Dependencies interface and getDependencies() factory
     - Add `agentRegistry: AgentRegistryPort` to the `Dependencies` interface in `packages/api/src/shared/dependencies.ts`
     - Instantiate `AgentRegistryAdapter` in `getDependencies()` using `AGENT_REGISTRY_TABLE_NAME` env var
     - _Requirements: 11.11_
 
-  - [ ] 3.2 Create BreakerDependencies interface and getBreakerDependencies() factory
+  - [x] 3.2 Create BreakerDependencies interface and getBreakerDependencies() factory
     - Add `BreakerDependencies` extending `Dependencies` with `snsNotifier: SnsNotifierPort`
     - Implement `getBreakerDependencies()` using `SNS_TOPIC_ARN` env var for SnsNotifierAdapter
     - _Requirements: 3.5, 11.7_
 
-- [ ] 4. Checkpoint - Ensure ports, adapters, and dependencies compile
+- [x] 4. Checkpoint - Ensure ports, adapters, and dependencies compile
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 5. API layer — use-case refactoring
-  - [ ] 5.1 Extend trip-breaker use-case
+- [x] 5. API layer — use-case refactoring
+  - [x] 5.1 Extend trip-breaker use-case
     - Update `packages/api/src/use-cases/trip-breaker.ts` to accept `TripBreakerInput` with agentId and alarmName
     - Add registry `updateBreakerState` call (best-effort)
     - Add SNS notification publish (best-effort) via `deps.snsNotifier`
@@ -69,24 +69,24 @@ This plan implements Bundle A of Hecatoncheires Phase 1: the AgentPolicyModulato
     - IAM write failure must propagate, other failures are swallowed
     - _Requirements: 3.3, 3.4, 3.5, 3.9, 3.10_
 
-  - [ ] 5.2 Write unit tests for extended trip-breaker use-case
+  - [x] 5.2 Write unit tests for extended trip-breaker use-case
     - Update `packages/api/src/use-cases/trip-breaker.test.ts`
     - Test deny-all written, registry updated (best-effort), event emitted (best-effort), SNS published (best-effort)
     - Test IAM failure propagates while registry/event/SNS failures are swallowed
     - _Requirements: 3.3, 3.4, 3.5, 3.9, 3.10_
 
-  - [ ] 5.3 Extend grant-shape use-case with policy size rollback
+  - [x] 5.3 Extend grant-shape use-case with policy size rollback
     - Update `packages/api/src/use-cases/grant-shape.ts` to handle policy size violation (>10,240 bytes): delete the newly written grant from ledger and throw PolicySizeExceededError
     - _Requirements: 2.3, 2.7_
 
-  - [ ] 5.4 Write unit tests for grant-shape policy size rollback
+  - [x] 5.4 Write unit tests for grant-shape policy size rollback
     - Update `packages/api/src/use-cases/grant-shape.test.ts`
     - Test that oversized policy triggers grant deletion and error
     - Test that unknown shapeName aborts operation
     - _Requirements: 2.7, 2.9_
 
-- [ ] 6. API layer — handler refactoring
-  - [ ] 6.1 Refactor breaker-trip.alarm handler
+- [x] 6. API layer — handler refactoring
+  - [x] 6.1 Refactor breaker-trip.alarm handler
     - Update `packages/api/src/handlers/breaker-trip.alarm.ts` to extract profileEntityId from alarm dimensions
     - Resolve agent identity via `deps.agentRegistry.getByProfileEntityId()`
     - No-op for non-ALARM transitions
@@ -95,50 +95,50 @@ This plan implements Bundle A of Hecatoncheires Phase 1: the AgentPolicyModulato
     - Use `getBreakerDependencies()` factory
     - _Requirements: 3.1, 3.2, 3.6, 3.7, 3.8, 11.1, 11.2, 11.3, 11.4, 11.5, 11.6_
 
-  - [ ] 6.2 Write unit tests for breaker-trip.alarm handler
+  - [x] 6.2 Write unit tests for breaker-trip.alarm handler
     - Update `packages/api/src/handlers/breaker-trip.alarm.test.ts`
     - Test: profile entity ID extraction, registry resolution, non-ALARM no-op, missing dimensions logged + returns, registry miss logged + returns, use-case error propagates
     - _Requirements: 3.1, 3.6, 3.7, 3.8, 11.4, 11.5, 11.8_
 
-  - [ ] 6.3 Refactor grant-shape.http handler for agentId resolution
+  - [x] 6.3 Refactor grant-shape.http handler for agentId resolution
     - Update `packages/api/src/handlers/grant-shape.http.ts` to accept `agentId` in request body
     - Resolve agentId → configName + roleName via `deps.agentRegistry.getByAgentId()`
     - Return 404 AGENT_NOT_FOUND if registry lookup returns null
     - Update GrantShapeRequestSchema (agentId replaces configName/roleName in request)
     - _Requirements: 2.1, 2.10, 15.5, 15.7, 15.8_
 
-  - [ ] 6.4 Write unit tests for grant-shape.http handler
+  - [x] 6.4 Write unit tests for grant-shape.http handler
     - Update `packages/api/src/handlers/grant-shape.http.test.ts`
     - Test: agentId resolution success, 404 on unknown agent, validation error on bad body, full grant flow
     - _Requirements: 2.1, 2.10, 15.7, 15.8_
 
-  - [ ] 6.5 Refactor revoke-shape.http handler for agentId resolution
+  - [x] 6.5 Refactor revoke-shape.http handler for agentId resolution
     - Update `packages/api/src/handlers/revoke-shape.http.ts` to accept `agentId` in request body
     - Resolve agentId → configName + roleName via registry lookup
     - Return 404 AGENT_NOT_FOUND if not found
     - Update RevokeShapeRequestSchema
     - _Requirements: 2.1, 2.10, 15.5, 15.7, 15.8_
 
-  - [ ] 6.6 Write unit tests for revoke-shape.http handler
+  - [x] 6.6 Write unit tests for revoke-shape.http handler
     - Update `packages/api/src/handlers/revoke-shape.http.test.ts`
     - Test: agentId resolution, 404 on unknown agent, full revoke flow
     - _Requirements: 2.1, 2.10, 15.7, 15.8_
 
-  - [ ] 6.7 Refactor query-fleet-state.http handler to use Agent Registry
+  - [x] 6.7 Refactor query-fleet-state.http handler to use Agent Registry
     - Update `packages/api/src/handlers/query-fleet-state.http.ts` to query Agent Registry (GSI1: SK = #META) for fleet listing
     - Response includes agentId, configName, agentType, modelId, status, breakerState, and grants per agent
     - _Requirements: 15.6_
 
-  - [ ] 6.8 Write unit tests for query-fleet-state.http handler
+  - [x] 6.8 Write unit tests for query-fleet-state.http handler
     - Update `packages/api/src/handlers/query-fleet-state.http.test.ts`
     - Test: response includes agentId, configName, status, breakerState per agent
     - _Requirements: 15.6_
 
-- [ ] 7. Checkpoint - Ensure API package compiles and tests pass
+- [x] 7. Checkpoint - Ensure API package compiles and tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 8. CDK — SharedInfraStack extensions
-  - [ ] 8.1 Add Agent Registry table to SharedInfraStack
+- [x] 8. CDK — SharedInfraStack extensions
+  - [x] 8.1 Add Agent Registry table to SharedInfraStack
     - Add DynamoDB table `hecaton-{stage}-agent-registry` with pk/sk keys, PAY_PER_REQUEST, PITR, RETAIN removal policy
     - Add GSI `gsi1` (pk: sk, sk: pk)
     - Expose as `agentRegistryTable` property on the stack
@@ -146,7 +146,7 @@ This plan implements Bundle A of Hecatoncheires Phase 1: the AgentPolicyModulato
     - Apply standard Hecatoncheires tags
     - _Requirements: 13.1, 13.2, 13.3, 13.4, 13.5, 13.6, 13.7, 12.5_
 
-  - [ ] 8.2 Add Breaker Lambda to SharedInfraStack
+  - [x] 8.2 Add Breaker Lambda to SharedInfraStack
     - Deploy using NodejsFunction with entry at `packages/api/src/handlers/breaker-trip.alarm.ts`
     - Configure: Node.js 20, arm64, 256 MB, 30s timeout
     - Environment vars: AGENT_REGISTRY_TABLE_NAME, OPS_BUS_ARN, SNS_TOPIC_ARN, OPERATING_POLICY_NAME
@@ -156,7 +156,7 @@ This plan implements Bundle A of Hecatoncheires Phase 1: the AgentPolicyModulato
     - Apply standard tags
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 5.1, 5.2, 5.3, 5.4, 5.5_
 
-  - [ ] 8.3 Upgrade API Gateway from L1 CfnRestApi to L2 RestApi
+  - [x] 8.3 Upgrade API Gateway from L1 CfnRestApi to L2 RestApi
     - Replace existing CfnRestApi with L2 RestApi construct
     - Configure: restApiName, apiKeySourceType HEADER, deploy: true, deployOptions with stageName
     - Add /grants resource (POST, DELETE) and /fleet resource (GET)
@@ -168,8 +168,8 @@ This plan implements Bundle A of Hecatoncheires Phase 1: the AgentPolicyModulato
     - Export API key value as CfnOutput
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 8.1, 8.2, 8.3, 8.4, 8.5, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7, 12.3, 12.4_
 
-- [ ] 9. CDK — AgentPolicyModulator construct
-  - [ ] 9.1 Create AgentPolicyModulator construct
+- [x] 9. CDK — AgentPolicyModulator construct
+  - [x] 9.1 Create AgentPolicyModulator construct
     - Create `packages/cdk/lib/constructs/agent-policy-modulator.construct.ts`
     - Props validation (configName non-empty, profileEntityId non-empty, thresholds positive integers)
     - Create 3 CloudWatch alarms with correct metrics, periods, thresholds, and InferenceProfileId dimension
@@ -181,7 +181,7 @@ This plan implements Bundle A of Hecatoncheires Phase 1: the AgentPolicyModulato
     - Apply tags via NamingGenerator
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 6.1, 6.2, 6.3, 6.4, 6.5, 6.13, 6.14, 6.15, 12.1, 12.2_
 
-  - [ ] 9.2 Create RegistrySeed Lambda handler
+  - [x] 9.2 Create RegistrySeed Lambda handler
     - Create `packages/cdk/lib/lambda/registry-seed.handler.ts`
     - Implement onCreate: generate UUIDv7, TransactWriteItems for 3 records (metadata, profile reverse-lookup, config reverse-lookup) with conditional write
     - Implement onUpdate: read existing agentId, handle profileEntityId change cleanup, TransactWriteItems for updated records preserving agentId and createdAt
@@ -189,34 +189,34 @@ This plan implements Bundle A of Hecatoncheires Phase 1: the AgentPolicyModulato
     - Return agentId as PhysicalResourceId and Data attribute
     - _Requirements: 6.6, 6.7, 6.8, 6.9, 6.10, 6.11, 6.12_
 
-- [ ] 10. CDK — AgentConfigStack updates
-  - [ ] 10.1 Update AgentConfigStack to integrate AgentPolicyModulator
+- [x] 10. CDK — AgentConfigStack updates
+  - [x] 10.1 Update AgentConfigStack to integrate AgentPolicyModulator
     - Expose `profileEntityId` from `CfnApplicationInferenceProfile.attrInferenceProfileId` as a class property
     - Extend `AgentConfigStackProps` with `thresholds` and `sharedInfra.breakerLambda`/`sharedInfra.agentRegistryTable`
     - Instantiate AgentPolicyModulator after AgentIdentity, passing all required props
     - Add CfnOutput for profileEntityId
     - _Requirements: 14.1, 14.2, 14.3, 14.4_
 
-- [ ] 11. Checkpoint - Ensure CDK package synthesizes
+- [x] 11. Checkpoint - Ensure CDK package synthesizes
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 12. CDK assertion tests
-  - [ ] 12.1 Write AgentPolicyModulator construct assertion tests
+  - [-] 12.1 Write AgentPolicyModulator construct assertion tests
     - Create `packages/cdk/test/constructs/agent-policy-modulator.construct.test.ts`
     - Verify: 3 alarms with correct MetricName, Namespace, Period; alarm actions target Breaker Lambda ARN; custom resource with correct properties; RegistrySeed Lambda IAM policy
     - _Requirements: 10.1, 10.2, 10.3, 10.4_
 
-  - [ ] 12.2 Extend SharedInfraStack assertion tests
+  - [-] 12.2 Extend SharedInfraStack assertion tests
     - Update `packages/cdk/test/stacks/shared-infra.stack.test.ts`
     - Add tests: Agent Registry table (key schema, GSI, PITR, billing); Breaker Lambda (env vars, runtime, memory, permissions); API Gateway methods (POST/DELETE/GET with AWS_PROXY); usage plan + API key; all methods apiKeyRequired; RestApi with correct name and ApiKeySourceType
     - _Requirements: 10.5, 10.6, 10.7, 10.8, 10.9, 10.10_
 
-  - [ ] 12.3 Extend AgentConfigStack assertion tests
+  - [-] 12.3 Extend AgentConfigStack assertion tests
     - Update `packages/cdk/test/stacks/agent-config.stack.test.ts`
     - Verify: AgentPolicyModulator instantiated, profileEntityId output exists, thresholds passed through
     - _Requirements: 14.1, 14.2, 14.3_
 
-- [ ] 13. Final checkpoint - Ensure all packages build and tests pass
+- [~] 13. Final checkpoint - Ensure all packages build and tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes

@@ -36,11 +36,18 @@ function createStacks(opts: {
     configName: opts.configName,
     agentType: opts.agentType,
     modelId: 'us.anthropic.claude-sonnet-4-20250514-v1:0',
+    thresholds: {
+      outputTokensPerHour: 100000,
+      guardrailBlocksPer10Min: 5,
+      guardrailObservationsPerHour: 20,
+    },
     sharedInfra: {
       opsBus: sharedInfra.opsBus,
       snsTopic: sharedInfra.snsTopic,
       grantLedgerTable: sharedInfra.grantLedgerTable,
       defaultGuardrailConfig: sharedInfra.defaultGuardrailConfig,
+      breakerLambda: sharedInfra.breakerLambda,
+      agentRegistryTable: sharedInfra.agentRegistryTable,
     },
     externalPrincipalArn:
       opts.agentType === 'openclaw'
@@ -340,11 +347,18 @@ describe('Property 9: External principal validation for openclaw', () => {
             configName,
             agentType: 'openclaw',
             modelId: 'us.anthropic.claude-sonnet-4-20250514-v1:0',
+            thresholds: {
+              outputTokensPerHour: 100000,
+              guardrailBlocksPer10Min: 5,
+              guardrailObservationsPerHour: 20,
+            },
             sharedInfra: {
               opsBus: sharedInfra.opsBus,
               snsTopic: sharedInfra.snsTopic,
               grantLedgerTable: sharedInfra.grantLedgerTable,
               defaultGuardrailConfig: sharedInfra.defaultGuardrailConfig,
+              breakerLambda: sharedInfra.breakerLambda,
+              agentRegistryTable: sharedInfra.agentRegistryTable,
             },
           });
         }).toThrow(/externalPrincipalArn/);
@@ -357,11 +371,18 @@ describe('Property 9: External principal validation for openclaw', () => {
             agentType: 'openclaw',
             modelId: 'us.anthropic.claude-sonnet-4-20250514-v1:0',
             externalPrincipalArn: '',
+            thresholds: {
+              outputTokensPerHour: 100000,
+              guardrailBlocksPer10Min: 5,
+              guardrailObservationsPerHour: 20,
+            },
             sharedInfra: {
               opsBus: sharedInfra.opsBus,
               snsTopic: sharedInfra.snsTopic,
               grantLedgerTable: sharedInfra.grantLedgerTable,
               defaultGuardrailConfig: sharedInfra.defaultGuardrailConfig,
+              breakerLambda: sharedInfra.breakerLambda,
+              agentRegistryTable: sharedInfra.agentRegistryTable,
             },
           });
         }).toThrow(/externalPrincipalArn/);
@@ -388,11 +409,18 @@ describe('Property 9: External principal validation for openclaw', () => {
             configName,
             agentType,
             modelId: 'us.anthropic.claude-sonnet-4-20250514-v1:0',
+            thresholds: {
+              outputTokensPerHour: 100000,
+              guardrailBlocksPer10Min: 5,
+              guardrailObservationsPerHour: 20,
+            },
             sharedInfra: {
               opsBus: sharedInfra.opsBus,
               snsTopic: sharedInfra.snsTopic,
               grantLedgerTable: sharedInfra.grantLedgerTable,
               defaultGuardrailConfig: sharedInfra.defaultGuardrailConfig,
+              breakerLambda: sharedInfra.breakerLambda,
+              agentRegistryTable: sharedInfra.agentRegistryTable,
             },
           });
         }).not.toThrow();
@@ -408,11 +436,18 @@ describe('Property 9: External principal validation for openclaw', () => {
             agentType,
             modelId: 'us.anthropic.claude-sonnet-4-20250514-v1:0',
             externalPrincipalArn: 'arn:aws:iam::123456789012:role/external',
+            thresholds: {
+              outputTokensPerHour: 100000,
+              guardrailBlocksPer10Min: 5,
+              guardrailObservationsPerHour: 20,
+            },
             sharedInfra: {
               opsBus: sharedInfra2.opsBus,
               snsTopic: sharedInfra2.snsTopic,
               grantLedgerTable: sharedInfra2.grantLedgerTable,
               defaultGuardrailConfig: sharedInfra2.defaultGuardrailConfig,
+              breakerLambda: sharedInfra2.breakerLambda,
+              agentRegistryTable: sharedInfra2.agentRegistryTable,
             },
           });
         }).not.toThrow();

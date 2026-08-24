@@ -10,6 +10,7 @@ import {
   InvalidShapeParametersError,
   ValidationError,
   GrantConflictError,
+  PolicySizeExceededError,
 } from '../errors/index.js';
 import { AWS_INLINE_POLICY_SIZE_LIMIT } from '../constants/limits.js';
 import type { GrantRecord, IamPolicyDocument } from '../types/index.js';
@@ -286,8 +287,8 @@ describe('Validators Property Tests', () => {
 
           expect(result.valid).toBe(false);
           if (!result.valid) {
-            expect(result.error).toBeInstanceOf(ValidationError);
-            expect(result.error.code).toBe('VALIDATION_ERROR');
+            expect(result.error).toBeInstanceOf(PolicySizeExceededError);
+            expect(result.error.code).toBe('POLICY_SIZE_EXCEEDED');
             expect(result.error.details?.actualSize).toBe(actualSize);
             expect(result.error.details?.limit).toBe(AWS_INLINE_POLICY_SIZE_LIMIT);
           }
