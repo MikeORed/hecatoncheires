@@ -200,23 +200,23 @@ This plan implements Bundle A of Hecatoncheires Phase 1: the AgentPolicyModulato
 - [x] 11. Checkpoint - Ensure CDK package synthesizes
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 12. CDK assertion tests
-  - [-] 12.1 Write AgentPolicyModulator construct assertion tests
+- [x] 12. CDK assertion tests
+  - [x] 12.1 Write AgentPolicyModulator construct assertion tests
     - Create `packages/cdk/test/constructs/agent-policy-modulator.construct.test.ts`
     - Verify: 3 alarms with correct MetricName, Namespace, Period; alarm actions target Breaker Lambda ARN; custom resource with correct properties; RegistrySeed Lambda IAM policy
     - _Requirements: 10.1, 10.2, 10.3, 10.4_
 
-  - [-] 12.2 Extend SharedInfraStack assertion tests
+  - [x] 12.2 Extend SharedInfraStack assertion tests
     - Update `packages/cdk/test/stacks/shared-infra.stack.test.ts`
     - Add tests: Agent Registry table (key schema, GSI, PITR, billing); Breaker Lambda (env vars, runtime, memory, permissions); API Gateway methods (POST/DELETE/GET with AWS_PROXY); usage plan + API key; all methods apiKeyRequired; RestApi with correct name and ApiKeySourceType
     - _Requirements: 10.5, 10.6, 10.7, 10.8, 10.9, 10.10_
 
-  - [-] 12.3 Extend AgentConfigStack assertion tests
+  - [x] 12.3 Extend AgentConfigStack assertion tests
     - Update `packages/cdk/test/stacks/agent-config.stack.test.ts`
     - Verify: AgentPolicyModulator instantiated, profileEntityId output exists, thresholds passed through
     - _Requirements: 14.1, 14.2, 14.3_
 
-- [~] 13. Final checkpoint - Ensure all packages build and tests pass
+- [-] 13. Final checkpoint - Ensure all packages build and tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes

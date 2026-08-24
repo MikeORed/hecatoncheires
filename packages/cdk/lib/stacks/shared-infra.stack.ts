@@ -1,4 +1,5 @@
-import { join } from 'node:path';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import * as cdk from 'aws-cdk-lib';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as events from 'aws-cdk-lib/aws-events';
@@ -9,6 +10,9 @@ import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
 import { NamingGenerator } from '@hecaton/core';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 /** Typed guardrail policy configuration — data only, not an AWS resource. */
 export interface GuardrailPolicyConfig {
@@ -119,7 +123,7 @@ export class SharedInfraStack extends cdk.Stack {
     // Entry path relative to monorepo root (resolved via ../.. from packages/cdk/)
     const breakerLambda = new NodejsFunction(this, 'BreakerLambda', {
       functionName: naming.lambdaName('breaker-trip'),
-      entry: join('..', 'api', 'src', 'handlers', 'breaker-trip.alarm.ts'),
+      entry: join(__dirname, '..', '..', '..', 'api', 'src', 'handlers', 'breaker-trip.alarm.ts'),
       runtime: lambda.Runtime.NODEJS_20_X,
       architecture: lambda.Architecture.ARM_64,
       memorySize: 256,
@@ -179,7 +183,7 @@ export class SharedInfraStack extends cdk.Stack {
     // --- Handler Lambdas ---
     const grantLambda = new NodejsFunction(this, 'GrantShapeLambda', {
       functionName: naming.lambdaName('grant-shape'),
-      entry: join('..', 'api', 'src', 'handlers', 'grant-shape.http.ts'),
+      entry: join(__dirname, '..', '..', '..', 'api', 'src', 'handlers', 'grant-shape.http.ts'),
       runtime: lambda.Runtime.NODEJS_20_X,
       architecture: lambda.Architecture.ARM_64,
       memorySize: 256,
@@ -194,7 +198,7 @@ export class SharedInfraStack extends cdk.Stack {
 
     const revokeLambda = new NodejsFunction(this, 'RevokeShapeLambda', {
       functionName: naming.lambdaName('revoke-shape'),
-      entry: join('..', 'api', 'src', 'handlers', 'revoke-shape.http.ts'),
+      entry: join(__dirname, '..', '..', '..', 'api', 'src', 'handlers', 'revoke-shape.http.ts'),
       runtime: lambda.Runtime.NODEJS_20_X,
       architecture: lambda.Architecture.ARM_64,
       memorySize: 256,
@@ -209,7 +213,7 @@ export class SharedInfraStack extends cdk.Stack {
 
     const fleetLambda = new NodejsFunction(this, 'QueryFleetStateLambda', {
       functionName: naming.lambdaName('query-fleet-state'),
-      entry: join('..', 'api', 'src', 'handlers', 'query-fleet-state.http.ts'),
+      entry: join(__dirname, '..', '..', '..', 'api', 'src', 'handlers', 'query-fleet-state.http.ts'),
       runtime: lambda.Runtime.NODEJS_20_X,
       architecture: lambda.Architecture.ARM_64,
       memorySize: 256,

@@ -1,4 +1,5 @@
-import { join } from 'node:path';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import * as cdk from 'aws-cdk-lib';
 import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
@@ -8,6 +9,9 @@ import * as cr from 'aws-cdk-lib/custom-resources';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
 import { NamingGenerator } from '@hecaton/core';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 /** Props for the AgentPolicyModulator construct. */
 export interface AgentPolicyModulatorProps {
@@ -126,7 +130,7 @@ export class AgentPolicyModulator extends Construct {
       architecture: lambda.Architecture.ARM_64,
       memorySize: 128,
       timeout: cdk.Duration.seconds(30),
-      entry: join('lib', 'lambda', 'registry-seed.handler.ts'),
+      entry: join(__dirname, '..', 'lambda', 'registry-seed.handler.ts'),
       environment: {
         AGENT_REGISTRY_TABLE_NAME: props.agentRegistryTable.tableName,
       },
