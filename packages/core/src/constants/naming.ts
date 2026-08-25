@@ -89,6 +89,11 @@ export class NamingGenerator {
     return `hecaton-${this.stage}-api`;
   }
 
+  /** Pattern: hecaton-{stage}-agent-registry */
+  agentRegistryTableName(): string {
+    return `hecaton-${this.stage}-agent-registry`;
+  }
+
   /** Resource tags for Hecatoncheires-managed resources. */
   tags(
     configName: string,

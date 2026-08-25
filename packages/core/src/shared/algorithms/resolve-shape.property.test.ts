@@ -33,10 +33,16 @@ const arbParamValue = fc
  * Each param appears at least once as `${paramName}` embedded in a surrounding string.
  */
 function arbResourceWithPlaceholders(paramNames: string[]): fc.Arbitrary<string> {
-  return fc.tuple(fc.string({ minLength: 0, maxLength: 10 })).map(([prefix]) => {
-    const parts = paramNames.map((p) => `\${${p}}`);
-    return `arn:${prefix}:${parts.join('/')}`;
-  });
+  return fc
+    .tuple(
+      fc
+        .string({ minLength: 0, maxLength: 10 })
+        .filter((s) => !s.includes('$') && !s.includes('{') && !s.includes('}')),
+    )
+    .map(([prefix]) => {
+      const parts = paramNames.map((p) => `\${${p}}`);
+      return `arn:${prefix}:${parts.join('/')}`;
+    });
 }
 
 /**

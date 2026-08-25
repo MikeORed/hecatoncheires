@@ -1,0 +1,611 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1.1 Add `agentRegistryTableName()` method to NamingGenerator": [
+      {
+        "executionId": "5ea7cb0f-8c3c-424f-95c9-3b7bc1f7b3f2",
+        "chatSessionId": "sess_463fb453-40dd-4b6d-8fc4-9c5c8b75d7ca",
+        "timestamp": 1787528390198
+      },
+      {
+        "executionId": "5ea7cb0f-8c3c-424f-95c9-3b7bc1f7b3f2",
+        "chatSessionId": "sess_463fb453-40dd-4b6d-8fc4-9c5c8b75d7ca",
+        "timestamp": 1787528492979
+      }
+    ],
+    "1. Core package extension": [
+      {
+        "executionId": "5ea7cb0f-8c3c-424f-95c9-3b7bc1f7b3f2",
+        "chatSessionId": "sess_463fb453-40dd-4b6d-8fc4-9c5c8b75d7ca",
+        "timestamp": 1787528493027
+      }
+    ],
+    "2.1 Create AgentRegistryPort interface": [
+      {
+        "executionId": "11c2552a-f226-415d-914e-22dc8691997a",
+        "chatSessionId": "sess_648f6e3c-5e03-4723-9e64-abcdf7f76bda",
+        "timestamp": 1787528589086
+      },
+      {
+        "executionId": "11c2552a-f226-415d-914e-22dc8691997a",
+        "chatSessionId": "sess_648f6e3c-5e03-4723-9e64-abcdf7f76bda",
+        "timestamp": 1787528839715
+      }
+    ],
+    "2.2 Create SnsNotifierPort interface": [
+      {
+        "executionId": "11c2552a-f226-415d-914e-22dc8691997a",
+        "chatSessionId": "sess_648f6e3c-5e03-4723-9e64-abcdf7f76bda",
+        "timestamp": 1787528590017
+      },
+      {
+        "executionId": "11c2552a-f226-415d-914e-22dc8691997a",
+        "chatSessionId": "sess_648f6e3c-5e03-4723-9e64-abcdf7f76bda",
+        "timestamp": 1787528840496
+      }
+    ],
+    "2.3 Implement AgentRegistryAdapter": [
+      {
+        "executionId": "11c2552a-f226-415d-914e-22dc8691997a",
+        "chatSessionId": "sess_648f6e3c-5e03-4723-9e64-abcdf7f76bda",
+        "timestamp": 1787528844522
+      },
+      {
+        "executionId": "11c2552a-f226-415d-914e-22dc8691997a",
+        "chatSessionId": "sess_648f6e3c-5e03-4723-9e64-abcdf7f76bda",
+        "timestamp": 1787528974662
+      }
+    ],
+    "2.5 Implement SnsNotifierAdapter": [
+      {
+        "executionId": "11c2552a-f226-415d-914e-22dc8691997a",
+        "chatSessionId": "sess_648f6e3c-5e03-4723-9e64-abcdf7f76bda",
+        "timestamp": 1787528845305
+      },
+      {
+        "executionId": "11c2552a-f226-415d-914e-22dc8691997a",
+        "chatSessionId": "sess_648f6e3c-5e03-4723-9e64-abcdf7f76bda",
+        "timestamp": 1787528975468
+      }
+    ],
+    "2.4 Write unit tests for AgentRegistryAdapter": [
+      {
+        "executionId": "11c2552a-f226-415d-914e-22dc8691997a",
+        "chatSessionId": "sess_648f6e3c-5e03-4723-9e64-abcdf7f76bda",
+        "timestamp": 1787528993374
+      },
+      {
+        "executionId": "11c2552a-f226-415d-914e-22dc8691997a",
+        "chatSessionId": "sess_648f6e3c-5e03-4723-9e64-abcdf7f76bda",
+        "timestamp": 1787529087013
+      }
+    ],
+    "2.6 Write unit tests for SnsNotifierAdapter": [
+      {
+        "executionId": "11c2552a-f226-415d-914e-22dc8691997a",
+        "chatSessionId": "sess_648f6e3c-5e03-4723-9e64-abcdf7f76bda",
+        "timestamp": 1787528994150
+      },
+      {
+        "executionId": "11c2552a-f226-415d-914e-22dc8691997a",
+        "chatSessionId": "sess_648f6e3c-5e03-4723-9e64-abcdf7f76bda",
+        "timestamp": 1787529087915
+      }
+    ],
+    "2. API layer — ports and adapters": [
+      {
+        "executionId": "11c2552a-f226-415d-914e-22dc8691997a",
+        "chatSessionId": "sess_648f6e3c-5e03-4723-9e64-abcdf7f76bda",
+        "timestamp": 1787529087945
+      }
+    ],
+    "3.1 Extend Dependencies interface and getDependencies() factory": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529147132
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529154489
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529347761
+      }
+    ],
+    "3.2 Create BreakerDependencies interface and getBreakerDependencies() factory": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529147183
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529350880
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529436946
+      }
+    ],
+    "4. Checkpoint - Ensure ports, adapters, and dependencies compile": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529147224
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529446190
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529449417
+      }
+    ],
+    "5.1 Extend trip-breaker use-case": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529147258
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529452768
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529733843
+      }
+    ],
+    "5.2 Write unit tests for extended trip-breaker use-case": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529147292
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529743803
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787530106664
+      }
+    ],
+    "5.3 Extend grant-shape use-case with policy size rollback": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529147335
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529453584
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529734723
+      }
+    ],
+    "5.4 Write unit tests for grant-shape policy size rollback": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529147382
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529744662
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787530107453
+      }
+    ],
+    "6.1 Refactor breaker-trip.alarm handler": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529147418
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529745411
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787530108248
+      }
+    ],
+    "6.2 Write unit tests for breaker-trip.alarm handler": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529147458
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787531488759
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787531718566
+      }
+    ],
+    "6.3 Refactor grant-shape.http handler for agentId resolution": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529147493
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529746259
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787530109151
+      }
+    ],
+    "6.4 Write unit tests for grant-shape.http handler": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529147528
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787531489527
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787531716147
+      }
+    ],
+    "6.5 Refactor revoke-shape.http handler for agentId resolution": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529147583
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529747097
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787530110013
+      }
+    ],
+    "6.6 Write unit tests for revoke-shape.http handler": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529147619
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787531490342
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787531717805
+      }
+    ],
+    "6.7 Refactor query-fleet-state.http handler to use Agent Registry": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529147646
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787530126416
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787531483574
+      }
+    ],
+    "6.8 Write unit tests for query-fleet-state.http handler": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529147685
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787531491171
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787531717015
+      }
+    ],
+    "7. Checkpoint - Ensure API package compiles and tests pass": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529147721
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787531723649
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787531727099
+      }
+    ],
+    "8.1 Add Agent Registry table to SharedInfraStack": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529147757
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787531741266
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787533841334
+      }
+    ],
+    "8.2 Add Breaker Lambda to SharedInfraStack": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529147805
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787531742276
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787533842208
+      }
+    ],
+    "8.3 Upgrade API Gateway from L1 CfnRestApi to L2 RestApi": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529147841
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787533846551
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787534633467
+      }
+    ],
+    "9.1 Create AgentPolicyModulator construct": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529147875
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787534639496
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787535204976
+      }
+    ],
+    "9.2 Create RegistrySeed Lambda handler": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529147910
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787533847403
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787534634280
+      }
+    ],
+    "10.1 Update AgentConfigStack to integrate AgentPolicyModulator": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529147945
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787535209257
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787537753955
+      }
+    ],
+    "11. Checkpoint - Ensure CDK package synthesizes": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529147979
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787537758981
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787537762581
+      }
+    ],
+    "12.1 Write AgentPolicyModulator construct assertion tests": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529148016
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787537767111
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787538942458
+      }
+    ],
+    "12.2 Extend SharedInfraStack assertion tests": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529148064
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787537767892
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787538943409
+      }
+    ],
+    "12.3 Extend AgentConfigStack assertion tests": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529148104
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787537768728
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787538944226
+      }
+    ],
+    "13. Final checkpoint - Ensure all packages build and tests pass": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529148140
+      },
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787538948801
+      },
+      {
+        "executionId": "e5c1dde4-2983-4baa-8389-d9f22454edf4",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787605824113
+      }
+    ],
+    "3. API layer — dependencies extension": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787529436978
+      }
+    ],
+    "5. API layer — use-case refactoring": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787530107485
+      }
+    ],
+    "6. API layer — handler refactoring": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787531718607
+      }
+    ],
+    "8. CDK — SharedInfraStack extensions": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787534633525
+      }
+    ],
+    "9. CDK — AgentPolicyModulator construct": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787535205020
+      }
+    ],
+    "10. CDK — AgentConfigStack updates": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787537753998
+      }
+    ],
+    "12. CDK assertion tests": [
+      {
+        "executionId": "ab8832be-0314-4fbf-bd01-2d63b44bcffa",
+        "chatSessionId": "sess_1ec10a17-2a18-4bf2-9dee-ea4082df0d7e",
+        "timestamp": 1787538944263
+      }
+    ]
+  }
+}

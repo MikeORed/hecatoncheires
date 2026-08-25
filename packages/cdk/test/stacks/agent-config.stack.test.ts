@@ -36,11 +36,18 @@ function createTestStacks(overrides?: {
     configName,
     agentType,
     modelId,
+    thresholds: {
+      outputTokensPerHour: 100000,
+      guardrailBlocksPer10Min: 5,
+      guardrailObservationsPerHour: 20,
+    },
     sharedInfra: {
       opsBus: sharedInfra.opsBus,
       snsTopic: sharedInfra.snsTopic,
       grantLedgerTable: sharedInfra.grantLedgerTable,
       defaultGuardrailConfig: sharedInfra.defaultGuardrailConfig,
+      breakerLambda: sharedInfra.breakerLambda,
+      agentRegistryTable: sharedInfra.agentRegistryTable,
     },
     externalPrincipalArn: overrides?.externalPrincipalArn,
     guardrailOverrides: overrides?.guardrailOverrides,
@@ -284,6 +291,67 @@ describe('AgentConfigStack (via TestAgentConfigStack)', () => {
         (r) => r.Properties.RoleName as string,
       );
       expect(roleNames).toContain(naming.roleName('sre-ops'));
+    });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Task 12.3: AgentPolicyModulator integration tests (via TestAgentConfigStack)
+// Validates: Requirements 14.1, 14.2, 14.3
+// ---------------------------------------------------------------------------
+
+describe('AgentPolicyModulator integration (via TestAgentConfigStack)', () => {
+  describe('Alarm creation', () => {
+    it('creates exactly 3 CloudWatch alarms', () => {
+      const { template } = createTestStacks();
+      template.resourceCountIs('AWS::CloudWatch::Alarm', 3);
+    });
+
+    it('creates a token alarm with correct threshold', () => {
+      const { template } = createTestStacks();
+      template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+        Threshold: 100000,
+        MetricName: 'OutputTokenCount',
+        Namespace: 'AWS/Bedrock',
+        Period: 3600,
+      });
+    });
+
+    it('creates a block alarm with correct threshold', () => {
+      const { template } = createTestStacks();
+      template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+        Threshold: 5,
+        MetricName: 'GuardrailBlocked',
+        Namespace: 'AWS/Bedrock',
+        Period: 600,
+      });
+    });
+
+    it('creates an observation alarm with correct threshold', () => {
+      const { template } = createTestStacks();
+      template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+        Threshold: 20,
+        MetricName: 'GuardrailObserved',
+        Namespace: 'AWS/Bedrock',
+        Period: 3600,
+      });
+    });
+  });
+
+  describe('ProfileEntityId output', () => {
+    it('exports profileEntityId as a CfnOutput', () => {
+      const { template } = createTestStacks();
+      template.hasOutput('ProfileEntityId', {});
+    });
+  });
+
+  describe('Modulator outputs', () => {
+    it('exposes modulator outputs with all alarm references', () => {
+      const { agentStack } = createTestStacks();
+      expect(agentStack.modulator).toBeDefined();
+      expect(agentStack.modulator.tokenAlarm).toBeDefined();
+      expect(agentStack.modulator.blockAlarm).toBeDefined();
+      expect(agentStack.modulator.observationAlarm).toBeDefined();
     });
   });
 });

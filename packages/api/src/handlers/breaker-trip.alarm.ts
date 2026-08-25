@@ -1,4 +1,4 @@
-import { getDependencies } from '../shared/dependencies.js';
+import { getBreakerDependencies } from '../shared/dependencies.js';
 import { tripBreaker } from '../use-cases/trip-breaker.js';
 
 /**
@@ -26,43 +26,46 @@ export interface CloudWatchAlarmEvent {
 }
 
 /**
- * Extracts configName and roleName from alarm dimensions.
- * Expected dimensions: configName, roleName (set when the alarm was created).
+ * Extracts the InferenceProfileId from alarm metric dimensions.
+ * Returns undefined when the dimension is not present.
  */
-function extractFromAlarmDimensions(
-  event: CloudWatchAlarmEvent,
-): { configName?: string; roleName?: string } {
+function extractProfileEntityId(event: CloudWatchAlarmEvent): string | undefined {
   const metrics = event.detail.configuration?.metrics;
-  if (!metrics || metrics.length === 0) {
-    return {};
-  }
+  if (!metrics || metrics.length === 0) return undefined;
   const dimensions = metrics[0]?.metricStat?.metric?.dimensions;
-  if (!dimensions) {
-    return {};
-  }
-  return {
-    configName: dimensions['configName'],
-    roleName: dimensions['roleName'],
-  };
+  return dimensions?.['InferenceProfileId'];
 }
 
 export async function handler(event: CloudWatchAlarmEvent): Promise<void> {
-  // No-op for non-ALARM state transitions
+  // 1. No-op for non-ALARM state transitions
   if (event.detail.state.value !== 'ALARM') {
     return;
   }
 
-  // Extract configName and roleName from alarm dimensions
-  const { configName, roleName } = extractFromAlarmDimensions(event);
-  if (!configName || !roleName) {
-    console.error('Cannot extract configName/roleName from alarm event', JSON.stringify(event));
-    return; // Do not throw — alarm handlers must not retry on parse failures
+  // 2. Extract profileEntityId from alarm metric dimensions
+  const profileEntityId = extractProfileEntityId(event);
+  if (!profileEntityId) {
+    console.error('Cannot extract profileEntityId from alarm event', JSON.stringify(event));
+    return; // Do not throw — prevents retry on parse failures
   }
 
-  // Invoke use-case (allowed to throw — Lambda will retry for breaker trips)
-  const deps = getDependencies();
+  // 3. Resolve agent identity via registry
+  const deps = getBreakerDependencies();
+  const agent = await deps.agentRegistry.getByProfileEntityId(profileEntityId);
+  if (!agent) {
+    console.error('Cannot resolve profileEntityId to agent', { profileEntityId });
+    return; // Do not throw
+  }
+
+  // 4. Invoke trip-breaker use-case (throws on IAM write failure → Lambda retries)
   await tripBreaker(
-    { configName, roleName, reason: event.detail.state.reason },
+    {
+      configName: agent.configName,
+      roleName: agent.roleName,
+      agentId: agent.agentId,
+      reason: event.detail.state.reason,
+      alarmName: event.detail.alarmName,
+    },
     deps,
   );
 }

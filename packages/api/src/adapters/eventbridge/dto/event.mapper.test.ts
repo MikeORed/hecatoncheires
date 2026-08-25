@@ -44,12 +44,14 @@ const arbBreakerTrippedDetail: fc.Arbitrary<BreakerTrippedDetail> = fc
   .tuple(
     fc.string({ minLength: 1, maxLength: 40 }),
     fc.string({ minLength: 1, maxLength: 40 }),
+    fc.string({ minLength: 1, maxLength: 80 }),
     fc.string({ minLength: 1, maxLength: 200 }),
     arbIsoDatetime,
   )
-  .map(([configName, roleName, reason, timestamp]) => ({
+  .map(([configName, roleName, alarmName, reason, timestamp]) => ({
     configName,
     roleName,
+    alarmName,
     reason,
     timestamp,
   }));

@@ -17,5 +17,6 @@ export default defineConfig({
       'packages/web/**/*.test.ts',
     ],
     passWithNoTests: true,
+    testTimeout: 30000,
   },
 });

@@ -1,6 +1,6 @@
 import type { IamPolicyDocument } from '../types/index.js';
 import type { DomainError } from '../errors/index.js';
-import { ValidationError } from '../errors/index.js';
+import { PolicySizeExceededError } from '../errors/index.js';
 import { AWS_INLINE_POLICY_SIZE_LIMIT } from '../constants/limits.js';
 
 export type ValidationResult = { valid: true } | { valid: false; error: DomainError };
@@ -18,7 +18,7 @@ export function validatePolicySize(policy: IamPolicyDocument): ValidationResult 
   if (actualSize > AWS_INLINE_POLICY_SIZE_LIMIT) {
     return {
       valid: false,
-      error: new ValidationError(
+      error: new PolicySizeExceededError(
         `Policy size ${actualSize} bytes exceeds AWS inline policy limit of ${AWS_INLINE_POLICY_SIZE_LIMIT} bytes`,
         { actualSize, limit: AWS_INLINE_POLICY_SIZE_LIMIT },
       ),

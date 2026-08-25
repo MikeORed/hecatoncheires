@@ -15,11 +15,24 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
     return errorResponse(400, 'VALIDATION_ERROR', 'Invalid request body', parseResult.error.issues);
   }
 
-  // 2. Execute use-case
+  // 2. Resolve agentId → configName + roleName via registry
+  const deps = getDependencies();
+  const agent = await deps.agentRegistry.getByAgentId(parseResult.data.agentId);
+  if (!agent) {
+    return errorResponse(404, 'AGENT_NOT_FOUND', `Agent not found: ${parseResult.data.agentId}`);
+  }
+
+  // 3. Execute use-case with resolved identity
   try {
-    const deps = getDependencies();
-    const result = await revokeShape(parseResult.data, deps);
-    return successResponse(200, toResponse(result));
+    const result = await revokeShape(
+      {
+        configName: agent.configName,
+        roleName: agent.roleName,
+        grantId: parseResult.data.grantId,
+      },
+      deps,
+    );
+    return successResponse(200, toResponse(result, agent.agentId));
   } catch (err) {
     if (err instanceof DomainError) {
       const status = errorStatusMap[err.code] ?? 500;

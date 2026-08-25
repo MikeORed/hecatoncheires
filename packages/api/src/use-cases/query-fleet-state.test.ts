@@ -1,9 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
-import fc from 'fast-check';
 import type { GrantRecord } from '@hecaton/core';
 
 import { queryFleetState } from './query-fleet-state.js';
 import type { Dependencies } from '../shared/dependencies.js';
+import type { AgentRegistryRecord } from '../ports/agent-registry.port.js';
 
 function createMockDeps(overrides?: Partial<Dependencies>): Dependencies {
   return {
@@ -20,89 +20,171 @@ function createMockDeps(overrides?: Partial<Dependencies>): Dependencies {
     busEmitter: {
       emit: vi.fn().mockResolvedValue(undefined),
     },
+    agentRegistry: {
+      getByAgentId: vi.fn().mockResolvedValue(null),
+      getByProfileEntityId: vi.fn().mockResolvedValue(null),
+      getByConfigName: vi.fn().mockResolvedValue(null),
+      updateBreakerState: vi.fn().mockResolvedValue(undefined),
+      listAll: vi.fn().mockResolvedValue([]),
+    },
     ...overrides,
   };
 }
 
-const arbConfigName = fc
-  .tuple(
-    fc.constantFrom(...'abcdefghijklmnopqrstuvwxyz'.split('')),
-    fc.stringOf(fc.constantFrom(...'abcdefghijklmnopqrstuvwxyz0123456789-'.split('')), {
-      minLength: 0,
-      maxLength: 10,
-    }),
-    fc.constantFrom(...'abcdefghijklmnopqrstuvwxyz0123456789'.split('')),
-  )
-  .map(([f, m, l]) => `${f}${m}${l}`);
+function makeAgent(overrides: Partial<AgentRegistryRecord> = {}): AgentRegistryRecord {
+  return {
+    agentId: '01912345-6789-7abc-8def-0123456789aa',
+    configName: 'agent-a',
+    roleName: 'hecaton-dev-agent-a-agent-role',
+    profileEntityId: 'profile-a',
+    profileArn: 'arn:profile-a',
+    agentType: 'AgentCore Managed',
+    modelId: 'anthropic.claude-3',
+    guardrailId: 'gid-a',
+    status: 'active',
+    breakerState: 'armed',
+    ...overrides,
+  };
+}
 
-const arbIsoDatetime = fc
-  .date({ min: new Date('2020-01-01'), max: new Date('2030-12-31') })
-  .map((d) => d.toISOString());
+function makeGrant(overrides: Partial<GrantRecord> = {}): GrantRecord {
+  return {
+    grantId: '01912345-6789-7abc-8def-0123456789ab',
+    configName: 'agent-a',
+    shapeName: 'core-invocation',
+    parameters: { inferenceProfileArn: 'arn:test' },
+    grantedAt: '2026-07-20T12:00:00.000Z',
+    grantedBy: 'admin',
+    ...overrides,
+  };
+}
 
-const arbGrantRecord: fc.Arbitrary<GrantRecord> = fc
-  .tuple(
-    arbConfigName,
-    fc.string({ minLength: 1, maxLength: 40 }),
-    fc.dictionary(
-      fc.string({ minLength: 1, maxLength: 20 }),
-      fc.string({ minLength: 1, maxLength: 50 }),
-      { minKeys: 0, maxKeys: 3 },
-    ),
-    arbIsoDatetime,
-    fc.string({ minLength: 1, maxLength: 40 }),
-  )
-  .map(([configName, shapeName, parameters, grantedAt, grantedBy]) => ({
-    grantId: `00000000-0000-7000-8000-${Math.random().toString(16).slice(2, 14)}`,
-    configName,
-    shapeName,
-    parameters,
-    grantedAt,
-    grantedBy,
-  }));
+describe('queryFleetState', () => {
+  it('returns empty array when no agents exist', async () => {
+    const deps = createMockDeps();
+    const result = await queryFleetState(deps);
+    expect(result).toEqual([]);
+  });
 
-describe('Feature: phase-1-api-package-setup', () => {
-  describe('Property 8: Fleet-state grouping correctness', () => {
-    it('result keys match all configNames, values contain exactly their grants, union equals input', async () => {
-      await fc.assert(
-        fc.asyncProperty(
-          fc.array(arbGrantRecord, { minLength: 0, maxLength: 20 }),
-          async (grants) => {
-            const deps = createMockDeps({
-              grantLedger: {
-                putGrant: vi.fn().mockResolvedValue(undefined),
-                deleteGrant: vi.fn().mockResolvedValue(undefined),
-                queryGrantsByConfig: vi.fn().mockResolvedValue([]),
-                scanAllConfigs: vi.fn().mockResolvedValue(grants),
-              },
-            });
+  it('returns agents with their grants matched by configName', async () => {
+    const agentA = makeAgent({ agentId: 'id-a', configName: 'agent-a' });
+    const agentB = makeAgent({ agentId: 'id-b', configName: 'agent-b', agentType: 'OpenClaw' });
 
-            const result = await queryFleetState(deps);
+    const grantA = makeGrant({ configName: 'agent-a', grantId: 'grant-1' });
+    const grantB = makeGrant({
+      configName: 'agent-b',
+      grantId: 'grant-2',
+      shapeName: 's3-prefix-read',
+    });
 
-            // Keys match all unique configNames from input
-            const expectedKeys = [...new Set(grants.map((g) => g.configName))];
-            expect(Object.keys(result).sort()).toEqual(expectedKeys.sort());
+    const deps = createMockDeps({
+      agentRegistry: {
+        getByAgentId: vi.fn().mockResolvedValue(null),
+        getByProfileEntityId: vi.fn().mockResolvedValue(null),
+        getByConfigName: vi.fn().mockResolvedValue(null),
+        updateBreakerState: vi.fn().mockResolvedValue(undefined),
+        listAll: vi.fn().mockResolvedValue([agentA, agentB]),
+      },
+      grantLedger: {
+        putGrant: vi.fn().mockResolvedValue(undefined),
+        deleteGrant: vi.fn().mockResolvedValue(undefined),
+        queryGrantsByConfig: vi.fn().mockResolvedValue([]),
+        scanAllConfigs: vi.fn().mockResolvedValue([grantA, grantB]),
+      },
+    });
 
-            // Each value contains exactly grants for that configName
-            for (const key of expectedKeys) {
-              const expected = grants.filter((g) => g.configName === key);
-              expect(result[key]).toEqual(expected);
-            }
+    const result = await queryFleetState(deps);
 
-            // Union of all values equals input
-            const allValues = Object.values(result).flat();
-            expect(allValues).toHaveLength(grants.length);
-          },
-        ),
-        { numRuns: 100 },
-      );
+    expect(result).toHaveLength(2);
+    expect(result[0]).toEqual({
+      agentId: 'id-a',
+      configName: 'agent-a',
+      agentType: 'AgentCore Managed',
+      modelId: 'anthropic.claude-3',
+      status: 'active',
+      breakerState: 'armed',
+      grants: [grantA],
+    });
+    expect(result[1]).toEqual({
+      agentId: 'id-b',
+      configName: 'agent-b',
+      agentType: 'OpenClaw',
+      modelId: 'anthropic.claude-3',
+      status: 'active',
+      breakerState: 'armed',
+      grants: [grantB],
     });
   });
 
-  describe('query-fleet-state edge cases', () => {
-    it('returns empty record when ledger is empty', async () => {
-      const deps = createMockDeps();
-      const result = await queryFleetState(deps);
-      expect(result).toEqual({});
+  it('returns agents with empty grants when ledger has no matching grants', async () => {
+    const agent = makeAgent({ configName: 'agent-a' });
+
+    const deps = createMockDeps({
+      agentRegistry: {
+        getByAgentId: vi.fn().mockResolvedValue(null),
+        getByProfileEntityId: vi.fn().mockResolvedValue(null),
+        getByConfigName: vi.fn().mockResolvedValue(null),
+        updateBreakerState: vi.fn().mockResolvedValue(undefined),
+        listAll: vi.fn().mockResolvedValue([agent]),
+      },
     });
+
+    const result = await queryFleetState(deps);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].grants).toEqual([]);
+  });
+
+  it('assigns multiple grants to the same agent', async () => {
+    const agent = makeAgent({ configName: 'agent-a' });
+    const grant1 = makeGrant({ configName: 'agent-a', grantId: 'g1' });
+    const grant2 = makeGrant({ configName: 'agent-a', grantId: 'g2', shapeName: 's3-prefix-read' });
+
+    const deps = createMockDeps({
+      agentRegistry: {
+        getByAgentId: vi.fn().mockResolvedValue(null),
+        getByProfileEntityId: vi.fn().mockResolvedValue(null),
+        getByConfigName: vi.fn().mockResolvedValue(null),
+        updateBreakerState: vi.fn().mockResolvedValue(undefined),
+        listAll: vi.fn().mockResolvedValue([agent]),
+      },
+      grantLedger: {
+        putGrant: vi.fn().mockResolvedValue(undefined),
+        deleteGrant: vi.fn().mockResolvedValue(undefined),
+        queryGrantsByConfig: vi.fn().mockResolvedValue([]),
+        scanAllConfigs: vi.fn().mockResolvedValue([grant1, grant2]),
+      },
+    });
+
+    const result = await queryFleetState(deps);
+
+    expect(result[0].grants).toHaveLength(2);
+    expect(result[0].grants).toEqual([grant1, grant2]);
+  });
+
+  it('ignores grants for configNames without a matching agent', async () => {
+    const agent = makeAgent({ configName: 'agent-a' });
+    const orphanGrant = makeGrant({ configName: 'unknown-agent', grantId: 'g-orphan' });
+
+    const deps = createMockDeps({
+      agentRegistry: {
+        getByAgentId: vi.fn().mockResolvedValue(null),
+        getByProfileEntityId: vi.fn().mockResolvedValue(null),
+        getByConfigName: vi.fn().mockResolvedValue(null),
+        updateBreakerState: vi.fn().mockResolvedValue(undefined),
+        listAll: vi.fn().mockResolvedValue([agent]),
+      },
+      grantLedger: {
+        putGrant: vi.fn().mockResolvedValue(undefined),
+        deleteGrant: vi.fn().mockResolvedValue(undefined),
+        queryGrantsByConfig: vi.fn().mockResolvedValue([]),
+        scanAllConfigs: vi.fn().mockResolvedValue([orphanGrant]),
+      },
+    });
+
+    const result = await queryFleetState(deps);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].grants).toEqual([]);
   });
 });

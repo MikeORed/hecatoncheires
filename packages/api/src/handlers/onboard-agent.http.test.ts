@@ -44,6 +44,13 @@ function createMockDeps() {
     busEmitter: {
       emit: vi.fn().mockResolvedValue(undefined),
     },
+    agentRegistry: {
+      getByAgentId: vi.fn().mockResolvedValue(null),
+      getByProfileEntityId: vi.fn().mockResolvedValue(null),
+      getByConfigName: vi.fn().mockResolvedValue(null),
+      updateBreakerState: vi.fn().mockResolvedValue(undefined),
+      listAll: vi.fn().mockResolvedValue([]),
+    },
   };
 }
 
