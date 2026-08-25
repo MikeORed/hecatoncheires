@@ -87,6 +87,103 @@ describe('NamingGenerator', () => {
     });
   });
 
+  describe('AppConfig and infrastructure extension methods', () => {
+    const naming = new NamingGenerator('dev');
+    const configName = 'sre-ops';
+
+    it('appConfigApplicationName produces correct pattern', () => {
+      expect(naming.appConfigApplicationName()).toBe('hecaton-dev-platform');
+    });
+
+    it('appConfigEnvironmentName defaults to stage when no argument provided', () => {
+      expect(naming.appConfigEnvironmentName()).toBe('hecaton-dev-dev');
+    });
+
+    it('appConfigEnvironmentName uses explicit environmentName when provided', () => {
+      expect(naming.appConfigEnvironmentName('staging')).toBe('hecaton-dev-staging');
+    });
+
+    it('appConfigProfileName produces correct pattern', () => {
+      expect(naming.appConfigProfileName(configName)).toBe('hecaton-dev-sre-ops-tunables');
+    });
+
+    it('driftDetectionLambdaName produces correct pattern', () => {
+      expect(naming.driftDetectionLambdaName()).toBe('hecaton-dev-drift-detection');
+    });
+
+    it('bedrockLogGroupName produces correct pattern', () => {
+      expect(naming.bedrockLogGroupName()).toBe('/aws/bedrock/invocations/dev');
+    });
+  });
+
+  describe('AppConfig and infrastructure extension methods across stages', () => {
+    it.each([
+      { stage: 'prod', expected: 'hecaton-prod-platform' },
+      { stage: 'staging', expected: 'hecaton-staging-platform' },
+      { stage: 'sit', expected: 'hecaton-sit-platform' },
+    ])(
+      'appConfigApplicationName() for stage "$stage" → $expected',
+      ({ stage, expected }) => {
+        expect(new NamingGenerator(stage).appConfigApplicationName()).toBe(expected);
+      },
+    );
+
+    it.each([
+      { stage: 'prod', expected: 'hecaton-prod-prod' },
+      { stage: 'staging', expected: 'hecaton-staging-staging' },
+      { stage: 'sit', expected: 'hecaton-sit-sit' },
+    ])(
+      'appConfigEnvironmentName() defaults to stage for stage "$stage" → $expected',
+      ({ stage, expected }) => {
+        expect(new NamingGenerator(stage).appConfigEnvironmentName()).toBe(expected);
+      },
+    );
+
+    it.each([
+      { stage: 'prod', envName: 'canary', expected: 'hecaton-prod-canary' },
+      { stage: 'staging', envName: 'beta', expected: 'hecaton-staging-beta' },
+      { stage: 'sit', envName: 'integration', expected: 'hecaton-sit-integration' },
+    ])(
+      'appConfigEnvironmentName("$envName") for stage "$stage" → $expected',
+      ({ stage, envName, expected }) => {
+        expect(new NamingGenerator(stage).appConfigEnvironmentName(envName)).toBe(expected);
+      },
+    );
+
+    it.each([
+      { stage: 'prod', expected: 'hecaton-prod-sre-ops-tunables' },
+      { stage: 'staging', expected: 'hecaton-staging-sre-ops-tunables' },
+      { stage: 'sit', expected: 'hecaton-sit-sre-ops-tunables' },
+    ])(
+      'appConfigProfileName("sre-ops") for stage "$stage" → $expected',
+      ({ stage, expected }) => {
+        expect(new NamingGenerator(stage).appConfigProfileName('sre-ops')).toBe(expected);
+      },
+    );
+
+    it.each([
+      { stage: 'prod', expected: 'hecaton-prod-drift-detection' },
+      { stage: 'staging', expected: 'hecaton-staging-drift-detection' },
+      { stage: 'sit', expected: 'hecaton-sit-drift-detection' },
+    ])(
+      'driftDetectionLambdaName() for stage "$stage" → $expected',
+      ({ stage, expected }) => {
+        expect(new NamingGenerator(stage).driftDetectionLambdaName()).toBe(expected);
+      },
+    );
+
+    it.each([
+      { stage: 'prod', expected: '/aws/bedrock/invocations/prod' },
+      { stage: 'staging', expected: '/aws/bedrock/invocations/staging' },
+      { stage: 'sit', expected: '/aws/bedrock/invocations/sit' },
+    ])(
+      'bedrockLogGroupName() for stage "$stage" → $expected',
+      ({ stage, expected }) => {
+        expect(new NamingGenerator(stage).bedrockLogGroupName()).toBe(expected);
+      },
+    );
+  });
+
   describe('infrastructure naming across stages', () => {
     it.each([
       { stage: 'prod', expected: 'hecaton-prod-ops-bus' },

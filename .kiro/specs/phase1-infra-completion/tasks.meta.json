@@ -1,0 +1,266 @@
+{
+  "pbtResults": {
+    "1.3 Write property tests for NamingGenerator extensions": {
+      "status": "passed",
+      "lastRunTimestamp": 1787622072717
+    },
+    "3.4 Write property tests for `isKnownPrincipal` function": {
+      "status": "passed",
+      "lastRunTimestamp": 1787622536685
+    }
+  },
+  "executionHistory": {
+    "1.1 Add `appConfigApplicationName`, `appConfigEnvironmentName`, `appConfigProfileName`, `driftDetectionLambdaName`, and `bedrockLogGroupName` methods to `packages/core/src/constants/naming.ts`": [
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787621889349
+      },
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787621897318
+      },
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787621979281
+      }
+    ],
+    "1.2 Add unit tests for all new NamingGenerator methods in `packages/core/src/constants/naming.test.ts`": [
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787621889394
+      },
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787621983144
+      },
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787622087153
+      }
+    ],
+    "1.3 Write property tests for NamingGenerator extensions": [
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787621889452
+      },
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787621983946
+      },
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787622088100
+      }
+    ],
+    "2. Checkpoint - Ensure core package builds and all tests pass": [
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787621889488
+      },
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787622103131
+      },
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787622315025
+      }
+    ],
+    "3.1 Create `packages/api/src/handlers/drift-detect.event.ts` with handler logic": [
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787621889523
+      },
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787622104028
+      },
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787622316127
+      }
+    ],
+    "3.2 Create drift detection dependencies and adapters": [
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787621889555
+      },
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787622320258
+      },
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787622548719
+      }
+    ],
+    "3.3 Write unit tests for drift detection handler in `packages/api/src/handlers/drift-detect.event.test.ts`": [
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787621889591
+      },
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787622321150
+      },
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787622549669
+      }
+    ],
+    "3.4 Write property tests for `isKnownPrincipal` function": [
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787621889624
+      },
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787622322045
+      },
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787622550674
+      }
+    ],
+    "4. Checkpoint - Ensure api package builds and all tests pass": [
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787621889674
+      },
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787622556097
+      }
+    ],
+    "5.1 Add AppConfig Application and Environment to `packages/cdk/lib/stacks/shared-infra.stack.ts`": [
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787621889707
+      },
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787622557019
+      }
+    ],
+    "5.2 Add drift detection infrastructure to `packages/cdk/lib/stacks/shared-infra.stack.ts`": [
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787621889735
+      },
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787622557975
+      }
+    ],
+    "5.3 Add Bedrock invocation logging to `packages/cdk/lib/stacks/shared-infra.stack.ts`": [
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787621889772
+      },
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787622558857
+      }
+    ],
+    "6.1 Create `packages/cdk/lib/constructs/agent-bus-channel.construct.ts`": [
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787621889799
+      },
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787622559846
+      }
+    ],
+    "7.1 Extend `AgentConfigStackProps` and add AppConfig profile creation to `packages/cdk/lib/stacks/agent-config.stack.ts`": [
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787621889833
+      }
+    ],
+    "8. Checkpoint - Ensure CDK package synthesizes without errors": [
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787621889870
+      }
+    ],
+    "9.1 Extend `packages/cdk/test/stacks/shared-infra.stack.test.ts` with new assertion tests": [
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787621889914
+      }
+    ],
+    "9.2 Create `packages/cdk/test/constructs/agent-bus-channel.construct.test.ts`": [
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787621889945
+      }
+    ],
+    "9.3 Extend `packages/cdk/test/stacks/agent-config.stack.test.ts` with AppConfig profile assertions": [
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787621889978
+      }
+    ],
+    "10. Final checkpoint - Ensure all packages build, lint, and tests pass": [
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787621890007
+      }
+    ],
+    "1. Extend NamingGenerator with new naming methods": [
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787622088150
+      }
+    ],
+    "3. Implement drift detection handler": [
+      {
+        "executionId": "4b516725-9fb7-49be-8b16-4d3673ded627",
+        "chatSessionId": "sess_2be1f2a3-f0b5-4fc6-ab5a-d20dc79ad2c8",
+        "timestamp": 1787622550720
+      }
+    ]
+  }
+}

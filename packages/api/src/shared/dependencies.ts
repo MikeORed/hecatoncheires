@@ -62,6 +62,7 @@ function requireEnv(name: string): string {
 export function resetDependencies(): void {
   cached = undefined;
   cachedBreaker = undefined;
+  cachedDrift = undefined;
 }
 
 export interface BreakerDependencies extends Dependencies {
@@ -88,4 +89,33 @@ export function getBreakerDependencies(): BreakerDependencies {
   };
 
   return cachedBreaker;
+}
+
+export interface DriftDependencies {
+  busEmitter: BusEmitterPort;
+  snsNotifier: SnsNotifierPort;
+}
+
+let cachedDrift: DriftDependencies | undefined;
+
+/**
+ * Lazy-evaluated factory for the drift detection handler.
+ * Provides only the bus emitter and SNS notifier — drift detection
+ * does not need DynamoDB or IAM access.
+ */
+export function getDriftDependencies(): DriftDependencies {
+  if (cachedDrift) return cachedDrift;
+
+  const busArn = requireEnv('OPS_BUS_ARN');
+  const topicArn = requireEnv('SNS_TOPIC_ARN');
+
+  const eventbridge = new EventBridgeClient({});
+  const sns = new SNSClient({});
+
+  cachedDrift = {
+    busEmitter: new BusEmitterAdapter(eventbridge, busArn),
+    snsNotifier: new SnsNotifierAdapter(sns, topicArn),
+  };
+
+  return cachedDrift;
 }

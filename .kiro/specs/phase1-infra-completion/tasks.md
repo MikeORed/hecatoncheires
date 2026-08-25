@@ -6,8 +6,8 @@ Completes the Hecatoncheires Phase 1 infrastructure by implementing AppConfig in
 
 ## Tasks
 
-- [ ] 1. Extend NamingGenerator with new naming methods
-  - [ ] 1.1 Add `appConfigApplicationName`, `appConfigEnvironmentName`, `appConfigProfileName`, `driftDetectionLambdaName`, and `bedrockLogGroupName` methods to `packages/core/src/constants/naming.ts`
+- [x] 1. Extend NamingGenerator with new naming methods
+  - [x] 1.1 Add `appConfigApplicationName`, `appConfigEnvironmentName`, `appConfigProfileName`, `driftDetectionLambdaName`, and `bedrockLogGroupName` methods to `packages/core/src/constants/naming.ts`
     - `appConfigApplicationName()` → `hecaton-{stage}-platform`
     - `appConfigEnvironmentName(environmentName?)` → `hecaton-{stage}-{environmentName}` (defaults to stage)
     - `appConfigProfileName(configName)` → `hecaton-{stage}-{configName}-tunables`
@@ -15,22 +15,22 @@ Completes the Hecatoncheires Phase 1 infrastructure by implementing AppConfig in
     - `bedrockLogGroupName()` → `/aws/bedrock/invocations/{stage}`
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
 
-  - [ ] 1.2 Add unit tests for all new NamingGenerator methods in `packages/core/src/constants/naming.test.ts`
+  - [x] 1.2 Add unit tests for all new NamingGenerator methods in `packages/core/src/constants/naming.test.ts`
     - Test each method with stage "dev" and configName "sre-ops" (matching existing test pattern)
     - Test across multiple stages (prod, staging, sit)
     - Test `appConfigEnvironmentName` with and without explicit environmentName parameter
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
 
-  - [ ]* 1.3 Write property tests for NamingGenerator extensions
+  - [x] 1.3 Write property tests for NamingGenerator extensions
     - **Property 1: NamingGenerator methods produce stage-embedded, pattern-conforming names**
     - **Property 2: NamingGenerator methods produce unique names across different methods**
     - **Validates: Requirements 7.1, 7.2, 7.3, 7.4, 7.5**
 
-- [ ] 2. Checkpoint - Ensure core package builds and all tests pass
+- [x] 2. Checkpoint - Ensure core package builds and all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 3. Implement drift detection handler
-  - [ ] 3.1 Create `packages/api/src/handlers/drift-detect.event.ts` with handler logic
+- [x] 3. Implement drift detection handler
+  - [x] 3.1 Create `packages/api/src/handlers/drift-detect.event.ts` with handler logic
     - Define `DriftDetectEvent` interface matching CloudTrail event shape
     - Implement `isKnownPrincipal(modifierArn, knownPrincipals)` — extract role name from both `arn:aws:iam::ACCOUNT:role/ROLE_NAME` and `arn:aws:sts::ACCOUNT:assumed-role/ROLE_NAME/SESSION` formats
     - Parse `KNOWN_PRINCIPALS` env var (JSON array), default to empty on missing/invalid
@@ -39,12 +39,12 @@ Completes the Hecatoncheires Phase 1 infrastructure by implementing AppConfig in
     - Follow existing handler pattern: flat file, use dependency injection via a `getDriftDependencies()` function
     - _Requirements: 3.3, 3.4, 3.5, 3.6, 3.7_
 
-  - [ ] 3.2 Create drift detection dependencies and adapters
+  - [x] 3.2 Create drift detection dependencies and adapters
     - Add `getDriftDependencies()` to `packages/api/src/shared/dependencies.ts` (or a separate drift-dependencies file) providing `BusEmitterPort` and `SnsNotifierPort`
     - Reuse existing `BusEmitterAdapter` and `SnsNotifierAdapter`
     - _Requirements: 3.5, 3.6, 3.8_
 
-  - [ ] 3.3 Write unit tests for drift detection handler in `packages/api/src/handlers/drift-detect.event.test.ts`
+  - [x] 3.3 Write unit tests for drift detection handler in `packages/api/src/handlers/drift-detect.event.test.ts`
     - Test known principal → no alert emitted
     - Test unknown principal → event + SNS notification emitted
     - Test assumed-role ARN format correctly extracts role name
@@ -53,7 +53,7 @@ Completes the Hecatoncheires Phase 1 infrastructure by implementing AppConfig in
     - Mock adapters at the boundary (matching existing test pattern)
     - _Requirements: 3.4, 3.5, 3.6, 3.7_
 
-  - [ ]* 3.4 Write property tests for `isKnownPrincipal` function
+  - [x] 3.4 Write property tests for `isKnownPrincipal` function
     - **Property 3: Known principal identification is correct for all ARN formats**
     - **Property 4: Known principal check is symmetric with list membership**
     - **Validates: Requirements 3.4, 3.7**
