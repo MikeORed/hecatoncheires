@@ -22,6 +22,15 @@ module.exports = {
         'ts-check': false,
       },
     ],
+    // Allow underscore-prefixed unused variables (standard TS convention for intentionally ignored params)
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+      },
+    ],
     // Disallow explicit `any` annotations
     '@typescript-eslint/no-explicit-any': 'error',
     // Block subpath imports into any workspace package

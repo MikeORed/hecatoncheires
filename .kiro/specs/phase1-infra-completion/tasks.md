@@ -58,11 +58,11 @@ Completes the Hecatoncheires Phase 1 infrastructure by implementing AppConfig in
     - **Property 4: Known principal check is symmetric with list membership**
     - **Validates: Requirements 3.4, 3.7**
 
-- [ ] 4. Checkpoint - Ensure api package builds and all tests pass
+- [x] 4. Checkpoint - Ensure api package builds and all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 5. Add AppConfig resources to SharedInfraStack
-  - [ ] 5.1 Add AppConfig Application and Environment to `packages/cdk/lib/stacks/shared-infra.stack.ts`
+- [x] 5. Add AppConfig resources to SharedInfraStack
+  - [x] 5.1 Add AppConfig Application and Environment to `packages/cdk/lib/stacks/shared-infra.stack.ts`
     - Create `CfnApplication` named `hecaton-{stage}-platform` via NamingGenerator
     - Create `CfnEnvironment` associated with the application, named with stage value
     - Apply standard Hecatoncheires tags to the application
@@ -70,7 +70,7 @@ Completes the Hecatoncheires Phase 1 infrastructure by implementing AppConfig in
     - Add CfnOutputs for cross-stack consumption
     - _Requirements: 1.1, 1.2, 1.3, 1.4_
 
-  - [ ] 5.2 Add drift detection infrastructure to `packages/cdk/lib/stacks/shared-infra.stack.ts`
+  - [x] 5.2 Add drift detection infrastructure to `packages/cdk/lib/stacks/shared-infra.stack.ts`
     - Create `NodejsFunction` for drift detection (Node.js 20, ARM64, 256MB, 30s timeout)
     - Set function name via `NamingGenerator.driftDetectionLambdaName()`
     - Entry: `packages/api/src/handlers/drift-detect.event.ts`
@@ -80,7 +80,7 @@ Completes the Hecatoncheires Phase 1 infrastructure by implementing AppConfig in
     - Expose `breakerLambdaRoleArn`, `grantLambdaRoleArn`, `revokeLambdaRoleArn` for the known principals list
     - _Requirements: 3.1, 3.2, 3.3, 3.8_
 
-  - [ ] 5.3 Add Bedrock invocation logging to `packages/cdk/lib/stacks/shared-infra.stack.ts`
+  - [x] 5.3 Add Bedrock invocation logging to `packages/cdk/lib/stacks/shared-infra.stack.ts`
     - Create CloudWatch Logs log group `/aws/bedrock/invocations/{stage}` with 30-day retention
     - Create `AwsCustomResource` calling `bedrock:PutModelInvocationLoggingConfiguration`
     - Grant the custom resource execution role the necessary Bedrock logging permissions
@@ -88,8 +88,8 @@ Completes the Hecatoncheires Phase 1 infrastructure by implementing AppConfig in
     - Expose log group ARN as CfnOutput (`BedrockLogGroupArn`)
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
-- [ ] 6. Implement AgentBusChannel construct
-  - [ ] 6.1 Create `packages/cdk/lib/constructs/agent-bus-channel.construct.ts`
+- [x] 6. Implement AgentBusChannel construct
+  - [x] 6.1 Create `packages/cdk/lib/constructs/agent-bus-channel.construct.ts`
     - Define `AgentBusChannelProps` interface (configName, signalsBusArn, sourceNamespace, subscriptionPatterns?, agentRole, stage)
     - Define `AgentBusChannelOutputs` interface (signalsQueue, deadLetterQueue, rule)
     - Create SQS FIFO DLQ with 14-day retention
@@ -103,8 +103,8 @@ Completes the Hecatoncheires Phase 1 infrastructure by implementing AppConfig in
     - Expose outputs
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7_
 
-- [ ] 7. Add AppConfig profile to AgentConfigStack
-  - [ ] 7.1 Extend `AgentConfigStackProps` and add AppConfig profile creation to `packages/cdk/lib/stacks/agent-config.stack.ts`
+- [x] 7. Add AppConfig profile to AgentConfigStack
+  - [x] 7.1 Extend `AgentConfigStackProps` and add AppConfig profile creation to `packages/cdk/lib/stacks/agent-config.stack.ts`
     - Add `appConfigAppId` and `appConfigEnvId` to `sharedInfra` props
     - Create `CfnConfigurationProfile` named via `NamingGenerator.appConfigProfileName(configName)`
     - Create `CfnHostedConfigurationVersion` with JSON content built from `props.thresholds` + default feature flags
@@ -112,11 +112,11 @@ Completes the Hecatoncheires Phase 1 infrastructure by implementing AppConfig in
     - Create `CfnDeployment` triggering initial deployment
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
-- [ ] 8. Checkpoint - Ensure CDK package synthesizes without errors
+- [x] 8. Checkpoint - Ensure CDK package synthesizes without errors
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 9. Write CDK assertion tests
-  - [ ] 9.1 Extend `packages/cdk/test/stacks/shared-infra.stack.test.ts` with new assertion tests
+- [x] 9. Write CDK assertion tests
+  - [x] 9.1 Extend `packages/cdk/test/stacks/shared-infra.stack.test.ts` with new assertion tests
     - Verify AppConfig Application exists with correct name
     - Verify AppConfig Environment is linked to application
     - Verify Drift Detection Lambda exists with correct runtime, architecture, memory, timeout
@@ -126,7 +126,7 @@ Completes the Hecatoncheires Phase 1 infrastructure by implementing AppConfig in
     - Verify CfnOutputs for AppConfig IDs and Bedrock log group ARN
     - _Requirements: 8.1, 8.2, 8.3_
 
-  - [ ] 9.2 Create `packages/cdk/test/constructs/agent-bus-channel.construct.test.ts`
+  - [x] 9.2 Create `packages/cdk/test/constructs/agent-bus-channel.construct.test.ts`
     - Verify SQS FIFO queue with correct name, visibility timeout (60s), retention (14 days)
     - Verify DLQ (FIFO) with correct name and retention
     - Verify redrive policy with maxReceiveCount = 3
@@ -137,13 +137,13 @@ Completes the Hecatoncheires Phase 1 infrastructure by implementing AppConfig in
     - Verify standard tags applied
     - _Requirements: 8.4, 8.5, 8.6_
 
-  - [ ] 9.3 Extend `packages/cdk/test/stacks/agent-config.stack.test.ts` with AppConfig profile assertions
+  - [x] 9.3 Extend `packages/cdk/test/stacks/agent-config.stack.test.ts` with AppConfig profile assertions
     - Verify ConfigurationProfile exists with correct name and location type
     - Verify HostedConfigurationVersion contains valid JSON content
     - Verify DeploymentStrategy matches stage logic (0-duration for dev)
     - _Requirements: 8.1_
 
-- [ ] 10. Final checkpoint - Ensure all packages build, lint, and tests pass
+- [x] 10. Final checkpoint - Ensure all packages build, lint, and tests pass
   - Run `pnpm build && pnpm test && pnpm lint` from workspace root
   - Ensure all tests pass, ask the user if questions arise.
 

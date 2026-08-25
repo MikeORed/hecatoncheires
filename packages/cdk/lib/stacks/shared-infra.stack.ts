@@ -138,6 +138,10 @@ export class SharedInfraStack extends cdk.Stack {
       architecture: lambda.Architecture.ARM_64,
       memorySize: 256,
       timeout: cdk.Duration.seconds(30),
+      bundling: {
+        externalModules: ['@aws-sdk/*'],
+        target: 'node20',
+      },
       environment: {
         AGENT_REGISTRY_TABLE_NAME: registryTable.tableName,
         OPS_BUS_ARN: bus.eventBusArn,
@@ -198,6 +202,10 @@ export class SharedInfraStack extends cdk.Stack {
       architecture: lambda.Architecture.ARM_64,
       memorySize: 256,
       timeout: cdk.Duration.seconds(30),
+      bundling: {
+        externalModules: ['@aws-sdk/*'],
+        target: 'node20',
+      },
       environment: {
         GRANT_LEDGER_TABLE_NAME: table.tableName,
         AGENT_REGISTRY_TABLE_NAME: registryTable.tableName,
@@ -213,6 +221,10 @@ export class SharedInfraStack extends cdk.Stack {
       architecture: lambda.Architecture.ARM_64,
       memorySize: 256,
       timeout: cdk.Duration.seconds(30),
+      bundling: {
+        externalModules: ['@aws-sdk/*'],
+        target: 'node20',
+      },
       environment: {
         GRANT_LEDGER_TABLE_NAME: table.tableName,
         AGENT_REGISTRY_TABLE_NAME: registryTable.tableName,
@@ -228,6 +240,10 @@ export class SharedInfraStack extends cdk.Stack {
       architecture: lambda.Architecture.ARM_64,
       memorySize: 256,
       timeout: cdk.Duration.seconds(30),
+      bundling: {
+        externalModules: ['@aws-sdk/*'],
+        target: 'node20',
+      },
       environment: {
         GRANT_LEDGER_TABLE_NAME: table.tableName,
         AGENT_REGISTRY_TABLE_NAME: registryTable.tableName,
@@ -330,6 +346,10 @@ export class SharedInfraStack extends cdk.Stack {
       architecture: lambda.Architecture.ARM_64,
       memorySize: 256,
       timeout: cdk.Duration.seconds(30),
+      bundling: {
+        externalModules: ['@aws-sdk/*'],
+        target: 'node20',
+      },
       environment: {
         OPS_BUS_ARN: bus.eventBusArn,
         SNS_TOPIC_ARN: topic.topicArn,

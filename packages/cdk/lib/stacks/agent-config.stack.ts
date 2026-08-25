@@ -1,4 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
+import * as appconfig from 'aws-cdk-lib/aws-appconfig';
 import * as bedrock from 'aws-cdk-lib/aws-bedrock';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as events from 'aws-cdk-lib/aws-events';
@@ -44,6 +45,8 @@ export interface AgentConfigStackProps extends cdk.StackProps {
     defaultGuardrailConfig: GuardrailPolicyConfig;
     breakerLambda: lambda.IFunction;
     agentRegistryTable: dynamodb.ITable;
+    appConfigAppId: string;
+    appConfigEnvId: string;
   };
 }
 
@@ -193,7 +196,84 @@ export abstract class AgentConfigStack extends cdk.Stack {
       exportName: `${id}-profileEntityId`,
     });
 
-    // --- 9. Apply standard tags ---
+    // --- 9. AppConfig runtime tunables profile ---
+    const appConfigProfile = new appconfig.CfnConfigurationProfile(this, 'AppConfigProfile', {
+      applicationId: sharedInfra.appConfigAppId,
+      name: naming.appConfigProfileName(configName),
+      locationUri: 'hosted',
+      tags: [
+        { key: 'hecatoncheires:managed', value: 'true' },
+        { key: 'hecatoncheires:config', value: configName },
+        { key: 'hecatoncheires:stage', value: stage },
+        { key: 'hecatoncheires:phase', value: '1' },
+      ],
+    });
+
+    const tunablesContent = JSON.stringify({
+      thresholds: props.thresholds,
+      featureFlags: {
+        pipelineSpeedBreaker: false,
+        timeBoxedGrants: false,
+      },
+    });
+
+    const hostedConfigVersion = new appconfig.CfnHostedConfigurationVersion(
+      this,
+      'AppConfigHostedVersion',
+      {
+        applicationId: sharedInfra.appConfigAppId,
+        configurationProfileId: appConfigProfile.ref,
+        content: tunablesContent,
+        contentType: 'application/json',
+      },
+    );
+
+    const strategyConfig =
+      stage === 'dev'
+        ? {
+            deploymentDurationInMinutes: 0,
+            growthFactor: 100,
+            finalBakeTimeInMinutes: 0,
+          }
+        : {
+            deploymentDurationInMinutes: 10,
+            growthFactor: 10,
+            finalBakeTimeInMinutes: 2,
+          };
+
+    const deploymentStrategy = new appconfig.CfnDeploymentStrategy(
+      this,
+      'AppConfigDeploymentStrategy',
+      {
+        name: `hecaton-${stage}-${configName}-strategy`,
+        deploymentDurationInMinutes: strategyConfig.deploymentDurationInMinutes,
+        growthFactor: strategyConfig.growthFactor,
+        finalBakeTimeInMinutes: strategyConfig.finalBakeTimeInMinutes,
+        replicateTo: 'NONE',
+        tags: [
+          { key: 'hecatoncheires:managed', value: 'true' },
+          { key: 'hecatoncheires:config', value: configName },
+          { key: 'hecatoncheires:stage', value: stage },
+          { key: 'hecatoncheires:phase', value: '1' },
+        ],
+      },
+    );
+
+    new appconfig.CfnDeployment(this, 'AppConfigDeployment', {
+      applicationId: sharedInfra.appConfigAppId,
+      environmentId: sharedInfra.appConfigEnvId,
+      configurationProfileId: appConfigProfile.ref,
+      configurationVersion: hostedConfigVersion.ref,
+      deploymentStrategyId: deploymentStrategy.ref,
+      tags: [
+        { key: 'hecatoncheires:managed', value: 'true' },
+        { key: 'hecatoncheires:config', value: configName },
+        { key: 'hecatoncheires:stage', value: stage },
+        { key: 'hecatoncheires:phase', value: '1' },
+      ],
+    });
+
+    // --- 10. Apply standard tags ---
     cdk.Tags.of(this).add('hecatoncheires:managed', 'true');
     cdk.Tags.of(this).add('hecatoncheires:config', configName);
     cdk.Tags.of(this).add('hecatoncheires:stage', stage);

@@ -131,6 +131,10 @@ export class AgentPolicyModulator extends Construct {
       memorySize: 128,
       timeout: cdk.Duration.seconds(30),
       entry: join(__dirname, '..', 'lambda', 'registry-seed.handler.ts'),
+      bundling: {
+        externalModules: ['@aws-sdk/*'],
+        target: 'node20',
+      },
       environment: {
         AGENT_REGISTRY_TABLE_NAME: props.agentRegistryTable.tableName,
       },
