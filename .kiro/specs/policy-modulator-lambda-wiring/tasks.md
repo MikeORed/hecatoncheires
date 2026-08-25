@@ -216,7 +216,7 @@ This plan implements Bundle A of Hecatoncheires Phase 1: the AgentPolicyModulato
     - Verify: AgentPolicyModulator instantiated, profileEntityId output exists, thresholds passed through
     - _Requirements: 14.1, 14.2, 14.3_
 
-- [-] 13. Final checkpoint - Ensure all packages build and tests pass
+- [x] 13. Final checkpoint - Ensure all packages build and tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes
