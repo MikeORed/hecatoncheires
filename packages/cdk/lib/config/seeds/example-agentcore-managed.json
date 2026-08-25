@@ -1,0 +1,16 @@
+{
+  "configName": "test-managed",
+  "agentType": "agentcore-managed",
+  "modelId": "us.anthropic.claude-sonnet-4-20250514-v1:0",
+  "thresholds": {
+    "outputTokensPerHour": 500,
+    "guardrailBlocksPer10Min": 3,
+    "guardrailObservationsPerHour": 20
+  },
+  "harnessConfig": {
+    "systemPrompt": "You are a test agent governed by the Hecatoncheires platform. Follow all instructions within your assigned capability boundaries.",
+    "maxIterations": 10,
+    "maxTokens": 4096,
+    "timeoutSeconds": 120
+  }
+}

@@ -62,6 +62,9 @@ export abstract class AgentConfigStack extends cdk.Stack {
   /** The AgentIdentity outputs — always available after construction. */
   readonly identity: AgentIdentityOutputs;
 
+  /** The inference profile ARN (CloudFormation token at synth time). */
+  readonly profileArn: string;
+
   /** The inference profile entity ID (CloudFormation token at synth time). */
   readonly profileEntityId: string;
 
@@ -110,6 +113,7 @@ export abstract class AgentConfigStack extends cdk.Stack {
     );
 
     const profileArn = inferenceProfile.attrInferenceProfileArn;
+    this.profileArn = profileArn;
 
     // --- 4. Create Bedrock guardrail (merge defaultGuardrailConfig + overrides) ---
     const mergedConfig = this.mergeGuardrailConfig(
