@@ -1,0 +1,230 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1.1 Create the AgentCoreManagedStack class with interfaces and input validation": [
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787628418817
+      },
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787628426614
+      },
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787628565412
+      }
+    ],
+    "1.2 Implement CfnHarness resource creation and governance wiring": [
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787628418852
+      },
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787628570158
+      },
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787628865881
+      }
+    ],
+    "1.3 Implement optional signal channel integration": [
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787628418885
+      },
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787628870399
+      },
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787629218691
+      }
+    ],
+    "2. Checkpoint - Ensure stack compiles and exports are correct": [
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787628418920
+      },
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787629229538
+      },
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787629232781
+      }
+    ],
+    "3.1 Create the seed configuration JSON file": [
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787628418952
+      },
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787628427498
+      },
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787628566245
+      }
+    ],
+    "3.2 Update CDK app entry point to instantiate AgentCoreManagedStack from seed": [
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787628419003
+      },
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787628871273
+      },
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787629219641
+      }
+    ],
+    "4. Checkpoint - Verify CDK synthesis succeeds": [
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787628419035
+      },
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787629233764
+      },
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787629236807
+      }
+    ],
+    "5.1 Create test helper and CfnHarness resource creation tests": [
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787628419065
+      },
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787629241003
+      },
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787689799180
+      }
+    ],
+    "5.2 Write tests for harness-native limits (presence/absence)": [
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787628419109
+      },
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787689804413
+      },
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787690573983
+      }
+    ],
+    "5.3 Write tests for tool/skill configuration and signal channel integration": [
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787628419135
+      },
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787689805233
+      },
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787690574829
+      }
+    ],
+    "5.4 Write tests for governance composition and input validation errors": [
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787628419163
+      },
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787690579182
+      },
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787690726700
+      }
+    ],
+    "6. Final checkpoint - Ensure all tests pass and CDK synth succeeds": [
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787628419191
+      },
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787690731987
+      },
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787690917512
+      }
+    ],
+    "1. Implement AgentCoreManagedStack with validation and CfnHarness creation": [
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787629218726
+      }
+    ],
+    "3. Create seed configuration and wire CDK app entry point": [
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787629219676
+      }
+    ],
+    "5. Implement CDK assertion tests": [
+      {
+        "executionId": "a4a5fe6f-148b-41bd-8c89-f00af1e2db7e",
+        "chatSessionId": "sess_e28de563-9465-43d1-ba70-71322898e2c1",
+        "timestamp": 1787690726724
+      }
+    ]
+  }
+}
