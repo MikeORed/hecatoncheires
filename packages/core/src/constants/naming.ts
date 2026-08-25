@@ -94,6 +94,31 @@ export class NamingGenerator {
     return `hecaton-${this.stage}-agent-registry`;
   }
 
+  /** Pattern: hecaton-{stage}-platform */
+  appConfigApplicationName(): string {
+    return `hecaton-${this.stage}-platform`;
+  }
+
+  /** Pattern: hecaton-{stage}-{environmentName} (defaults to stage) */
+  appConfigEnvironmentName(environmentName?: string): string {
+    return `hecaton-${this.stage}-${environmentName ?? this.stage}`;
+  }
+
+  /** Pattern: hecaton-{stage}-{configName}-tunables */
+  appConfigProfileName(configName: string): string {
+    return `hecaton-${this.stage}-${configName}-tunables`;
+  }
+
+  /** Pattern: hecaton-{stage}-drift-detection */
+  driftDetectionLambdaName(): string {
+    return `hecaton-${this.stage}-drift-detection`;
+  }
+
+  /** Pattern: /aws/bedrock/invocations/{stage} */
+  bedrockLogGroupName(): string {
+    return `/aws/bedrock/invocations/${this.stage}`;
+  }
+
   /** Resource tags for Hecatoncheires-managed resources. */
   tags(
     configName: string,

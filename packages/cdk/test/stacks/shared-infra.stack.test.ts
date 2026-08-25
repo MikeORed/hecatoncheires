@@ -4,44 +4,36 @@ import { Template, Match } from 'aws-cdk-lib/assertions';
 import { SharedInfraStack } from '../../lib/stacks/shared-infra.stack.js';
 import { DEFAULT_GUARDRAIL_CONFIG } from '../../lib/stacks/shared-infra.stack.js';
 
-function createTemplate(): { template: Template; stack: SharedInfraStack } {
-  const app = new App();
-  const stack = new SharedInfraStack(app, 'TestStack', { stage: 'test' });
-  const template = Template.fromStack(stack);
-  return { template, stack };
-}
+// Shared synth — all tests use the same stage:'test' config, so synth once.
+const app = new App();
+const stack = new SharedInfraStack(app, 'TestStack', { stage: 'test' });
+const template = Template.fromStack(stack);
 
 describe('SharedInfraStack', () => {
   describe('Resource counts', () => {
     it('creates exactly 1 EventBridge custom bus', () => {
-      const { template } = createTemplate();
       template.resourceCountIs('AWS::Events::EventBus', 1);
     });
 
     it('creates exactly 1 EventBridge archive', () => {
-      const { template } = createTemplate();
       template.resourceCountIs('AWS::Events::Archive', 1);
     });
 
     it('creates exactly 1 SNS topic', () => {
-      const { template } = createTemplate();
       template.resourceCountIs('AWS::SNS::Topic', 1);
     });
 
     it('creates exactly 2 DynamoDB tables', () => {
-      const { template } = createTemplate();
       template.resourceCountIs('AWS::DynamoDB::Table', 2);
     });
 
     it('creates exactly 1 REST API', () => {
-      const { template } = createTemplate();
       template.resourceCountIs('AWS::ApiGateway::RestApi', 1);
     });
   });
 
   describe('EventBridge bus', () => {
     it('is named using NamingGenerator pattern', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::Events::EventBus', {
         Name: 'hecaton-test-ops-bus',
       });
@@ -50,7 +42,6 @@ describe('SharedInfraStack', () => {
 
   describe('EventBridge archive', () => {
     it('has 7-day retention', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::Events::Archive', {
         RetentionDays: 7,
       });
@@ -59,7 +50,6 @@ describe('SharedInfraStack', () => {
 
   describe('DynamoDB grant ledger table', () => {
     it('has correct key schema (configName PK, grantId SK)', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::DynamoDB::Table', {
         KeySchema: [
           { AttributeName: 'configName', KeyType: 'HASH' },
@@ -73,14 +63,12 @@ describe('SharedInfraStack', () => {
     });
 
     it('uses PAY_PER_REQUEST billing mode', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::DynamoDB::Table', {
         BillingMode: 'PAY_PER_REQUEST',
       });
     });
 
     it('has point-in-time recovery enabled', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::DynamoDB::Table', {
         PointInTimeRecoverySpecification: {
           PointInTimeRecoveryEnabled: true,
@@ -89,7 +77,6 @@ describe('SharedInfraStack', () => {
     });
 
     it('has TTL attribute expiresAt', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::DynamoDB::Table', {
         TimeToLiveSpecification: {
           AttributeName: 'expiresAt',
@@ -99,7 +86,6 @@ describe('SharedInfraStack', () => {
     });
 
     it('has removal policy RETAIN (DeletionPolicy: Retain)', () => {
-      const { template } = createTemplate();
       const tables = template.findResources('AWS::DynamoDB::Table', {
         Properties: { TableName: 'hecaton-test-grant-ledger' },
       });
@@ -110,7 +96,6 @@ describe('SharedInfraStack', () => {
     });
 
     it('is named using NamingGenerator pattern', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::DynamoDB::Table', {
         TableName: 'hecaton-test-grant-ledger',
       });
@@ -119,7 +104,6 @@ describe('SharedInfraStack', () => {
 
   describe('SNS topic', () => {
     it('is named using NamingGenerator pattern', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::SNS::Topic', {
         TopicName: 'hecaton-test-notifications',
       });
@@ -128,14 +112,12 @@ describe('SharedInfraStack', () => {
 
   describe('API Gateway', () => {
     it('is named using NamingGenerator pattern', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::ApiGateway::RestApi', {
         Name: 'hecaton-test-api',
       });
     });
 
     it('has apiKeySourceType set to HEADER', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::ApiGateway::RestApi', {
         ApiKeySourceType: 'HEADER',
       });
@@ -144,7 +126,6 @@ describe('SharedInfraStack', () => {
 
   describe('Tag propagation', () => {
     it('applies hecatoncheires:managed tag to EventBridge bus', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::Events::EventBus', {
         Tags: Match.arrayWith([
           { Key: 'hecatoncheires:managed', Value: 'true' },
@@ -153,7 +134,6 @@ describe('SharedInfraStack', () => {
     });
 
     it('applies hecatoncheires:stage tag to SNS topic', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::SNS::Topic', {
         Tags: Match.arrayWith([
           { Key: 'hecatoncheires:stage', Value: 'test' },
@@ -162,7 +142,6 @@ describe('SharedInfraStack', () => {
     });
 
     it('applies hecatoncheires:phase tag to DynamoDB table', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::DynamoDB::Table', {
         Tags: Match.arrayWith([
           { Key: 'hecatoncheires:phase', Value: '1' },
@@ -171,7 +150,6 @@ describe('SharedInfraStack', () => {
     });
 
     it('applies all standard tags to SNS topic', () => {
-      const { template } = createTemplate();
       const expectedTags = [
         { Key: 'hecatoncheires:managed', Value: 'true' },
         { Key: 'hecatoncheires:phase', Value: '1' },
@@ -184,7 +162,6 @@ describe('SharedInfraStack', () => {
     });
 
     it('applies all standard tags to DynamoDB table', () => {
-      const { template } = createTemplate();
       const expectedTags = [
         { Key: 'hecatoncheires:managed', Value: 'true' },
         { Key: 'hecatoncheires:phase', Value: '1' },
@@ -197,7 +174,6 @@ describe('SharedInfraStack', () => {
     });
 
     it('applies managed and stage tags to EventBridge bus', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::Events::EventBus', {
         Tags: Match.arrayWith([
           { Key: 'hecatoncheires:managed', Value: 'true' },
@@ -210,42 +186,36 @@ describe('SharedInfraStack', () => {
 
   describe('CfnOutput exports', () => {
     it('exports opsBusArn', () => {
-      const { template } = createTemplate();
       template.hasOutput('OpsBusArn', {
         Export: { Name: 'TestStack-opsBusArn' },
       });
     });
 
     it('exports snsTopicArn', () => {
-      const { template } = createTemplate();
       template.hasOutput('SnsTopicArn', {
         Export: { Name: 'TestStack-snsTopicArn' },
       });
     });
 
     it('exports grantLedgerTableName', () => {
-      const { template } = createTemplate();
       template.hasOutput('GrantLedgerTableName', {
         Export: { Name: 'TestStack-grantLedgerTableName' },
       });
     });
 
     it('exports grantLedgerTableArn', () => {
-      const { template } = createTemplate();
       template.hasOutput('GrantLedgerTableArn', {
         Export: { Name: 'TestStack-grantLedgerTableArn' },
       });
     });
 
     it('exports apiGatewayId', () => {
-      const { template } = createTemplate();
       template.hasOutput('ApiGatewayId', {
         Export: { Name: 'TestStack-apiGatewayId' },
       });
     });
 
     it('exports apiGatewayUrl', () => {
-      const { template } = createTemplate();
       template.hasOutput('ApiGatewayUrl', {
         Export: { Name: 'TestStack-apiGatewayUrl' },
       });
@@ -254,7 +224,6 @@ describe('SharedInfraStack', () => {
 
   describe('Agent Registry table', () => {
     it('has correct key schema (pk/sk STRING)', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::DynamoDB::Table', {
         TableName: 'hecaton-test-agent-registry',
         KeySchema: [
@@ -269,7 +238,6 @@ describe('SharedInfraStack', () => {
     });
 
     it('uses PAY_PER_REQUEST billing mode', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::DynamoDB::Table', {
         TableName: 'hecaton-test-agent-registry',
         BillingMode: 'PAY_PER_REQUEST',
@@ -277,7 +245,6 @@ describe('SharedInfraStack', () => {
     });
 
     it('has point-in-time recovery enabled', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::DynamoDB::Table', {
         TableName: 'hecaton-test-agent-registry',
         PointInTimeRecoverySpecification: {
@@ -287,7 +254,6 @@ describe('SharedInfraStack', () => {
     });
 
     it('has GSI named gsi1 with inverted keys (sk as PK, pk as SK)', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::DynamoDB::Table', {
         TableName: 'hecaton-test-agent-registry',
         GlobalSecondaryIndexes: Match.arrayWith([
@@ -303,7 +269,6 @@ describe('SharedInfraStack', () => {
     });
 
     it('has removal policy RETAIN (DeletionPolicy: Retain)', () => {
-      const { template } = createTemplate();
       const tables = template.findResources('AWS::DynamoDB::Table', {
         Properties: { TableName: 'hecaton-test-agent-registry' },
       });
@@ -314,7 +279,6 @@ describe('SharedInfraStack', () => {
     });
 
     it('is named hecaton-test-agent-registry', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::DynamoDB::Table', {
         TableName: 'hecaton-test-agent-registry',
       });
@@ -323,7 +287,6 @@ describe('SharedInfraStack', () => {
 
   describe('Breaker Lambda', () => {
     it('has environment variable AGENT_REGISTRY_TABLE_NAME', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::Lambda::Function', {
         FunctionName: 'hecaton-test-breaker-trip',
         Environment: {
@@ -335,7 +298,6 @@ describe('SharedInfraStack', () => {
     });
 
     it('has environment variable OPS_BUS_ARN', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::Lambda::Function', {
         FunctionName: 'hecaton-test-breaker-trip',
         Environment: {
@@ -347,7 +309,6 @@ describe('SharedInfraStack', () => {
     });
 
     it('has environment variable SNS_TOPIC_ARN', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::Lambda::Function', {
         FunctionName: 'hecaton-test-breaker-trip',
         Environment: {
@@ -359,7 +320,6 @@ describe('SharedInfraStack', () => {
     });
 
     it('has environment variable OPERATING_POLICY_NAME', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::Lambda::Function', {
         FunctionName: 'hecaton-test-breaker-trip',
         Environment: {
@@ -371,7 +331,6 @@ describe('SharedInfraStack', () => {
     });
 
     it('uses nodejs20.x runtime', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::Lambda::Function', {
         FunctionName: 'hecaton-test-breaker-trip',
         Runtime: 'nodejs20.x',
@@ -379,7 +338,6 @@ describe('SharedInfraStack', () => {
     });
 
     it('has 256 MB memory', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::Lambda::Function', {
         FunctionName: 'hecaton-test-breaker-trip',
         MemorySize: 256,
@@ -387,7 +345,6 @@ describe('SharedInfraStack', () => {
     });
 
     it('has 30 second timeout', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::Lambda::Function', {
         FunctionName: 'hecaton-test-breaker-trip',
         Timeout: 30,
@@ -395,7 +352,6 @@ describe('SharedInfraStack', () => {
     });
 
     it('uses arm64 architecture', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::Lambda::Function', {
         FunctionName: 'hecaton-test-breaker-trip',
         Architectures: ['arm64'],
@@ -403,7 +359,6 @@ describe('SharedInfraStack', () => {
     });
 
     it('has IAM policy with iam:PutRolePolicy scoped to agent role pattern', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::IAM::Policy', {
         PolicyDocument: {
           Statement: Match.arrayWith([
@@ -422,7 +377,6 @@ describe('SharedInfraStack', () => {
 
   describe('API Gateway methods', () => {
     it('has POST method with AWS_PROXY integration', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::ApiGateway::Method', {
         HttpMethod: 'POST',
         Integration: Match.objectLike({
@@ -432,7 +386,6 @@ describe('SharedInfraStack', () => {
     });
 
     it('has DELETE method with AWS_PROXY integration', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::ApiGateway::Method', {
         HttpMethod: 'DELETE',
         Integration: Match.objectLike({
@@ -442,7 +395,6 @@ describe('SharedInfraStack', () => {
     });
 
     it('has GET method with AWS_PROXY integration', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::ApiGateway::Method', {
         HttpMethod: 'GET',
         Integration: Match.objectLike({
@@ -452,7 +404,6 @@ describe('SharedInfraStack', () => {
     });
 
     it('all methods have ApiKeyRequired set to true', () => {
-      const { template } = createTemplate();
       const methods = template.findResources('AWS::ApiGateway::Method', {
         Properties: {
           HttpMethod: Match.anyValue(),
@@ -467,7 +418,6 @@ describe('SharedInfraStack', () => {
     });
 
     it('RestApi has correct name and ApiKeySourceType HEADER', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::ApiGateway::RestApi', {
         Name: 'hecaton-test-api',
         ApiKeySourceType: 'HEADER',
@@ -477,24 +427,20 @@ describe('SharedInfraStack', () => {
 
   describe('Usage plan and API key', () => {
     it('creates a UsagePlan', () => {
-      const { template } = createTemplate();
       template.resourceCountIs('AWS::ApiGateway::UsagePlan', 1);
     });
 
     it('creates an ApiKey', () => {
-      const { template } = createTemplate();
       template.resourceCountIs('AWS::ApiGateway::ApiKey', 1);
     });
 
     it('creates a UsagePlanKey to associate key with plan', () => {
-      const { template } = createTemplate();
       template.resourceCountIs('AWS::ApiGateway::UsagePlanKey', 1);
     });
   });
 
   describe('Handler Lambdas environment variables', () => {
     it('grant-shape Lambda has correct environment variables', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::Lambda::Function', {
         FunctionName: 'hecaton-test-grant-shape',
         Environment: {
@@ -509,7 +455,6 @@ describe('SharedInfraStack', () => {
     });
 
     it('revoke-shape Lambda has correct environment variables', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::Lambda::Function', {
         FunctionName: 'hecaton-test-revoke-shape',
         Environment: {
@@ -524,7 +469,6 @@ describe('SharedInfraStack', () => {
     });
 
     it('query-fleet-state Lambda has correct environment variables', () => {
-      const { template } = createTemplate();
       template.hasResourceProperties('AWS::Lambda::Function', {
         FunctionName: 'hecaton-test-query-fleet-state',
         Environment: {
@@ -541,7 +485,6 @@ describe('SharedInfraStack', () => {
 
   describe('Default guardrail config', () => {
     it('is a typed object (not an AWS resource)', () => {
-      const { stack } = createTemplate();
       expect(stack.defaultGuardrailConfig).toBeDefined();
       expect(stack.defaultGuardrailConfig).toEqual(DEFAULT_GUARDRAIL_CONFIG);
       expect(stack.defaultGuardrailConfig.contentFilters).toBeInstanceOf(Array);
@@ -549,9 +492,190 @@ describe('SharedInfraStack', () => {
     });
 
     it('does not create any Bedrock guardrail AWS resource', () => {
-      const { template } = createTemplate();
       // Ensure no Bedrock guardrail resource is synthesized in SharedInfraStack
       template.resourceCountIs('AWS::Bedrock::Guardrail', 0);
+    });
+  });
+
+  describe('AppConfig Application and Environment', () => {
+    it('creates an AppConfig Application with correct name', () => {
+      template.hasResourceProperties('AWS::AppConfig::Application', {
+        Name: 'hecaton-test-platform',
+      });
+    });
+
+    it('applies standard tags to AppConfig Application', () => {
+      template.hasResourceProperties('AWS::AppConfig::Application', {
+        Tags: Match.arrayWith([
+          { Key: 'hecatoncheires:managed', Value: 'true' },
+          { Key: 'hecatoncheires:stage', Value: 'test' },
+        ]),
+      });
+    });
+
+    it('creates an AppConfig Environment named with stage value', () => {
+      template.hasResourceProperties('AWS::AppConfig::Environment', {
+        Name: 'test',
+      });
+    });
+
+    it('AppConfig Environment is linked to the application', () => {
+      template.hasResourceProperties('AWS::AppConfig::Environment', {
+        ApplicationId: Match.anyValue(),
+      });
+    });
+
+    it('exports AppConfigAppId', () => {
+      template.hasOutput('AppConfigAppId', {
+        Export: { Name: 'TestStack-appConfigAppId' },
+      });
+    });
+
+    it('exports AppConfigEnvId', () => {
+      template.hasOutput('AppConfigEnvId', {
+        Export: { Name: 'TestStack-appConfigEnvId' },
+      });
+    });
+  });
+
+  describe('Drift Detection Lambda', () => {
+    it('exists with correct function name', () => {
+      template.hasResourceProperties('AWS::Lambda::Function', {
+        FunctionName: 'hecaton-test-drift-detection',
+      });
+    });
+
+    it('uses nodejs20.x runtime', () => {
+      template.hasResourceProperties('AWS::Lambda::Function', {
+        FunctionName: 'hecaton-test-drift-detection',
+        Runtime: 'nodejs20.x',
+      });
+    });
+
+    it('uses arm64 architecture', () => {
+      template.hasResourceProperties('AWS::Lambda::Function', {
+        FunctionName: 'hecaton-test-drift-detection',
+        Architectures: ['arm64'],
+      });
+    });
+
+    it('has 256 MB memory', () => {
+      template.hasResourceProperties('AWS::Lambda::Function', {
+        FunctionName: 'hecaton-test-drift-detection',
+        MemorySize: 256,
+      });
+    });
+
+    it('has 30 second timeout', () => {
+      template.hasResourceProperties('AWS::Lambda::Function', {
+        FunctionName: 'hecaton-test-drift-detection',
+        Timeout: 30,
+      });
+    });
+
+    it('has environment variable OPS_BUS_ARN', () => {
+      template.hasResourceProperties('AWS::Lambda::Function', {
+        FunctionName: 'hecaton-test-drift-detection',
+        Environment: {
+          Variables: Match.objectLike({
+            OPS_BUS_ARN: Match.anyValue(),
+          }),
+        },
+      });
+    });
+
+    it('has environment variable SNS_TOPIC_ARN', () => {
+      template.hasResourceProperties('AWS::Lambda::Function', {
+        FunctionName: 'hecaton-test-drift-detection',
+        Environment: {
+          Variables: Match.objectLike({
+            SNS_TOPIC_ARN: Match.anyValue(),
+          }),
+        },
+      });
+    });
+
+    it('has environment variable KNOWN_PRINCIPALS as JSON array', () => {
+      template.hasResourceProperties('AWS::Lambda::Function', {
+        FunctionName: 'hecaton-test-drift-detection',
+        Environment: {
+          Variables: Match.objectLike({
+            KNOWN_PRINCIPALS: Match.anyValue(),
+          }),
+        },
+      });
+    });
+  });
+
+  describe('Drift Detection EventBridge rule', () => {
+    it('has an EventBridge rule matching IAM CloudTrail mutations', () => {
+      template.hasResourceProperties('AWS::Events::Rule', {
+        EventPattern: Match.objectLike({
+          source: ['aws.iam'],
+          'detail-type': ['AWS API Call via CloudTrail'],
+        }),
+      });
+    });
+
+    it('matches IAM mutation event names', () => {
+      template.hasResourceProperties('AWS::Events::Rule', {
+        EventPattern: Match.objectLike({
+          detail: Match.objectLike({
+            eventSource: ['iam.amazonaws.com'],
+            eventName: [
+              'PutRolePolicy',
+              'DeleteRolePolicy',
+              'AttachRolePolicy',
+              'DetachRolePolicy',
+              'PutRolePermissionsBoundary',
+              'DeleteRolePermissionsBoundary',
+            ],
+          }),
+        }),
+      });
+    });
+
+    it('filters by role name prefix matching hecaton-test-', () => {
+      template.hasResourceProperties('AWS::Events::Rule', {
+        EventPattern: Match.objectLike({
+          detail: Match.objectLike({
+            requestParameters: Match.objectLike({
+              roleName: Match.arrayWith([{ prefix: 'hecaton-test-' }]),
+            }),
+          }),
+        }),
+      });
+    });
+  });
+
+  describe('Bedrock Invocation Logging', () => {
+    it('creates a CloudWatch Logs log group with correct name', () => {
+      template.hasResourceProperties('AWS::Logs::LogGroup', {
+        LogGroupName: '/aws/bedrock/invocations/test',
+      });
+    });
+
+    it('has 30-day retention on the log group', () => {
+      template.hasResourceProperties('AWS::Logs::LogGroup', {
+        LogGroupName: '/aws/bedrock/invocations/test',
+        RetentionInDays: 30,
+      });
+    });
+
+    it('has removal policy RETAIN on the log group', () => {
+      const logGroups = template.findResources('AWS::Logs::LogGroup', {
+        Properties: { LogGroupName: '/aws/bedrock/invocations/test' },
+      });
+      const logGroupIds = Object.keys(logGroups);
+      expect(logGroupIds.length).toBe(1);
+      const logGroupResource = logGroups[logGroupIds[0]];
+      expect(logGroupResource.DeletionPolicy).toBe('Retain');
+    });
+
+    it('exports BedrockLogGroupArn', () => {
+      template.hasOutput('BedrockLogGroupArn', {
+        Export: { Name: 'TestStack-bedrockLogGroupArn' },
+      });
     });
   });
 });

@@ -1,12 +1,16 @@
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as cdk from 'aws-cdk-lib';
+import * as appconfig from 'aws-cdk-lib/aws-appconfig';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as events from 'aws-cdk-lib/aws-events';
+import * as targets from 'aws-cdk-lib/aws-events-targets';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as logs from 'aws-cdk-lib/aws-logs';
 import * as sns from 'aws-cdk-lib/aws-sns';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
+import * as cr from 'aws-cdk-lib/custom-resources';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
 import { NamingGenerator } from '@hecaton/core';
@@ -60,6 +64,12 @@ export class SharedInfraStack extends cdk.Stack {
   readonly breakerLambda: lambda.IFunction;
   readonly apiGateway: apigateway.RestApi;
   readonly defaultGuardrailConfig: GuardrailPolicyConfig;
+  readonly appConfigAppId: string;
+  readonly appConfigEnvId: string;
+  readonly breakerLambdaRoleArn: string;
+  readonly grantLambdaRoleArn: string;
+  readonly revokeLambdaRoleArn: string;
+  readonly bedrockLogGroup: logs.ILogGroup;
 
   constructor(scope: Construct, id: string, props: SharedInfraStackProps) {
     super(scope, id, props);
@@ -128,6 +138,10 @@ export class SharedInfraStack extends cdk.Stack {
       architecture: lambda.Architecture.ARM_64,
       memorySize: 256,
       timeout: cdk.Duration.seconds(30),
+      bundling: {
+        externalModules: ['@aws-sdk/*'],
+        target: 'node20',
+      },
       environment: {
         AGENT_REGISTRY_TABLE_NAME: registryTable.tableName,
         OPS_BUS_ARN: bus.eventBusArn,
@@ -188,6 +202,10 @@ export class SharedInfraStack extends cdk.Stack {
       architecture: lambda.Architecture.ARM_64,
       memorySize: 256,
       timeout: cdk.Duration.seconds(30),
+      bundling: {
+        externalModules: ['@aws-sdk/*'],
+        target: 'node20',
+      },
       environment: {
         GRANT_LEDGER_TABLE_NAME: table.tableName,
         AGENT_REGISTRY_TABLE_NAME: registryTable.tableName,
@@ -203,6 +221,10 @@ export class SharedInfraStack extends cdk.Stack {
       architecture: lambda.Architecture.ARM_64,
       memorySize: 256,
       timeout: cdk.Duration.seconds(30),
+      bundling: {
+        externalModules: ['@aws-sdk/*'],
+        target: 'node20',
+      },
       environment: {
         GRANT_LEDGER_TABLE_NAME: table.tableName,
         AGENT_REGISTRY_TABLE_NAME: registryTable.tableName,
@@ -218,6 +240,10 @@ export class SharedInfraStack extends cdk.Stack {
       architecture: lambda.Architecture.ARM_64,
       memorySize: 256,
       timeout: cdk.Duration.seconds(30),
+      bundling: {
+        externalModules: ['@aws-sdk/*'],
+        target: 'node20',
+      },
       environment: {
         GRANT_LEDGER_TABLE_NAME: table.tableName,
         AGENT_REGISTRY_TABLE_NAME: registryTable.tableName,
@@ -294,6 +320,147 @@ export class SharedInfraStack extends cdk.Stack {
 
     this.apiGateway = api;
 
+    // --- AppConfig Application and Environment ---
+    const appConfigApp = new appconfig.CfnApplication(this, 'AppConfigApplication', {
+      name: naming.appConfigApplicationName(),
+      tags: [
+        { key: 'hecatoncheires:managed', value: 'true' },
+        { key: 'hecatoncheires:stage', value: stage },
+        { key: 'hecatoncheires:phase', value: '1' },
+      ],
+    });
+
+    const appConfigEnv = new appconfig.CfnEnvironment(this, 'AppConfigEnvironment', {
+      applicationId: appConfigApp.ref,
+      name: stage,
+    });
+
+    this.appConfigAppId = appConfigApp.ref;
+    this.appConfigEnvId = appConfigEnv.ref;
+
+    // --- Drift Detection Lambda ---
+    const driftLambda = new NodejsFunction(this, 'DriftDetectionLambda', {
+      functionName: naming.driftDetectionLambdaName(),
+      entry: join(__dirname, '..', '..', '..', 'api', 'src', 'handlers', 'drift-detect.event.ts'),
+      runtime: lambda.Runtime.NODEJS_20_X,
+      architecture: lambda.Architecture.ARM_64,
+      memorySize: 256,
+      timeout: cdk.Duration.seconds(30),
+      bundling: {
+        externalModules: ['@aws-sdk/*'],
+        target: 'node20',
+      },
+      environment: {
+        OPS_BUS_ARN: bus.eventBusArn,
+        SNS_TOPIC_ARN: topic.topicArn,
+        KNOWN_PRINCIPALS: JSON.stringify([
+          breakerLambda.role!.roleArn,
+          grantLambda.role!.roleArn,
+          revokeLambda.role!.roleArn,
+        ]),
+      },
+    });
+
+    // IAM — EventBridge PutEvents on ops bus
+    bus.grantPutEventsTo(driftLambda);
+
+    // IAM — SNS Publish on notification topic
+    topic.grantPublish(driftLambda);
+
+    // --- EventBridge rule on default bus for CloudTrail IAM mutations ---
+    const driftRule = new events.Rule(this, 'DriftDetectionRule', {
+      eventPattern: {
+        source: ['aws.iam'],
+        detailType: ['AWS API Call via CloudTrail'],
+        detail: {
+          eventSource: ['iam.amazonaws.com'],
+          eventName: [
+            'PutRolePolicy',
+            'DeleteRolePolicy',
+            'AttachRolePolicy',
+            'DetachRolePolicy',
+            'PutRolePermissionsBoundary',
+            'DeleteRolePermissionsBoundary',
+          ],
+          requestParameters: {
+            roleName: [{ prefix: `hecaton-${stage}-` }],
+          },
+        },
+      },
+    });
+
+    driftRule.addTarget(new targets.LambdaFunction(driftLambda));
+
+    // --- Expose Lambda role ARNs for cross-stack consumption ---
+    this.breakerLambdaRoleArn = breakerLambda.role!.roleArn;
+    this.grantLambdaRoleArn = grantLambda.role!.roleArn;
+    this.revokeLambdaRoleArn = revokeLambda.role!.roleArn;
+
+    // --- Bedrock Invocation Logging ---
+    const bedrockLogGroup = new logs.LogGroup(this, 'BedrockInvocationLogGroup', {
+      logGroupName: naming.bedrockLogGroupName(),
+      retention: logs.RetentionDays.ONE_MONTH,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+    });
+
+    // Grant Bedrock service principal write access to the log group
+    bedrockLogGroup.addToResourcePolicy(
+      new iam.PolicyStatement({
+        principals: [new iam.ServicePrincipal('bedrock.amazonaws.com')],
+        actions: ['logs:CreateLogStream', 'logs:PutLogEvents'],
+        resources: [`${bedrockLogGroup.logGroupArn}:*`],
+      }),
+    );
+
+    // Custom resource to enable Bedrock model invocation logging
+    new cr.AwsCustomResource(this, 'BedrockLoggingConfig', {
+      onCreate: {
+        service: 'Bedrock',
+        action: 'putModelInvocationLoggingConfiguration',
+        parameters: {
+          loggingConfig: {
+            cloudWatchConfig: {
+              logGroupName: bedrockLogGroup.logGroupName,
+              roleArn: undefined,
+              largeDataDeliveryS3Config: undefined,
+            },
+            textDataDeliveryEnabled: true,
+            imageDataDeliveryEnabled: false,
+            embeddingDataDeliveryEnabled: false,
+          },
+        },
+        physicalResourceId: cr.PhysicalResourceId.of('bedrock-logging-config'),
+      },
+      onUpdate: {
+        service: 'Bedrock',
+        action: 'putModelInvocationLoggingConfiguration',
+        parameters: {
+          loggingConfig: {
+            cloudWatchConfig: {
+              logGroupName: bedrockLogGroup.logGroupName,
+              roleArn: undefined,
+              largeDataDeliveryS3Config: undefined,
+            },
+            textDataDeliveryEnabled: true,
+            imageDataDeliveryEnabled: false,
+            embeddingDataDeliveryEnabled: false,
+          },
+        },
+        physicalResourceId: cr.PhysicalResourceId.of('bedrock-logging-config'),
+      },
+      policy: cr.AwsCustomResourcePolicy.fromStatements([
+        new iam.PolicyStatement({
+          actions: [
+            'bedrock:PutModelInvocationLoggingConfiguration',
+            'bedrock:GetModelInvocationLoggingConfiguration',
+          ],
+          resources: ['*'],
+        }),
+      ]),
+    });
+
+    this.bedrockLogGroup = bedrockLogGroup;
+
     // --- Default guardrail config (typed data, not an AWS resource) ---
     this.defaultGuardrailConfig = DEFAULT_GUARDRAIL_CONFIG;
 
@@ -351,6 +518,21 @@ export class SharedInfraStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'ApiKeyValue', {
       value: apiKey.keyId,
       exportName: `${id}-apiKeyValue`,
+    });
+
+    new cdk.CfnOutput(this, 'AppConfigAppId', {
+      value: appConfigApp.ref,
+      exportName: `${id}-appConfigAppId`,
+    });
+
+    new cdk.CfnOutput(this, 'AppConfigEnvId', {
+      value: appConfigEnv.ref,
+      exportName: `${id}-appConfigEnvId`,
+    });
+
+    new cdk.CfnOutput(this, 'BedrockLogGroupArn', {
+      value: bedrockLogGroup.logGroupArn,
+      exportName: `${id}-bedrockLogGroupArn`,
     });
   }
 }

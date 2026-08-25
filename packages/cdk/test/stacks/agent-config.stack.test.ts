@@ -48,6 +48,8 @@ function createTestStacks(overrides?: {
       defaultGuardrailConfig: sharedInfra.defaultGuardrailConfig,
       breakerLambda: sharedInfra.breakerLambda,
       agentRegistryTable: sharedInfra.agentRegistryTable,
+      appConfigAppId: sharedInfra.appConfigAppId,
+      appConfigEnvId: sharedInfra.appConfigEnvId,
     },
     externalPrincipalArn: overrides?.externalPrincipalArn,
     guardrailOverrides: overrides?.guardrailOverrides,
@@ -62,6 +64,50 @@ function createTestStacks(overrides?: {
 }
 
 // ---------------------------------------------------------------------------
+// Pre-synthesized stacks for the default config (stage: test, configName: sre-ops,
+// agentType: agentcore-managed). Reused by the majority of assertions.
+// ---------------------------------------------------------------------------
+const defaultStacks = createTestStacks();
+const defaultTemplate = defaultStacks.template;
+const defaultAgentStack = defaultStacks.agentStack;
+
+// Pre-synthesized stacks for prod/code-review (used by resource naming tests)
+const prodStacks = createTestStacks({ stage: 'prod', configName: 'code-review' });
+const prodTemplate = prodStacks.template;
+
+// Pre-synthesized for agentcore-runtime trust policy test
+const runtimeStacks = createTestStacks({ agentType: 'agentcore-runtime' });
+const runtimeTemplate = runtimeStacks.template;
+
+// Pre-synthesized for openclaw trust policy test
+const openclawStacks = createTestStacks({
+  agentType: 'openclaw',
+  externalPrincipalArn: 'arn:aws:iam::123456789012:role/external-agent',
+});
+const openclawTemplate = openclawStacks.template;
+
+// Pre-synthesized for guardrail overrides test
+const guardrailOverrideStacks = createTestStacks({
+  guardrailOverrides: {
+    contentFilters: [
+      { type: 'VIOLENCE', inputStrength: 'HIGH', outputStrength: 'HIGH' },
+    ],
+    deniedTopics: [
+      {
+        name: 'harmful-instructions',
+        definition: 'Instructions for causing harm',
+        examples: ['How to exploit', 'How to break in'],
+      },
+    ],
+  },
+});
+const guardrailOverrideTemplate = guardrailOverrideStacks.template;
+
+// Pre-synthesized for dev stage (deployment strategy)
+const devStacks = createTestStacks({ stage: 'dev' });
+const devTemplate = devStacks.template;
+
+// ---------------------------------------------------------------------------
 // Task 7.2: AgentConfigStack assertion tests
 // Validates: Requirements 2.1.1, 2.1.2, 2.2.1, 2.2.2, 2.2.3, 2.2.4, 2.3.1,
 //            2.3.3, 2.4.2, 2.5.1, 6.1.1
@@ -70,8 +116,7 @@ function createTestStacks(overrides?: {
 describe('AgentConfigStack (via TestAgentConfigStack)', () => {
   describe('Inference profile', () => {
     it('creates an inference profile tagged with hecatoncheires:config={configName}', () => {
-      const { template } = createTestStacks({ configName: 'sre-ops' });
-      template.hasResourceProperties('AWS::Bedrock::ApplicationInferenceProfile', {
+      defaultTemplate.hasResourceProperties('AWS::Bedrock::ApplicationInferenceProfile', {
         Tags: Match.arrayWith([
           { Key: 'hecatoncheires:config', Value: 'sre-ops' },
         ]),
@@ -79,16 +124,14 @@ describe('AgentConfigStack (via TestAgentConfigStack)', () => {
     });
 
     it('names the inference profile using NamingGenerator pattern', () => {
-      const { template } = createTestStacks({ stage: 'test', configName: 'sre-ops' });
       const naming = new NamingGenerator('test');
-      template.hasResourceProperties('AWS::Bedrock::ApplicationInferenceProfile', {
+      defaultTemplate.hasResourceProperties('AWS::Bedrock::ApplicationInferenceProfile', {
         InferenceProfileName: naming.profileName('sre-ops'),
       });
     });
 
     it('tags the inference profile with hecatoncheires:managed=true', () => {
-      const { template } = createTestStacks();
-      template.hasResourceProperties('AWS::Bedrock::ApplicationInferenceProfile', {
+      defaultTemplate.hasResourceProperties('AWS::Bedrock::ApplicationInferenceProfile', {
         Tags: Match.arrayWith([
           { Key: 'hecatoncheires:managed', Value: 'true' },
         ]),
@@ -98,9 +141,8 @@ describe('AgentConfigStack (via TestAgentConfigStack)', () => {
 
   describe('Guardrail', () => {
     it('creates a guardrail using the default config from SharedInfraStack', () => {
-      const { template } = createTestStacks();
-      template.resourceCountIs('AWS::Bedrock::Guardrail', 1);
-      template.hasResourceProperties('AWS::Bedrock::Guardrail', {
+      defaultTemplate.resourceCountIs('AWS::Bedrock::Guardrail', 1);
+      defaultTemplate.hasResourceProperties('AWS::Bedrock::Guardrail', {
         ContentPolicyConfig: {
           FiltersConfig: Match.arrayWith([
             Match.objectLike({ Type: 'SEXUAL', InputStrength: 'HIGH', OutputStrength: 'HIGH' }),
@@ -110,23 +152,8 @@ describe('AgentConfigStack (via TestAgentConfigStack)', () => {
     });
 
     it('merges guardrail overrides with the default config', () => {
-      const { template } = createTestStacks({
-        guardrailOverrides: {
-          contentFilters: [
-            { type: 'VIOLENCE', inputStrength: 'HIGH', outputStrength: 'HIGH' },
-          ],
-          deniedTopics: [
-            {
-              name: 'harmful-instructions',
-              definition: 'Instructions for causing harm',
-              examples: ['How to exploit', 'How to break in'],
-            },
-          ],
-        },
-      });
-
       // Verify the override replaced VIOLENCE filter strength
-      template.hasResourceProperties('AWS::Bedrock::Guardrail', {
+      guardrailOverrideTemplate.hasResourceProperties('AWS::Bedrock::Guardrail', {
         ContentPolicyConfig: {
           FiltersConfig: Match.arrayWith([
             Match.objectLike({
@@ -139,7 +166,7 @@ describe('AgentConfigStack (via TestAgentConfigStack)', () => {
       });
 
       // Verify denied topics were added
-      template.hasResourceProperties('AWS::Bedrock::Guardrail', {
+      guardrailOverrideTemplate.hasResourceProperties('AWS::Bedrock::Guardrail', {
         TopicPolicyConfig: {
           TopicsConfig: Match.arrayWith([
             Match.objectLike({
@@ -152,9 +179,8 @@ describe('AgentConfigStack (via TestAgentConfigStack)', () => {
     });
 
     it('names the guardrail using NamingGenerator pattern', () => {
-      const { template } = createTestStacks({ stage: 'test', configName: 'sre-ops' });
       const naming = new NamingGenerator('test');
-      template.hasResourceProperties('AWS::Bedrock::Guardrail', {
+      defaultTemplate.hasResourceProperties('AWS::Bedrock::Guardrail', {
         Name: naming.guardrailName('sre-ops'),
       });
     });
@@ -162,10 +188,9 @@ describe('AgentConfigStack (via TestAgentConfigStack)', () => {
 
   describe('Identity field', () => {
     it('populates identity with role and permissionBoundaryArn', () => {
-      const { agentStack } = createTestStacks();
-      expect(agentStack.identity).toBeDefined();
-      expect(agentStack.identity.role).toBeDefined();
-      expect(agentStack.identity.permissionBoundaryArn).toBeDefined();
+      expect(defaultAgentStack.identity).toBeDefined();
+      expect(defaultAgentStack.identity.role).toBeDefined();
+      expect(defaultAgentStack.identity.permissionBoundaryArn).toBeDefined();
     });
   });
 
@@ -203,15 +228,13 @@ describe('AgentConfigStack (via TestAgentConfigStack)', () => {
 
   describe('Standard tags', () => {
     it('applies hecatoncheires:managed=true to all resources', () => {
-      const { template } = createTestStacks();
-
-      template.hasResourceProperties('AWS::Bedrock::ApplicationInferenceProfile', {
+      defaultTemplate.hasResourceProperties('AWS::Bedrock::ApplicationInferenceProfile', {
         Tags: Match.arrayWith([
           { Key: 'hecatoncheires:managed', Value: 'true' },
         ]),
       });
 
-      template.hasResourceProperties('AWS::Bedrock::Guardrail', {
+      defaultTemplate.hasResourceProperties('AWS::Bedrock::Guardrail', {
         Tags: Match.arrayWith([
           { Key: 'hecatoncheires:managed', Value: 'true' },
         ]),
@@ -219,15 +242,13 @@ describe('AgentConfigStack (via TestAgentConfigStack)', () => {
     });
 
     it('applies hecatoncheires:stage tag to resources', () => {
-      const { template } = createTestStacks({ stage: 'test' });
-
-      template.hasResourceProperties('AWS::Bedrock::ApplicationInferenceProfile', {
+      defaultTemplate.hasResourceProperties('AWS::Bedrock::ApplicationInferenceProfile', {
         Tags: Match.arrayWith([
           { Key: 'hecatoncheires:stage', Value: 'test' },
         ]),
       });
 
-      template.hasResourceProperties('AWS::Bedrock::Guardrail', {
+      defaultTemplate.hasResourceProperties('AWS::Bedrock::Guardrail', {
         Tags: Match.arrayWith([
           { Key: 'hecatoncheires:stage', Value: 'test' },
         ]),
@@ -235,20 +256,17 @@ describe('AgentConfigStack (via TestAgentConfigStack)', () => {
     });
 
     it('applies hecatoncheires:phase=1 tag to resources', () => {
-      const { template } = createTestStacks();
-
-      template.hasResourceProperties('AWS::Bedrock::ApplicationInferenceProfile', {
+      defaultTemplate.hasResourceProperties('AWS::Bedrock::ApplicationInferenceProfile', {
         Tags: Match.arrayWith([{ Key: 'hecatoncheires:phase', Value: '1' }]),
       });
 
-      template.hasResourceProperties('AWS::Bedrock::Guardrail', {
+      defaultTemplate.hasResourceProperties('AWS::Bedrock::Guardrail', {
         Tags: Match.arrayWith([{ Key: 'hecatoncheires:phase', Value: '1' }]),
       });
     });
 
     it('applies hecatoncheires:config={configName} to IAM role', () => {
-      const { template } = createTestStacks({ configName: 'sre-ops' });
-      const roles = template.findResources('AWS::IAM::Role');
+      const roles = defaultTemplate.findResources('AWS::IAM::Role');
       const roleLogicalIds = Object.keys(roles);
       expect(roleLogicalIds.length).toBeGreaterThanOrEqual(1);
 
@@ -269,24 +287,21 @@ describe('AgentConfigStack (via TestAgentConfigStack)', () => {
   describe('Resource naming', () => {
     it('inference profile name follows NamingGenerator pattern', () => {
       const naming = new NamingGenerator('prod');
-      const { template } = createTestStacks({ stage: 'prod', configName: 'code-review' });
-      template.hasResourceProperties('AWS::Bedrock::ApplicationInferenceProfile', {
+      prodTemplate.hasResourceProperties('AWS::Bedrock::ApplicationInferenceProfile', {
         InferenceProfileName: naming.profileName('code-review'),
       });
     });
 
     it('guardrail name follows NamingGenerator pattern', () => {
       const naming = new NamingGenerator('prod');
-      const { template } = createTestStacks({ stage: 'prod', configName: 'code-review' });
-      template.hasResourceProperties('AWS::Bedrock::Guardrail', {
+      prodTemplate.hasResourceProperties('AWS::Bedrock::Guardrail', {
         Name: naming.guardrailName('code-review'),
       });
     });
 
     it('IAM role name follows NamingGenerator pattern', () => {
       const naming = new NamingGenerator('test');
-      const { template } = createTestStacks({ stage: 'test', configName: 'sre-ops' });
-      const roles = template.findResources('AWS::IAM::Role');
+      const roles = defaultTemplate.findResources('AWS::IAM::Role');
       const roleNames = Object.values(roles).map(
         (r) => r.Properties.RoleName as string,
       );
@@ -303,13 +318,11 @@ describe('AgentConfigStack (via TestAgentConfigStack)', () => {
 describe('AgentPolicyModulator integration (via TestAgentConfigStack)', () => {
   describe('Alarm creation', () => {
     it('creates exactly 3 CloudWatch alarms', () => {
-      const { template } = createTestStacks();
-      template.resourceCountIs('AWS::CloudWatch::Alarm', 3);
+      defaultTemplate.resourceCountIs('AWS::CloudWatch::Alarm', 3);
     });
 
     it('creates a token alarm with correct threshold', () => {
-      const { template } = createTestStacks();
-      template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+      defaultTemplate.hasResourceProperties('AWS::CloudWatch::Alarm', {
         Threshold: 100000,
         MetricName: 'OutputTokenCount',
         Namespace: 'AWS/Bedrock',
@@ -318,8 +331,7 @@ describe('AgentPolicyModulator integration (via TestAgentConfigStack)', () => {
     });
 
     it('creates a block alarm with correct threshold', () => {
-      const { template } = createTestStacks();
-      template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+      defaultTemplate.hasResourceProperties('AWS::CloudWatch::Alarm', {
         Threshold: 5,
         MetricName: 'GuardrailBlocked',
         Namespace: 'AWS/Bedrock',
@@ -328,8 +340,7 @@ describe('AgentPolicyModulator integration (via TestAgentConfigStack)', () => {
     });
 
     it('creates an observation alarm with correct threshold', () => {
-      const { template } = createTestStacks();
-      template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+      defaultTemplate.hasResourceProperties('AWS::CloudWatch::Alarm', {
         Threshold: 20,
         MetricName: 'GuardrailObserved',
         Namespace: 'AWS/Bedrock',
@@ -340,18 +351,16 @@ describe('AgentPolicyModulator integration (via TestAgentConfigStack)', () => {
 
   describe('ProfileEntityId output', () => {
     it('exports profileEntityId as a CfnOutput', () => {
-      const { template } = createTestStacks();
-      template.hasOutput('ProfileEntityId', {});
+      defaultTemplate.hasOutput('ProfileEntityId', {});
     });
   });
 
   describe('Modulator outputs', () => {
     it('exposes modulator outputs with all alarm references', () => {
-      const { agentStack } = createTestStacks();
-      expect(agentStack.modulator).toBeDefined();
-      expect(agentStack.modulator.tokenAlarm).toBeDefined();
-      expect(agentStack.modulator.blockAlarm).toBeDefined();
-      expect(agentStack.modulator.observationAlarm).toBeDefined();
+      expect(defaultAgentStack.modulator).toBeDefined();
+      expect(defaultAgentStack.modulator.tokenAlarm).toBeDefined();
+      expect(defaultAgentStack.modulator.blockAlarm).toBeDefined();
+      expect(defaultAgentStack.modulator.observationAlarm).toBeDefined();
     });
   });
 });
@@ -366,8 +375,7 @@ describe('AgentPolicyModulator integration (via TestAgentConfigStack)', () => {
 describe('AgentIdentity (via TestAgentConfigStack)', () => {
   describe('Trust policy per agent type', () => {
     it('agentcore-managed trusts bedrock-agentcore.amazonaws.com', () => {
-      const { template } = createTestStacks({ agentType: 'agentcore-managed' });
-      template.hasResourceProperties('AWS::IAM::Role', {
+      defaultTemplate.hasResourceProperties('AWS::IAM::Role', {
         AssumeRolePolicyDocument: {
           Statement: Match.arrayWith([
             Match.objectLike({
@@ -382,8 +390,7 @@ describe('AgentIdentity (via TestAgentConfigStack)', () => {
     });
 
     it('agentcore-runtime trusts bedrock-agentcore.amazonaws.com', () => {
-      const { template } = createTestStacks({ agentType: 'agentcore-runtime' });
-      template.hasResourceProperties('AWS::IAM::Role', {
+      runtimeTemplate.hasResourceProperties('AWS::IAM::Role', {
         AssumeRolePolicyDocument: {
           Statement: Match.arrayWith([
             Match.objectLike({
@@ -398,18 +405,13 @@ describe('AgentIdentity (via TestAgentConfigStack)', () => {
     });
 
     it('openclaw trusts the provided externalPrincipalArn', () => {
-      const externalArn = 'arn:aws:iam::123456789012:role/external-agent';
-      const { template } = createTestStacks({
-        agentType: 'openclaw',
-        externalPrincipalArn: externalArn,
-      });
-      template.hasResourceProperties('AWS::IAM::Role', {
+      openclawTemplate.hasResourceProperties('AWS::IAM::Role', {
         AssumeRolePolicyDocument: {
           Statement: Match.arrayWith([
             Match.objectLike({
               Effect: 'Allow',
               Principal: {
-                AWS: externalArn,
+                AWS: 'arn:aws:iam::123456789012:role/external-agent',
               },
             }),
           ]),
@@ -440,13 +442,11 @@ describe('AgentIdentity (via TestAgentConfigStack)', () => {
 
   describe('Permission boundary', () => {
     it('creates a per-agent permission boundary in the same stack', () => {
-      const { template } = createTestStacks();
-      template.resourceCountIs('AWS::IAM::ManagedPolicy', 1);
+      defaultTemplate.resourceCountIs('AWS::IAM::ManagedPolicy', 1);
     });
 
     it('boundary includes Bedrock inference actions with condition keys', () => {
-      const { template } = createTestStacks();
-      const policies = template.findResources('AWS::IAM::ManagedPolicy');
+      const policies = defaultTemplate.findResources('AWS::IAM::ManagedPolicy');
       const policyLogicalId = Object.keys(policies)[0];
       const policyDoc = policies[policyLogicalId].Properties.PolicyDocument;
       const statements = policyDoc.Statement as Array<Record<string, unknown>>;
@@ -476,8 +476,7 @@ describe('AgentIdentity (via TestAgentConfigStack)', () => {
     });
 
     it('boundary includes ApplyGuardrail action with guardrail condition key', () => {
-      const { template } = createTestStacks();
-      const policies = template.findResources('AWS::IAM::ManagedPolicy');
+      const policies = defaultTemplate.findResources('AWS::IAM::ManagedPolicy');
       const policyLogicalId = Object.keys(policies)[0];
       const policyDoc = policies[policyLogicalId].Properties.PolicyDocument;
       const statements = policyDoc.Statement as Array<Record<string, unknown>>;
@@ -500,8 +499,7 @@ describe('AgentIdentity (via TestAgentConfigStack)', () => {
     });
 
     it('boundary includes GetInferenceProfile action with managed tag condition', () => {
-      const { template } = createTestStacks();
-      const policies = template.findResources('AWS::IAM::ManagedPolicy');
+      const policies = defaultTemplate.findResources('AWS::IAM::ManagedPolicy');
       const policyLogicalId = Object.keys(policies)[0];
       const policyDoc = policies[policyLogicalId].Properties.PolicyDocument;
       const statements = policyDoc.Statement as Array<Record<string, unknown>>;
@@ -526,8 +524,7 @@ describe('AgentIdentity (via TestAgentConfigStack)', () => {
     });
 
     it('boundary S3 resources scoped to hecaton-* only', () => {
-      const { template } = createTestStacks();
-      const policies = template.findResources('AWS::IAM::ManagedPolicy');
+      const policies = defaultTemplate.findResources('AWS::IAM::ManagedPolicy');
       const policyLogicalId = Object.keys(policies)[0];
       const policyDoc = policies[policyLogicalId].Properties.PolicyDocument;
       const statements = policyDoc.Statement as Array<Record<string, unknown>>;
@@ -546,8 +543,7 @@ describe('AgentIdentity (via TestAgentConfigStack)', () => {
     });
 
     it('boundary log actions scoped to /aws/bedrock/* log groups', () => {
-      const { template } = createTestStacks();
-      const policies = template.findResources('AWS::IAM::ManagedPolicy');
+      const policies = defaultTemplate.findResources('AWS::IAM::ManagedPolicy');
       const policyLogicalId = Object.keys(policies)[0];
       const policyDoc = policies[policyLogicalId].Properties.PolicyDocument;
       const statements = policyDoc.Statement as Array<Record<string, unknown>>;
@@ -584,8 +580,7 @@ describe('AgentIdentity (via TestAgentConfigStack)', () => {
 
   describe('Base policy', () => {
     it('has logs write and profile describe only (no inference actions)', () => {
-      const { template } = createTestStacks();
-      const policies = template.findResources('AWS::IAM::Policy');
+      const policies = defaultTemplate.findResources('AWS::IAM::Policy');
       const policyLogicalIds = Object.keys(policies);
 
       // Helper to normalize actions from a statement (string or string[])
@@ -638,8 +633,7 @@ describe('AgentIdentity (via TestAgentConfigStack)', () => {
 
   describe('Operating policy', () => {
     it('is deny-by-default (Deny * / *)', () => {
-      const { template } = createTestStacks();
-      const policies = template.findResources('AWS::IAM::Policy');
+      const policies = defaultTemplate.findResources('AWS::IAM::Policy');
       const policyLogicalIds = Object.keys(policies);
 
       // Find the operating policy (contains Deny * *)
@@ -664,15 +658,99 @@ describe('AgentIdentity (via TestAgentConfigStack)', () => {
 
   describe('AgentIdentity does NOT create inference profile or guardrail', () => {
     it('only AgentConfigStack creates inference profile (exactly 1 in stack)', () => {
-      const { template } = createTestStacks();
       // Only 1 inference profile — created by AgentConfigStack, not AgentIdentity
-      template.resourceCountIs('AWS::Bedrock::ApplicationInferenceProfile', 1);
+      defaultTemplate.resourceCountIs('AWS::Bedrock::ApplicationInferenceProfile', 1);
     });
 
     it('only AgentConfigStack creates guardrail (exactly 1 in stack)', () => {
-      const { template } = createTestStacks();
       // Only 1 guardrail — created by AgentConfigStack, not AgentIdentity
-      template.resourceCountIs('AWS::Bedrock::Guardrail', 1);
+      defaultTemplate.resourceCountIs('AWS::Bedrock::Guardrail', 1);
+    });
+  });
+});
+
+
+// ---------------------------------------------------------------------------
+// Task 9.3: AppConfig Runtime Tunables assertion tests
+// Validates: Requirements 8.1 (AppConfig profile, hosted version, deployment strategy)
+// ---------------------------------------------------------------------------
+
+describe('AppConfig Runtime Tunables (via TestAgentConfigStack)', () => {
+  describe('ConfigurationProfile', () => {
+    it('creates a profile with correct name', () => {
+      defaultTemplate.hasResourceProperties('AWS::AppConfig::ConfigurationProfile', {
+        Name: 'hecaton-test-sre-ops-tunables',
+      });
+    });
+
+    it('has locationUri set to hosted', () => {
+      defaultTemplate.hasResourceProperties('AWS::AppConfig::ConfigurationProfile', {
+        LocationUri: 'hosted',
+      });
+    });
+
+    it('applies standard tags to the profile', () => {
+      defaultTemplate.hasResourceProperties('AWS::AppConfig::ConfigurationProfile', {
+        Tags: Match.arrayWith([
+          Match.objectLike({ Key: 'hecatoncheires:managed', Value: 'true' }),
+          Match.objectLike({ Key: 'hecatoncheires:stage', Value: 'test' }),
+        ]),
+      });
+    });
+  });
+
+  describe('HostedConfigurationVersion', () => {
+    it('has content type application/json', () => {
+      defaultTemplate.hasResourceProperties('AWS::AppConfig::HostedConfigurationVersion', {
+        ContentType: 'application/json',
+      });
+    });
+
+    it('contains valid JSON with thresholds and feature flags', () => {
+      const expectedContent = JSON.stringify({
+        thresholds: {
+          outputTokensPerHour: 100000,
+          guardrailBlocksPer10Min: 5,
+          guardrailObservationsPerHour: 20,
+        },
+        featureFlags: {
+          pipelineSpeedBreaker: false,
+          timeBoxedGrants: false,
+        },
+      });
+      defaultTemplate.hasResourceProperties('AWS::AppConfig::HostedConfigurationVersion', {
+        Content: expectedContent,
+      });
+    });
+  });
+
+  describe('DeploymentStrategy', () => {
+    it('uses 10-minute duration for non-dev stages', () => {
+      defaultTemplate.hasResourceProperties('AWS::AppConfig::DeploymentStrategy', {
+        DeploymentDurationInMinutes: 10,
+        GrowthFactor: 10,
+        FinalBakeTimeInMinutes: 2,
+      });
+    });
+
+    it('uses 0-duration for dev stage', () => {
+      devTemplate.hasResourceProperties('AWS::AppConfig::DeploymentStrategy', {
+        DeploymentDurationInMinutes: 0,
+        GrowthFactor: 100,
+        FinalBakeTimeInMinutes: 0,
+      });
+    });
+
+    it('has replicateTo NONE', () => {
+      defaultTemplate.hasResourceProperties('AWS::AppConfig::DeploymentStrategy', {
+        ReplicateTo: 'NONE',
+      });
+    });
+  });
+
+  describe('Deployment', () => {
+    it('creates a deployment resource', () => {
+      defaultTemplate.resourceCountIs('AWS::AppConfig::Deployment', 1);
     });
   });
 });

@@ -1,5 +1,7 @@
 // Feature: core-foundation, Property 10: Naming generator produces pattern-conforming resource names
 // Feature: core-foundation, Property 11: Naming generator rejects empty or whitespace-only stage
+// Feature: phase1-infra-completion, Property 1: NamingGenerator methods produce stage-embedded, pattern-conforming names
+// Feature: phase1-infra-completion, Property 2: NamingGenerator methods produce unique names across different methods
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
@@ -209,6 +211,175 @@ describe('NamingGenerator property tests', () => {
             expect(() => new NamingGenerator(stage)).toThrow(ValidationError);
           },
         ),
+        { numRuns: 100 },
+      );
+    });
+  });
+});
+
+
+describe('NamingGenerator extension property tests', () => {
+  // **Validates: Requirements 7.1, 7.2, 7.3, 7.4, 7.5**
+
+  /**
+   * Generator for valid environment names (non-empty alphanumeric + dashes).
+   */
+  const validEnvName = fc
+    .stringMatching(/^[a-z][a-z0-9-]*[a-z0-9]$/)
+    .filter((s) => s.length >= 2 && s.length <= 40);
+
+  describe('Property 1: NamingGenerator methods produce stage-embedded, pattern-conforming names', () => {
+    it('appConfigApplicationName matches hecaton-{stage}-platform', () => {
+      fc.assert(
+        fc.property(validStage, (stage) => {
+          const naming = new NamingGenerator(stage);
+          const result = naming.appConfigApplicationName();
+          expect(result).toBe(`hecaton-${stage}-platform`);
+          expect(result).toContain(stage);
+        }),
+        { numRuns: 100 },
+      );
+    });
+
+    it('appConfigEnvironmentName with explicit envName matches hecaton-{stage}-{envName}', () => {
+      fc.assert(
+        fc.property(validStage, validEnvName, (stage, envName) => {
+          const naming = new NamingGenerator(stage);
+          const result = naming.appConfigEnvironmentName(envName);
+          expect(result).toBe(`hecaton-${stage}-${envName}`);
+          expect(result).toContain(stage);
+          expect(result).toContain(envName);
+        }),
+        { numRuns: 100 },
+      );
+    });
+
+    it('appConfigEnvironmentName without envName defaults to stage', () => {
+      fc.assert(
+        fc.property(validStage, (stage) => {
+          const naming = new NamingGenerator(stage);
+          const result = naming.appConfigEnvironmentName();
+          expect(result).toBe(`hecaton-${stage}-${stage}`);
+          expect(result).toContain(stage);
+        }),
+        { numRuns: 100 },
+      );
+    });
+
+    it('appConfigProfileName matches hecaton-{stage}-{configName}-tunables', () => {
+      fc.assert(
+        fc.property(validStage, validConfigName, (stage, configName) => {
+          const naming = new NamingGenerator(stage);
+          const result = naming.appConfigProfileName(configName);
+          expect(result).toBe(`hecaton-${stage}-${configName}-tunables`);
+          expect(result).toContain(stage);
+          expect(result).toContain(configName);
+        }),
+        { numRuns: 100 },
+      );
+    });
+
+    it('driftDetectionLambdaName matches hecaton-{stage}-drift-detection', () => {
+      fc.assert(
+        fc.property(validStage, (stage) => {
+          const naming = new NamingGenerator(stage);
+          const result = naming.driftDetectionLambdaName();
+          expect(result).toBe(`hecaton-${stage}-drift-detection`);
+          expect(result).toContain(stage);
+        }),
+        { numRuns: 100 },
+      );
+    });
+
+    it('bedrockLogGroupName matches /aws/bedrock/invocations/{stage}', () => {
+      fc.assert(
+        fc.property(validStage, (stage) => {
+          const naming = new NamingGenerator(stage);
+          const result = naming.bedrockLogGroupName();
+          expect(result).toBe(`/aws/bedrock/invocations/${stage}`);
+          expect(result).toContain(stage);
+        }),
+        { numRuns: 100 },
+      );
+    });
+
+    it('all new methods are deterministic (same inputs → same output)', () => {
+      fc.assert(
+        fc.property(validStage, validConfigName, (stage, configName) => {
+          const naming1 = new NamingGenerator(stage);
+          const naming2 = new NamingGenerator(stage);
+          expect(naming1.appConfigApplicationName()).toBe(naming2.appConfigApplicationName());
+          expect(naming1.appConfigEnvironmentName()).toBe(naming2.appConfigEnvironmentName());
+          expect(naming1.appConfigProfileName(configName)).toBe(
+            naming2.appConfigProfileName(configName),
+          );
+          expect(naming1.driftDetectionLambdaName()).toBe(naming2.driftDetectionLambdaName());
+          expect(naming1.bedrockLogGroupName()).toBe(naming2.bedrockLogGroupName());
+        }),
+        { numRuns: 100 },
+      );
+    });
+  });
+
+  describe('Property 2: NamingGenerator methods produce unique names across different methods', () => {
+    it('no two NamingGenerator methods produce the same output for identical inputs', () => {
+      fc.assert(
+        fc.property(validStage, validConfigName, (stage, configName) => {
+          const naming = new NamingGenerator(stage);
+
+          // Collect all outputs from methods that take configName
+          const configNameOutputs = [
+            naming.roleName(configName),
+            naming.profileName(configName),
+            naming.guardrailName(configName),
+            naming.alarmNames(configName).token,
+            naming.alarmNames(configName).block,
+            naming.alarmNames(configName).observation,
+            naming.queueNames(configName).signals,
+            naming.queueNames(configName).dlq,
+            naming.harnessName(configName),
+            naming.appConfigProfileName(configName),
+            naming.ruleName(configName, 'default'),
+          ];
+
+          // Collect all outputs from no-arg / stage-only methods
+          const noArgOutputs = [
+            naming.tableName(),
+            naming.busName(),
+            naming.snsTopicName(),
+            naming.apiGatewayName(),
+            naming.agentRegistryTableName(),
+            naming.appConfigApplicationName(),
+            naming.appConfigEnvironmentName(),
+            naming.driftDetectionLambdaName(),
+            naming.bedrockLogGroupName(),
+          ];
+
+          // All combined outputs must be unique
+          const allOutputs = [...configNameOutputs, ...noArgOutputs];
+          const uniqueOutputs = new Set(allOutputs);
+          expect(uniqueOutputs.size).toBe(allOutputs.length);
+        }),
+        { numRuns: 100 },
+      );
+    });
+
+    it('new extension methods produce outputs distinct from each other', () => {
+      fc.assert(
+        fc.property(validStage, validConfigName, (stage, configName) => {
+          const naming = new NamingGenerator(stage);
+
+          const extensionOutputs = [
+            naming.appConfigApplicationName(),
+            naming.appConfigEnvironmentName(),
+            naming.appConfigProfileName(configName),
+            naming.driftDetectionLambdaName(),
+            naming.bedrockLogGroupName(),
+          ];
+
+          const uniqueOutputs = new Set(extensionOutputs);
+          expect(uniqueOutputs.size).toBe(extensionOutputs.length);
+        }),
         { numRuns: 100 },
       );
     });
