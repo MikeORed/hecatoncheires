@@ -1,11 +1,18 @@
 ---
 tags: [core/project, topic/ai, topic/aws, topic/cdk, topic/architecture]
 created: 2026-07-19
-revised: 2026-07-19
+revised: 2026-08-26
 parent: "[[Hecatoncheires]]"
 status: Draft
 version: 2
 ---
+
+> [!note] Maintaining this document
+> The copy in this repository is the one to edit. The Obsidian vault copy is a read-only archive and is no longer synchronised.
+>
+> This document holds decisions, layering rules, and rationale. It does not hold construct props, construct outputs, file inventories, handler inventories, adapter inventories, or folder decompositions. Those were removed because every one of them had drifted from the code. The code in `packages/` is the specification. Do not reintroduce them here.
+>
+> When the code contradicts something recorded here, fix the sentence or record a new decision in [decisions.md](./decisions.md). Do not paste the code's current shape back into this file.
 
 # Project architecture
 
@@ -31,131 +38,14 @@ Three agent type harnesses, built in the order that most efficiently proves gove
 
 pnpm workspaces. Four packages, clean-architecture layered as described below.
 
-```
-hecatoncheires/
-├── package.json                     Workspace root, shared scripts
-├── pnpm-workspace.yaml              packages: ['packages/*']
-├── tsconfig.base.json               Shared strict TS options
-├── .eslintrc.js                     Shared lint (import boundaries enforced)
-├── .prettierrc
-│
-├── packages/
-│   ├── core/                        THE ENGINE (Layers 0-2) — pure domain
-│   │   ├── package.json             deps: zod (only)
-│   │   ├── tsconfig.json            extends base
-│   │   └── src/
-│   │       ├── public-api.ts        THE PORT: single barrel export
-│   │       ├── schemas/             Layer 0: zod schemas (source of types + validators)
-│   │       ├── types/               Layer 0: re-exports for ergonomic use
-│   │       ├── entity/              Layer 0: factory functions for domain objects
-│   │       ├── errors/              Layer 0: custom error classes
-│   │       ├── constants/           Layer 0: thresholds, shape names, enumerations
-│   │       ├── config/              Layer 0: shape template definitions
-│   │       ├── shared/
-│   │       │   └── algorithms/      Layer 0: policy assembly, shape merging
-│   │       ├── validators/          Layer 0: cross-field, structural, referential
-│   │       ├── test-generators/     Layer 0: randomized builders for PBT
-│   │       └── domain/
-│   │           ├── identity/        Layer 1: role model, profile binding, boundary logic
-│   │           ├── capability/      Layer 1: shape resolution, grant logic, policy doc assembly
-│   │           ├── telemetry/       Layer 2: enrichment logic, profile-ID resolution
-│   │           ├── signals/         Layer 2: envelope validation, correlation chains
-│   │           └── fleet/           Layer 2: config validation, onboarding eligibility
-│   │
-│   ├── api/                         USE-CASES + ADAPTERS (Layer 3, runtime)
-│   │   ├── package.json             deps: @hecaton/core, AWS SDK clients, esbuild
-│   │   ├── tsconfig.json            extends base, references core
-│   │   └── src/
-│   │       ├── handlers/            Lambda entry points (flat, suffix-named)
-│   │       │   ├── grant-shape.http.ts
-│   │       │   ├── revoke-shape.http.ts
-│   │       │   ├── query-fleet-state.http.ts
-│   │       │   ├── onboard-agent.http.ts
-│   │       │   ├── breaker-trip.alarm.ts
-│   │       │   ├── grant-expiry-sweep.schedule.ts
-│   │       │   ├── drift-detected.event.ts
-│   │       │   ├── enrichment.logs.ts
-│   │       │   └── capability-changed.event.ts
-│   │       ├── use-cases/           Orchestrate core domain into workflows
-│   │       │   ├── grant-shape.ts
-│   │       │   ├── revoke-shape.ts
-│   │       │   ├── trip-breaker.ts
-│   │       │   ├── query-fleet-state.ts
-│   │       │   └── onboard-agent.ts
-│   │       └── adapters/            I/O boundary — the only code touching AWS
-│   │           ├── http/
-│   │           │   ├── dto/
-│   │           │   │   ├── requests/
-│   │           │   │   ├── responses/
-│   │           │   │   └── mappers/
-│   │           │   └── middleware/
-│   │           ├── dynamo/
-│   │           │   ├── dto/
-│   │           │   │   └── mappers/
-│   │           │   └── grant-ledger.adapter.ts
-│   │           ├── iam/
-│   │           │   └── operating-policy.adapter.ts
-│   │           ├── eventbridge/
-│   │           │   ├── dto/
-│   │           │   │   └── mappers/
-│   │           │   └── bus-emitter.adapter.ts
-│   │           ├── appconfig/
-│   │           │   └── tunables.adapter.ts
-│   │           └── cloudwatch/
-│   │               └── metric-emitter.adapter.ts
-│   │
-│   ├── cdk/                         ADAPTERS (Layer 3, infrastructure)
-│   │   ├── package.json             deps: @hecaton/core, aws-cdk-lib, constructs
-│   │   ├── tsconfig.json            extends base, references core
-│   │   ├── cdk.json
-│   │   ├── bin/
-│   │   │   └── app.ts              CDK app entry
-│   │   ├── lib/
-│   │   │   ├── stacks/
-│   │   │   │   ├── shared-infra.stack.ts
-│   │   │   │   ├── agent-config.stack.ts
-│   │   │   │   └── telemetry.stack.ts
-│   │   │   ├── constructs/
-│   │   │   │   ├── agent-identity.ts
-│   │   │   │   ├── agent-telemetry.ts
-│   │   │   │   ├── agent-policy-modulator.ts
-│   │   │   │   ├── agent-bus-channel.ts
-│   │   │   │   ├── agent-type-harness.ts
-│   │   │   │   ├── agentcore-managed-harness.ts
-│   │   │   │   ├── openclaw-harness.ts
-│   │   │   │   ├── agentcore-runtime-harness.ts
-│   │   │   │   ├── ops-bus.ts
-│   │   │   │   ├── signals-bus.ts
-│   │   │   │   ├── enrichment-pipeline.ts
-│   │   │   │   └── drift-detection.ts
-│   │   │   └── config/
-│   │   │       └── seeds/
-│   │   │           ├── example-agentcore-managed.json
-│   │   │           ├── example-openclaw.json
-│   │   │           └── example-agentcore-runtime.json
-│   │   └── test/
-│   │       ├── constructs/
-│   │       └── stacks/
-│   │
-│   └── web/                         CONSUMER (Layer 4, SPA)
-│       ├── package.json             deps: @hecaton/core (types), framework TBD
-│       ├── tsconfig.json            extends base, references core
-│       └── src/
-│           ├── ui/                  Interface components
-│           ├── state/               State management
-│           └── lib/                 Pure client-side logic (no I/O)
-│
-├── test/                            Cross-package integration tests
-│   └── integration/
-│       └── deploy-and-verify.test.ts
-│
-└── .github/
-    └── workflows/
-        ├── core.yml                 Lint + test core on any push
-        ├── api.yml                  Lint + test + bundle api
-        ├── cdk.yml                  Synth + assertion tests
-        └── web.yml                  Lint + test + build web
-```
+| Package | Layers | Role |
+|---|---|---|
+| `packages/core` | 0 to 2 | The engine. Pure domain logic. zod is its only external dependency. |
+| `packages/api` | 3 | Use-cases and adapters. The Lambda runtime. |
+| `packages/cdk` | 3 | Constructs and stacks. The infrastructure adapter. |
+| `packages/web` | 4 | Operator dashboard. Placeholder until Phase 3. |
+
+The specification is the code. See `packages/core/src/`, where the folder names carry the layering. This document previously carried the full directory tree of every package, and the tree drifted from the repository within weeks, so it is not restated here.
 
 ---
 
@@ -191,213 +81,51 @@ Three layers on every agent role:
 2. Base config — minimal shared floor (invocation permissions, logging). Per-kind trust policy delta.
 3. Operating policy — single inline policy, rewritten by the modulator from the grant ledger. Deny-by-default resting state.
 
-The policy-document assembly algorithm lives in `packages/core/src/domain/capability/`. It's pure: takes shape templates + parameters, returns IAM statement JSON. The IAM adapter in `packages/api/src/adapters/iam/` calls `putRolePolicy` with that output.
+The policy-document assembly algorithm lives in `packages/core/src/shared/algorithms/`. It's pure: takes shape templates + parameters, returns IAM statement JSON. The IAM adapter in `packages/api/src/adapters/iam/` calls `putRolePolicy` with that output.
 
 ---
 
 ## Stacks (packages/cdk)
 
-### SharedInfraStack
+Two kinds of stack. One shared stack per account and stage holds everything the whole fleet references: the ops bus, the notification topic, the permission-boundary-independent shared resources, the two DynamoDB tables, the API Gateway and its handler Lambdas, the shared breaker Lambda, drift detection, and Bedrock invocation logging. One stack per agent configuration holds that agent's identity, inference profile, guardrail, alarms, and tunables. The deployment unit is one CloudFormation stack per agent config, which is recorded in [decisions.md](./decisions.md).
 
-Deployed once per account/stage.
-
-- Ops EventBridge bus + archive
-- SNS notification topic (delivery target subscribed to ops bus via rule)
-- Permission Boundary (shared)
-- Bedrock invocation logging enablement
-- Drift detection (CloudTrail rule + Lambda)
-- AppConfig application + environments
-- Grant ledger table (DynamoDB, data architecture TBD)
-- API Gateway (routes to api Lambda handlers)
-
-### AgentConfigStack (one per configuration)
-
-- IAM role (three-layer model) via `AgentIdentity` construct
-- App inference profile (tagged)
-- Guardrail resource
-- CloudWatch alarms + modulator Lambda via `AgentPolicyModulator` construct
-- AppConfig configuration profile + tunables profile
-- SQS FIFO queue + DLQ (for signals, when activated) via `AgentBusChannel`
-- (Managed only) CfnHarness resource
-
-### TelemetryStack
-
-Phase 2 delivery.
-
-- Enrichment Lambda + CloudWatch Logs subscription filter
-- Profile ID resolution mapping
-- S3 bucket (90-day lifecycle, partitioned for Athena)
-- CloudWatch dashboard (fleet-level, 5 widgets)
+The specification is the code. See `packages/cdk/lib/stacks/`, where each stack's constructor shows what it creates and what it exposes to the stacks that depend on it.
 
 ---
 
-## Construct interfaces
+## Constructs (packages/cdk)
 
-Constructs live in `packages/cdk/lib/constructs/` and import `@hecaton/core` for schema validation of seed configs. They reference `packages/api` build artifacts for Lambda deployment.
+Constructs live in `packages/cdk/lib/constructs/` and import `@hecaton/core` for seed validation and resource naming. They reference `packages/api` handler entry points for Lambda bundling.
 
-### AgentIdentity
+The specification is the code. See `packages/cdk/lib/constructs/`, where the exported props and outputs interfaces define each construct's contract. This document previously restated them and the copies drifted, so they are not restated here.
 
-```typescript
-interface AgentIdentityProps {
-  configName: string;
-  agentType: 'agentcore-managed' | 'openclaw' | 'agentcore-runtime';
-  permissionBoundaryArn: string;
-  modelId: string;
-  guardrailConfig: {
-    guardrailId?: string;
-    policies?: GuardrailPolicy[];
-    version?: string;
-  };
-  tags: Record<string, string>;
-}
+### Identity
 
-interface AgentIdentityOutputs {
-  role: iam.IRole;
-  profileArn: string;
-  profileEntityId: string;
-  guardrailId: string;
-  guardrailVersion: string;
-}
-```
+The role carries condition keys on all Bedrock inference actions:
 
-The role has condition keys on all Bedrock inference actions:
 - `bedrock:InferenceProfileArn` must equal the assigned profile
 - `bedrock:GuardrailIdentifier` must equal the assigned guardrail
 
 Trust policy shape varies by harness type:
+
 - AgentCore Managed: trusts `bedrock-agentcore.amazonaws.com`
-- OpenClaw: trusts the principal where the instance runs (EC2, ECS, local via user/role)
+- OpenClaw: trusts the principal where the instance runs, supplied per config
 - AgentCore Runtime: trusts `bedrock-agentcore.amazonaws.com`
 
-### AgentPolicyModulator (breaker + capability control)
+### Policy modulation
 
-One IAM-mutation engine. The breaker is the coarsest operation (revoke the invocation shape); a capability gate is a narrower operation. Both are the same operation against the same policy, which is why there is no separate breaker subsystem.
+One IAM-mutation engine. The breaker is the coarsest operation; a capability gate is a narrower operation. Both are the same operation against the same inline policy, which is why there is no separate breaker subsystem.
 
-```typescript
-interface AgentPolicyModulatorProps {
-  configName: string;
-  agentRole: iam.IRole;
-  profileEntityId: string;
-  snsTopic: sns.ITopic;
-  opsBus: events.IEventBus;
-  grantLedgerTable: dynamodb.ITable;
-  shapeCatalog: CapabilityShape[];
-  thresholds: {
-    outputTokensPerHour: number;
-    guardrailBlocksPer10Min: number;
-    guardrailObservationsPerHour: number;
-  };
-}
+Two trigger sources reach that policy. A grant or revoke request queries the grant ledger for the config's current grants, resolves each against the shape templates, and rewrites the operating policy. A breaker alarm state change writes directly, with no ledger query, because the emergency path cannot depend on a read succeeding. Both paths then emit an event to the ops bus and publish a notification to SNS.
 
-interface AgentPolicyModulatorOutputs {
-  operatingPolicy: iam.CfnPolicy;
-  tokenAlarm: cloudwatch.IAlarm;
-  blockAlarm: cloudwatch.IAlarm;
-  observationAlarm: cloudwatch.IAlarm;
-  modulatorLambda: lambda.IFunction;
-}
-```
+> [!warning] Known gap
+> The emergency path does not revoke the invocation shape. It writes a deny-all policy to the operating policy, so a trip removes every granted shape rather than only invocation. The published notification reaches the SNS topic, which currently has no subscription.
 
-The modulator Lambda handles two trigger sources:
-1. A grant/revoke request queries the grant ledger for the config's current grants, resolves each against the shape templates, and rewrites the operating policy.
-2. A breaker alarm state change revokes the invocation shape directly (no ledger query needed for the emergency path).
+The grant ledger is the source of truth for what a config is allowed to do. AppConfig is not involved in grant state.
 
-Both paths rewrite the single inline operating policy, then emit an event to the ops bus and a notification via SNS.
+### Signal delivery
 
-The grant ledger (DynamoDB, data architecture TBD) is the source of truth for what a config is currently allowed to do. The modulator reads it; operator tooling and automation write to it. AppConfig is not involved in grant state.
-
-### AgentBusChannel
-
-```typescript
-interface AgentBusChannelProps {
-  configName: string;
-  busArn: string;
-  sourceNamespace: string;
-  subscriptionPatterns?: EventPattern[];
-  agentRole: iam.IRole;
-  fifo?: boolean;
-}
-
-interface AgentBusChannelOutputs {
-  queue: sqs.IQueue;
-  dlq: sqs.IQueue;
-  rule: events.IRule;
-}
-```
-
-When `fifo` is true (signals bus), the queue is SQS FIFO and the rule sets MessageGroupId from the event's correlationId for causal ordering per chain.
-
-### AgentTelemetry
-
-```typescript
-interface AgentTelemetryProps {
-  configName: string;
-  profileEntityId: string;
-  enrichmentLambdaArn?: string;
-}
-```
-
-Phase 1: stores the profile-ID mapping. Phase 2: wires the subscription filter.
-
-### AgentTypeHarness (abstract base)
-
-```typescript
-interface AgentTypeHarnessProps {
-  configName: string;
-  agentType: 'agentcore-managed' | 'openclaw' | 'agentcore-runtime';
-  sharedInfra: SharedInfraOutputs;
-  config: AgentConfiguration;
-}
-```
-
-Composes: AgentIdentity + AgentPolicyModulator + AgentBusChannel + AgentTelemetry.
-
-### AgentCoreManagedHarness
-
-```typescript
-interface AgentCoreManagedHarnessProps extends AgentTypeHarnessProps {
-  harnessConfig: {
-    systemPrompt: string;
-    maxIterations?: number;
-    maxTokens?: number;
-    timeoutSeconds?: number;
-    allowedTools?: string[];
-    tools?: HarnessTool[];
-    skills?: HarnessSkill[];
-  };
-}
-```
-
-Deploys base governance + `CfnHarness` resource pointed at the governed execution role. Harness-native limits serve as first-line defense (per-invocation caps, allowedTools). The platform modulator is second-line (cumulative-threshold breaker + capability grant/revoke).
-
-### OpenClawHarness
-
-```typescript
-interface OpenClawHarnessProps extends AgentTypeHarnessProps {
-  trustPrincipal: iam.IPrincipal;
-  eventBridgeChannel?: {
-    queueUrl?: string;
-    sourceNamespace?: string;
-    signalSubscriptions?: Array<{ detailType: string; source: string }>;
-  };
-}
-```
-
-Deploys base governance + role trust policy scoped to wherever OpenClaw runs. Signal channel queue + rules activate with the event augmentation module.
-
-### AgentCoreRuntimeHarness
-
-```typescript
-interface AgentCoreRuntimeHarnessProps extends AgentTypeHarnessProps {
-  runtimeConfig: {
-    ecrRepository?: string;
-    codeZipS3?: string;
-    environmentVariables?: Record<string, string>;
-  };
-}
-```
-
-Deploys base governance + AgentCore Runtime resource (L2 construct from `aws-cdk-lib/aws-bedrockagentcore`).
+The signals queue is SQS FIFO and the rule sets `MessageGroupId` from the event's `correlationId`, which gives causal ordering per chain rather than per queue.
 
 ---
 
@@ -451,7 +179,7 @@ Each adapter boundary owns its own DTO folder with request shapes, response shap
 }
 ```
 
-> **Note:** Signal subscriptions (EventBridge detailType + source patterns) were originally part of the base agent configuration. They have been moved to the OpenClaw harness-specific configuration (`OpenClawHarnessProps.eventBridgeChannel`) as they are a delivery concern specific to that harness type.
+> **Note:** Signal subscriptions (EventBridge detailType + source patterns) were originally part of the base agent configuration. They have been moved to the OpenClaw harness configuration, since delivery is a concern specific to that harness type.
 
 ### Runtime tunables (AppConfig, changeable without deploy)
 
@@ -469,7 +197,10 @@ Each adapter boundary owns its own DTO folder with request shapes, response shap
 }
 ```
 
-Grant state does not live in AppConfig. It lives in the grant ledger (DynamoDB, data architecture TBD). The modulator reads the ledger directly.
+> [!warning] Known gap
+> Nothing reads these tunables. `AgentConfigStack` writes them as an AppConfig hosted configuration version at deploy time, and alarm thresholds are set from the seed JSON at synth time, so changing a threshold requires a deployment. `packages/api/src/adapters/appconfig/` and `packages/api/src/adapters/cloudwatch/` contain only a `.gitkeep`.
+
+Grant state does not live in AppConfig. It lives in the grant ledger, whose schema is recorded in [decisions.md](./decisions.md). The modulator reads the ledger directly.
 
 ---
 
@@ -520,7 +251,6 @@ Tags on all resources:
 pnpm --filter @hecaton/core build
 pnpm --filter @hecaton/cdk deploy Hecaton-Dev-SharedInfra
 pnpm --filter @hecaton/cdk deploy Hecaton-Dev-TestManaged Hecaton-Dev-SreOps ...
-pnpm --filter @hecaton/cdk deploy Hecaton-Dev-Telemetry
 ```
 
 Or: `pnpm --filter @hecaton/cdk deploy --all`
@@ -562,7 +292,7 @@ Runner: Vitest 4.x across all packages. Native ESM, zero-config TypeScript, fast
 Co-location: every module has a `.test.ts` beside it. No separate `__tests__` trees.
 
 ```
-packages/core/src/domain/capability/
+packages/core/src/shared/algorithms/
 ├── resolve-shape.ts
 ├── resolve-shape.test.ts
 ├── assemble-policy.ts
@@ -694,15 +424,9 @@ Placeholder. Materializes in Phase 3 (operator dashboard, capability-state views
 
 ---
 
-## Open questions
+## Decisions
 
-- Grant ledger data architecture: DynamoDB schema, key structure, access patterns.
-- Capability shape templates: exact IAM actions, resource-pattern syntax, parameter resolution.
-- Metric namespace and dimension conventions for custom dashboard widgets.
-- Frontend framework selection (Vite + React likely, deferred to Phase 3).
-- Modulator Lambda topology switchover threshold (shared → per-config).
-- AppConfig deployment strategy automatic-rollback alarm metric.
-- Telemetry transport switchover threshold (Lambda → Kinesis).
+Questions that have closed, with what was decided and where the answer lives in code, are recorded in [decisions.md](./decisions.md).
 
 ---
 

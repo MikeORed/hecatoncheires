@@ -1,0 +1,625 @@
+{
+  "pbtResults": {
+    "7.9 Verify the decision sections match the template and the natural-writing rule holds": {
+      "status": "passed",
+      "lastRunTimestamp": 1787772644403
+    }
+  },
+  "executionHistory": {
+    "1.1 Create `.initial-planning/decisions.md` with frontmatter, steering block, header and intro": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767935575
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767944291
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787768142060
+      }
+    ],
+    "1.2 Transcribe decision sections 1 and 2": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767935618
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787768145076
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787768235497
+      }
+    ],
+    "1.3 Transcribe decision sections 3 to 7": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767935661
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787768238442
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787768321426
+      }
+    ],
+    "2.1 Add the steering block and update the `revised` date": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767935694
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787768325148
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787768413713
+      }
+    ],
+    "2.2 Replace the monorepo layout directory tree": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767935751
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787768416951
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787768513806
+      }
+    ],
+    "2.3 Replace the `## Stacks (packages/cdk)` section": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767935782
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787768517012
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787768582868
+      }
+    ],
+    "2.4 Rework the construct interfaces section": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767935817
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787768586062
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787768680897
+      }
+    ],
+    "2.5 Make the three edits in the configuration schemas section": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767935851
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787768685898
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787768762096
+      }
+    ],
+    "2.6 Make the three path corrections": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767935888
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787768765083
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787768854784
+      }
+    ],
+    "2.7 Replace the `## Open questions` section": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767935929
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787768859740
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787768927233
+      }
+    ],
+    "2.8 Sweep the design's section-by-section disposition table": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767935964
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787768930322
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787769196586
+      }
+    ],
+    "3. Checkpoint after the architecture document": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767936003
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787769216981
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787769259523
+      }
+    ],
+    "4.1 Add the steering block and the intro decisions link": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767936058
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787769263766
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787769343366
+      }
+    ],
+    "4.2 Replace the diagram 3 Mermaid fence": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767936107
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787769348517
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787769824283
+      }
+    ],
+    "4.3 Replace the diagram 9 Mermaid fence, heading, and lead line": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767936165
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787769827642
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787770081557
+      }
+    ],
+    "4.4 Annotate diagrams 3 and 9": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767936212
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787770084755
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787770178946
+      }
+    ],
+    "4.5 Annotate diagrams 1, 2, 4, and 5": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767936262
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787770183356
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787770397729
+      }
+    ],
+    "4.6 Annotate diagrams 6, 7, and 8": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767936318
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787770402041
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787770702998
+      }
+    ],
+    "5.1 Add the steering block above the Definition callout": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767936352
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787770708018
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787770801860
+      }
+    ],
+    "5.2 Retire the closed TBD in the Phase 1 task line": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767936388
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787770804967
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787770858007
+      }
+    ],
+    "5.3 Add the note under the `## Tasks` heading": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767936439
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787770862196
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787770910380
+      }
+    ],
+    "5.4 Add the decisions entry to the `### In this repository` list": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767936470
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787770914275
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787771041051
+      }
+    ],
+    "6.1 Replace the IAM role naming pattern cell in `.kiro/steering/structure.md`": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767936525
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787771044775
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787771084815
+      }
+    ],
+    "7.1 Verify frontmatter preservation against `git show HEAD:<path>`": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767936568
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787771089677
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787772322987
+      }
+    ],
+    "7.2 Verify every relative link resolves": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767936609
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787771092620
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787772327886
+      }
+    ],
+    "7.3 Verify every backticked `packages/` path exists on disk": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767936645
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787771095928
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787772331180
+      }
+    ],
+    "7.4 Verify every identifier in the rewritten diagrams maps to a real file": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767936688
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787771099823
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787772334637
+      }
+    ],
+    "7.5 Verify all nine Mermaid fences parse": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767936743
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787771102864
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787772337899
+      }
+    ],
+    "7.6 Verify the seven annotated fence bodies are byte-identical to their pre-triage form": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767936782
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787772341633
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787772727918
+      }
+    ],
+    "7.7 Verify steering block placement and annotation grammar": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767936818
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787772344879
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787772732243
+      }
+    ],
+    "7.8 Verify the deletions took and no TBD list survives": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767936853
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787772348249
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787772736217
+      }
+    ],
+    "7.9 Verify the decision sections match the template and the natural-writing rule holds": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767936896
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787772351439
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787772740537
+      }
+    ],
+    "7.10 Verify the working-tree diff touches exactly five files": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767936949
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787772354853
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787772743967
+      }
+    ],
+    "8. Final checkpoint": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787767936986
+      },
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787772747105
+      }
+    ],
+    "1. Create the decisions record": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787768321481
+      }
+    ],
+    "2. Edit `.initial-planning/architecture.md`": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787769196623
+      }
+    ],
+    "4. Edit `.initial-planning/diagrams.md`": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787770703053
+      }
+    ],
+    "5. Edit `.initial-planning/Hecatoncheires.md`": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787771041102
+      }
+    ],
+    "6. Correct the structure steering file": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787771084874
+      }
+    ],
+    "7. Verification": [
+      {
+        "executionId": "23265468-bbc1-49c0-800d-489a7a9db7c3",
+        "chatSessionId": "sess_4b160f1b-b218-43a1-958c-88bd5e077807",
+        "timestamp": 1787772744015
+      }
+    ]
+  }
+}

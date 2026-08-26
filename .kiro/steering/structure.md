@@ -88,7 +88,7 @@ test/
 
 | Resource | Pattern |
 |---|---|
-| IAM role | `hecaton-{configName}-agent-role` |
+| IAM role | `hecaton-{stage}-{configName}-agent-role` |
 | Inference profile | `hecaton-{configName}-profile` |
 | Lambda | `hecaton-{handler-name}` |
 | SQS queue | `hecaton-{configName}-signals.fifo` |

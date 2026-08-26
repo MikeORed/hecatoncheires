@@ -7,6 +7,13 @@ progress: 🟡 In Progress
 status: Active
 ---
 
+> [!note] Maintaining this document
+> The copy in this repository is the one to edit. The Obsidian vault copy is a read-only archive and is no longer synchronised.
+>
+> Review this document at each milestone date in the milestone table, and again whenever a milestone moves. Update the status line, the progress figure, and the weekly log in the same pass, or the three drift apart.
+>
+> Task and success-criteria checkboxes below record the plan as it stood when each list was written. Some items were superseded rather than completed. Closed decisions live in [decisions.md](./decisions.md).
+
 > [!info] Definition  
 > A Project exists to ship a **finite outcome** inside 3–12 weeks.
 
@@ -73,6 +80,8 @@ Two workstreams under one project:
 
 ## Tasks
 
+Decisions that closed after these lists were written are recorded in [decisions.md](./decisions.md). Some items below were superseded rather than completed.
+
 **Immediate (Requirements Phase):**
 - [x] Map the problem space
 - [x] Document existing state: guardrails PR, IAM role patterns, inference profiles
@@ -95,7 +104,7 @@ Two workstreams under one project:
 - [ ] Bedrock Guardrail resources
 - [ ] Three-layer role model (boundary / base config / operating policy)
 - [ ] AppConfig: config store + tunables (thresholds, feature flags)
-- [ ] Grant ledger (DynamoDB likely, data architecture TBD) for live capability-shape state
+- [ ] Grant ledger for live capability-shape state (schema recorded in [decisions.md](./decisions.md))
 - [ ] Capability shape catalog (risk-tier bundles) + core invocation shape
 - [ ] `AgentPolicyModulator`: operating-policy grant/revoke engine (breaker = revoke invocation shape)
 - [ ] Seed initial configurations via CDK
@@ -171,6 +180,7 @@ Items that don't fit neatly into Phases 1-4 but are known future needs. Collecte
 
 - [architecture.md](./architecture.md) -- CDK + monorepo project layout, clean-arch layering, construct interfaces (v2)
 - [diagrams.md](./diagrams.md) -- architecture diagrams (mermaid, 9 diagrams)
+- [decisions.md](./decisions.md) -- decisions record: closed questions, what was decided, where the code lives
 
 ### Planning notes (private Obsidian vault, not published here)
 
