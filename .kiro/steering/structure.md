@@ -52,13 +52,16 @@ src/
 src/
 ├── handlers/            Lambda entry points (flat, named: {action}.{trigger}.ts)
 ├── use-cases/           Orchestrate core domain into workflows
+├── ports/               Port interfaces for adapter dependencies
+├── shared/              Shared utilities (logging, middleware)
 └── adapters/            I/O boundary (only code touching AWS SDKs)
     ├── http/dto/        Request/response DTOs + mappers
     ├── dynamo/dto/      Persistence DTOs + mappers
     ├── iam/             Operating policy writer
     ├── eventbridge/dto/ Event DTOs + mappers
     ├── appconfig/       Runtime tunables reader
-    └── cloudwatch/      Metric emitter
+    ├── cloudwatch/      Metric emitter
+    └── sns/             Notification emitter
 ```
 
 **Handler naming convention**: `{what-it-does}.{trigger-type}.ts`
@@ -72,9 +75,10 @@ Trigger suffixes: `.http`, `.alarm`, `.schedule`, `.event`, `.logs`
 bin/
 └── app.ts               CDK app entry point
 lib/
-├── stacks/              Stack definitions (SharedInfra, AgentConfig, Telemetry)
-├── constructs/          L3 constructs (AgentIdentity, AgentPolicyModulator, etc.)
-└── config/seeds/        Seed configuration JSON files for agent configs
+├── stacks/              Stack definitions (SharedInfra, AgentConfig, AgentcoreManaged)
+├── constructs/          L3 constructs (AgentIdentity, AgentPolicyModulator, AgentBusChannel)
+├── config/              Seed configuration and constants
+└── lambda/              Bundled handler code for deployment
 test/
 ├── constructs/          Construct-level assertion tests
 └── stacks/              Stack-level assertion tests
