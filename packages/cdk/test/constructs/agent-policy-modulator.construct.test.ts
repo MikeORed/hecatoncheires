@@ -4,6 +4,7 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { Template, Match } from 'aws-cdk-lib/assertions';
+import { EnvVar } from '@hecaton/core';
 import { AgentPolicyModulator } from '../../lib/constructs/agent-policy-modulator.construct.js';
 
 // ---------------------------------------------------------------------------
@@ -248,7 +249,7 @@ describe('AgentPolicyModulator construct', () => {
       );
       expect(registrySeedFunctions.length).toBeGreaterThanOrEqual(1);
       for (const fn of registrySeedFunctions) {
-        expect(fn.Properties.Environment?.Variables?.AGENT_REGISTRY_TABLE_NAME).toBeDefined();
+        expect(fn.Properties.Environment?.Variables?.[EnvVar.AGENT_REGISTRY_TABLE_NAME]).toBeDefined();
       }
     });
   });

@@ -2,7 +2,10 @@ import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import * as cdk from 'aws-cdk-lib';
 import { Template } from 'aws-cdk-lib/assertions';
+import { NamingGenerator } from '@hecaton/core';
 import { AgentIdentity } from '../../lib/constructs/agent-identity.construct.js';
+
+const naming = new NamingGenerator('test');
 
 /** Arbitrary for valid configName values matching ConfigNamePattern: ^[a-z][a-z0-9-]*[a-z0-9]$ */
 const arbConfigName = fc
@@ -40,7 +43,7 @@ describe('Property 2: Trust policy correctness per agent type', () => {
       profileArn: 'arn:aws:bedrock:us-east-1:123456789012:inference-profile/test-profile',
       guardrailId: 'test-guardrail-id',
       stage: 'test',
-      tags: { 'hecatoncheires:managed': 'true' },
+      tags: { [`${naming.projectFullName}:managed`]: 'true' },
       externalPrincipalArn: props.externalPrincipalArn,
     });
     return Template.fromStack(stack);
@@ -143,7 +146,7 @@ describe('Property 6: Condition key enforcement on Bedrock actions', () => {
       profileArn: props.profileArn,
       guardrailId: props.guardrailId,
       stage: 'test',
-      tags: { 'hecatoncheires:managed': 'true' },
+      tags: { [`${naming.projectFullName}:managed`]: 'true' },
       externalPrincipalArn: props.externalPrincipalArn,
     });
     return Template.fromStack(stack);
@@ -255,7 +258,7 @@ describe('Property 5: Deny-by-default operating policy', () => {
       profileArn: 'arn:aws:bedrock:us-east-1:123456789012:inference-profile/test-profile',
       guardrailId: 'test-guardrail-id',
       stage: 'test',
-      tags: { 'hecatoncheires:managed': 'true' },
+      tags: { [`${naming.projectFullName}:managed`]: 'true' },
       externalPrincipalArn: props.externalPrincipalArn,
     });
     return Template.fromStack(stack);
@@ -340,7 +343,7 @@ describe('Property 8: S3 resource scoping', () => {
       profileArn: 'arn:aws:bedrock:us-east-1:123456789012:inference-profile/test-profile',
       guardrailId: 'test-guardrail-id',
       stage: 'test',
-      tags: { 'hecatoncheires:managed': 'true' },
+      tags: { [`${naming.projectFullName}:managed`]: 'true' },
       externalPrincipalArn: props.externalPrincipalArn,
     });
     return Template.fromStack(stack);

@@ -4,8 +4,6 @@ import { validateGrant, assemblePolicy, validatePolicySize, SHAPE_CATALOG } from
 import type { Dependencies } from '../shared/dependencies.js';
 import { toGrantChangedEvent } from '../adapters/eventbridge/dto/event.mapper.js';
 
-const DEFAULT_POLICY_NAME = 'hecaton-operating-policy';
-
 /**
  * Grant-shape use-case.
  *
@@ -42,7 +40,11 @@ export async function grantShape(
   }
 
   // 6. Write the assembled policy to IAM
-  await deps.operatingPolicy.writePolicy(roleName, DEFAULT_POLICY_NAME, policyDocument);
+  await deps.operatingPolicy.writePolicy(
+    roleName,
+    deps.operatingPolicy.getDefaultPolicyName(),
+    policyDocument,
+  );
 
   // 7. Emit grant-changed event (best-effort)
   try {

@@ -1,3 +1,5 @@
+import { EVENT_DETAIL_TYPE, EVENT_SOURCE } from '@hecaton/core';
+
 import type { BusEvent } from '../../../ports/bus-emitter.port.js';
 
 export interface GrantChangedDetail {
@@ -25,8 +27,8 @@ export interface BreakerTrippedDetail {
 /** Builds a BusEvent for the grant-changed event */
 export function toGrantChangedEvent(detail: GrantChangedDetail, correlationId?: string): BusEvent {
   return {
-    source: 'hecatoncheires.api',
-    detailType: 'GrantChanged',
+    source: EVENT_SOURCE.API,
+    detailType: EVENT_DETAIL_TYPE.GRANT_CHANGED,
     detail: { ...detail },
     ...(correlationId !== undefined && { correlationId }),
   };
@@ -35,8 +37,8 @@ export function toGrantChangedEvent(detail: GrantChangedDetail, correlationId?: 
 /** Builds a BusEvent for the capability-changed event */
 export function toCapabilityChangedEvent(detail: CapabilityChangedDetail): BusEvent {
   return {
-    source: 'hecatoncheires.api',
-    detailType: 'CapabilityChanged',
+    source: EVENT_SOURCE.API,
+    detailType: EVENT_DETAIL_TYPE.CAPABILITY_CHANGED,
     detail: { ...detail },
   };
 }
@@ -44,8 +46,8 @@ export function toCapabilityChangedEvent(detail: CapabilityChangedDetail): BusEv
 /** Builds a BusEvent for the breaker-tripped event */
 export function toBreakerTrippedEvent(detail: BreakerTrippedDetail): BusEvent {
   return {
-    source: 'hecatoncheires.api',
-    detailType: 'BreakerTripped',
+    source: EVENT_SOURCE.API,
+    detailType: EVENT_DETAIL_TYPE.BREAKER_TRIPPED,
     detail: { ...detail },
   };
 }

@@ -385,3 +385,138 @@ describe('NamingGenerator extension property tests', () => {
     });
   });
 });
+
+
+describe('Magic String Cleanup Properties', () => {
+  // **Validates: Requirements 1.3**
+
+  describe('Property 1: Name methods embed projectPrefix', () => {
+    it('all resource name methods contain projectPrefix as substring', () => {
+      fc.assert(
+        fc.property(
+          validStage,
+          validConfigName,
+          validHandlerName,
+          validPurpose,
+          (stage, configName, handlerName, purpose) => {
+            const naming = new NamingGenerator(stage);
+
+            // All name methods should contain projectPrefix
+            const nameOutputs = [
+              naming.roleName(configName),
+              naming.profileName(configName),
+              naming.guardrailName(configName),
+              naming.alarmNames(configName).token,
+              naming.alarmNames(configName).block,
+              naming.alarmNames(configName).observation,
+              naming.queueNames(configName).signals,
+              naming.queueNames(configName).dlq,
+              naming.lambdaName(handlerName),
+              naming.ruleName(configName, purpose),
+              naming.harnessName(configName),
+              naming.tableName(),
+              naming.busName(),
+              naming.snsTopicName(),
+              naming.apiGatewayName(),
+              naming.agentRegistryTableName(),
+              naming.appConfigApplicationName(),
+              naming.appConfigEnvironmentName(),
+              naming.appConfigProfileName(configName),
+              naming.driftDetectionLambdaName(),
+              naming.operatingPolicyName(),
+            ];
+
+            for (const name of nameOutputs) {
+              expect(name).toContain(naming.projectPrefix);
+            }
+
+            // stackName uses capitalized projectPrefix
+            const stack = naming.stackName(purpose);
+            const capitalizedPrefix =
+              naming.projectPrefix.charAt(0).toUpperCase() + naming.projectPrefix.slice(1);
+            expect(stack).toContain(capitalizedPrefix);
+          },
+        ),
+        { numRuns: 100 },
+      );
+    });
+
+    it('all tag keys contain projectFullName as substring', () => {
+      fc.assert(
+        fc.property(validStage, validConfigName, (stage, configName) => {
+          const naming = new NamingGenerator(stage);
+          const tagsRecord = naming.tags(configName, { phase: '1', harnessType: 'test' });
+
+          for (const key of Object.keys(tagsRecord)) {
+            expect(key).toContain(naming.projectFullName);
+          }
+        }),
+        { numRuns: 100 },
+      );
+    });
+  });
+});
+
+
+describe('Magic String Cleanup Properties', () => {
+  // **Validates: Requirements 1.3, 2.2, 2.3, 2.4**
+
+  describe('Property 2: tagsToCfn equivalence with tags', () => {
+    const optionalPhase = fc.option(
+      fc.string({ minLength: 1 }).filter((s) => s.trim().length > 0),
+      { nil: undefined },
+    );
+    const optionalHarnessType = fc.option(
+      fc.string({ minLength: 1 }).filter((s) => s.trim().length > 0),
+      { nil: undefined },
+    );
+
+    it('converting tagsToCfn array back to Record equals tags() output', () => {
+      fc.assert(
+        fc.property(
+          validStage,
+          validConfigName,
+          optionalPhase,
+          optionalHarnessType,
+          (stage, configName, phase, harnessType) => {
+            const naming = new NamingGenerator(stage);
+            const options = { phase, harnessType };
+
+            const tagsRecord = naming.tags(configName, options);
+            const cfnArray = naming.tagsToCfn(configName, options);
+
+            // Convert cfnArray back to Record
+            const reconstructed: Record<string, string> = {};
+            for (const { key, value } of cfnArray) {
+              reconstructed[key] = value;
+            }
+
+            expect(reconstructed).toEqual(tagsRecord);
+          },
+        ),
+        { numRuns: 200 },
+      );
+    });
+
+    it('tagsToCfn produces one element per tag entry', () => {
+      fc.assert(
+        fc.property(
+          validStage,
+          validConfigName,
+          optionalPhase,
+          optionalHarnessType,
+          (stage, configName, phase, harnessType) => {
+            const naming = new NamingGenerator(stage);
+            const options = { phase, harnessType };
+
+            const tagsRecord = naming.tags(configName, options);
+            const cfnArray = naming.tagsToCfn(configName, options);
+
+            expect(cfnArray.length).toBe(Object.keys(tagsRecord).length);
+          },
+        ),
+        { numRuns: 200 },
+      );
+    });
+  });
+});

@@ -8,7 +8,7 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as cr from 'aws-cdk-lib/custom-resources';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
-import { NamingGenerator } from '@hecaton/core';
+import { NamingGenerator, EnvVar } from '@hecaton/core';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -136,7 +136,7 @@ export class AgentPolicyModulator extends Construct {
         target: 'node20',
       },
       environment: {
-        AGENT_REGISTRY_TABLE_NAME: props.agentRegistryTable.tableName,
+        [EnvVar.AGENT_REGISTRY_TABLE_NAME]: props.agentRegistryTable.tableName,
       },
     });
 

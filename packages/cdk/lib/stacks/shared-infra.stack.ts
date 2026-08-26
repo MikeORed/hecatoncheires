@@ -13,7 +13,7 @@ import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as cr from 'aws-cdk-lib/custom-resources';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
-import { NamingGenerator } from '@hecaton/core';
+import { NamingGenerator, EnvVar } from '@hecaton/core';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -143,10 +143,10 @@ export class SharedInfraStack extends cdk.Stack {
         target: 'node20',
       },
       environment: {
-        AGENT_REGISTRY_TABLE_NAME: registryTable.tableName,
-        OPS_BUS_ARN: bus.eventBusArn,
-        SNS_TOPIC_ARN: topic.topicArn,
-        OPERATING_POLICY_NAME: 'hecaton-operating-policy',
+        [EnvVar.AGENT_REGISTRY_TABLE_NAME]: registryTable.tableName,
+        [EnvVar.OPS_BUS_ARN]: bus.eventBusArn,
+        [EnvVar.SNS_TOPIC_ARN]: topic.topicArn,
+        [EnvVar.OPERATING_POLICY_NAME]: naming.operatingPolicyName(),
       },
     });
 
@@ -207,10 +207,10 @@ export class SharedInfraStack extends cdk.Stack {
         target: 'node20',
       },
       environment: {
-        GRANT_LEDGER_TABLE_NAME: table.tableName,
-        AGENT_REGISTRY_TABLE_NAME: registryTable.tableName,
-        OPS_BUS_ARN: bus.eventBusArn,
-        OPERATING_POLICY_NAME: 'hecaton-operating-policy',
+        [EnvVar.GRANT_LEDGER_TABLE_NAME]: table.tableName,
+        [EnvVar.AGENT_REGISTRY_TABLE_NAME]: registryTable.tableName,
+        [EnvVar.OPS_BUS_ARN]: bus.eventBusArn,
+        [EnvVar.OPERATING_POLICY_NAME]: naming.operatingPolicyName(),
       },
     });
 
@@ -226,10 +226,10 @@ export class SharedInfraStack extends cdk.Stack {
         target: 'node20',
       },
       environment: {
-        GRANT_LEDGER_TABLE_NAME: table.tableName,
-        AGENT_REGISTRY_TABLE_NAME: registryTable.tableName,
-        OPS_BUS_ARN: bus.eventBusArn,
-        OPERATING_POLICY_NAME: 'hecaton-operating-policy',
+        [EnvVar.GRANT_LEDGER_TABLE_NAME]: table.tableName,
+        [EnvVar.AGENT_REGISTRY_TABLE_NAME]: registryTable.tableName,
+        [EnvVar.OPS_BUS_ARN]: bus.eventBusArn,
+        [EnvVar.OPERATING_POLICY_NAME]: naming.operatingPolicyName(),
       },
     });
 
@@ -245,10 +245,10 @@ export class SharedInfraStack extends cdk.Stack {
         target: 'node20',
       },
       environment: {
-        GRANT_LEDGER_TABLE_NAME: table.tableName,
-        AGENT_REGISTRY_TABLE_NAME: registryTable.tableName,
-        OPS_BUS_ARN: bus.eventBusArn,
-        OPERATING_POLICY_NAME: 'hecaton-operating-policy',
+        [EnvVar.GRANT_LEDGER_TABLE_NAME]: table.tableName,
+        [EnvVar.AGENT_REGISTRY_TABLE_NAME]: registryTable.tableName,
+        [EnvVar.OPS_BUS_ARN]: bus.eventBusArn,
+        [EnvVar.OPERATING_POLICY_NAME]: naming.operatingPolicyName(),
       },
     });
 
@@ -324,9 +324,9 @@ export class SharedInfraStack extends cdk.Stack {
     const appConfigApp = new appconfig.CfnApplication(this, 'AppConfigApplication', {
       name: naming.appConfigApplicationName(),
       tags: [
-        { key: 'hecatoncheires:managed', value: 'true' },
-        { key: 'hecatoncheires:stage', value: stage },
-        { key: 'hecatoncheires:phase', value: '1' },
+        { key: `${naming.projectFullName}:managed`, value: 'true' },
+        { key: `${naming.projectFullName}:stage`, value: stage },
+        { key: `${naming.projectFullName}:phase`, value: '1' },
       ],
     });
 
@@ -351,9 +351,9 @@ export class SharedInfraStack extends cdk.Stack {
         target: 'node20',
       },
       environment: {
-        OPS_BUS_ARN: bus.eventBusArn,
-        SNS_TOPIC_ARN: topic.topicArn,
-        KNOWN_PRINCIPALS: JSON.stringify([
+        [EnvVar.OPS_BUS_ARN]: bus.eventBusArn,
+        [EnvVar.SNS_TOPIC_ARN]: topic.topicArn,
+        [EnvVar.KNOWN_PRINCIPALS]: JSON.stringify([
           breakerLambda.role!.roleArn,
           grantLambda.role!.roleArn,
           revokeLambda.role!.roleArn,
@@ -465,9 +465,9 @@ export class SharedInfraStack extends cdk.Stack {
     this.defaultGuardrailConfig = DEFAULT_GUARDRAIL_CONFIG;
 
     // --- Standard tags ---
-    cdk.Tags.of(this).add('hecatoncheires:managed', 'true');
-    cdk.Tags.of(this).add('hecatoncheires:stage', stage);
-    cdk.Tags.of(this).add('hecatoncheires:phase', '1');
+    cdk.Tags.of(this).add(`${naming.projectFullName}:managed`, 'true');
+    cdk.Tags.of(this).add(`${naming.projectFullName}:stage`, stage);
+    cdk.Tags.of(this).add(`${naming.projectFullName}:phase`, '1');
 
     // --- CfnOutputs for cross-stack consumption ---
     new cdk.CfnOutput(this, 'OpsBusArn', {

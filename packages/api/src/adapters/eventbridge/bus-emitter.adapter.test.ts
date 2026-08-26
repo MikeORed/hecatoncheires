@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { EventBridgeClient } from '@aws-sdk/client-eventbridge';
-import { InternalError } from '@hecaton/core';
+import { EVENT_SOURCE, EVENT_DETAIL_TYPE, InternalError } from '@hecaton/core';
 
 import { BusEmitterAdapter } from './bus-emitter.adapter.js';
 import type { BusEvent } from '../../ports/bus-emitter.port.js';
@@ -10,8 +10,8 @@ describe('BusEmitterAdapter', () => {
   let adapter: BusEmitterAdapter;
 
   const testEvent: BusEvent = {
-    source: 'hecatoncheires.api',
-    detailType: 'GrantChanged',
+    source: EVENT_SOURCE.API,
+    detailType: EVENT_DETAIL_TYPE.GRANT_CHANGED,
     detail: { configName: 'test-agent', action: 'granted' },
   };
 
@@ -38,8 +38,8 @@ describe('BusEmitterAdapter', () => {
     expect(command.input.Entries[0].EventBusName).toBe(
       'arn:aws:events:us-east-1:123:event-bus/ops',
     );
-    expect(command.input.Entries[0].Source).toBe('hecatoncheires.api');
-    expect(command.input.Entries[0].DetailType).toBe('GrantChanged');
+    expect(command.input.Entries[0].Source).toBe(EVENT_SOURCE.API);
+    expect(command.input.Entries[0].DetailType).toBe(EVENT_DETAIL_TYPE.GRANT_CHANGED);
   });
 
   it('includes correlationId in detail when present', async () => {

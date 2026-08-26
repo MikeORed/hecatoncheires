@@ -214,13 +214,7 @@ export class AgentCoreManagedStack extends AgentConfigStack {
       ...(tools && { tools }),
       ...(allowedTools && { allowedTools }),
       ...(skills && { skills }),
-      tags: [
-        { key: 'hecatoncheires:managed', value: 'true' },
-        { key: 'hecatoncheires:config', value: configName },
-        { key: 'hecatoncheires:stage', value: stage },
-        { key: 'hecatoncheires:phase', value: '1' },
-        { key: 'hecatoncheires:harness-type', value: 'agentcore-managed' },
-      ],
+      tags: naming.tagsToCfn(configName, { phase: '1', harnessType: 'agentcore-managed' }),
     });
 
     // Add DependsOn to the AgentIdentity role (ensures role is fully created before harness)

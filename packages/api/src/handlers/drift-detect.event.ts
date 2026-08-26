@@ -1,3 +1,4 @@
+import { EnvVar } from '@hecaton/core';
 import { getDriftDependencies } from '../shared/dependencies.js';
 
 /**
@@ -72,7 +73,7 @@ export function isKnownPrincipal(modifierArn: string, knownPrincipals: string[])
  * Returns an empty array if the value is missing or not valid JSON.
  */
 function parseKnownPrincipals(): string[] {
-  const raw = process.env['KNOWN_PRINCIPALS'];
+  const raw = process.env[EnvVar.KNOWN_PRINCIPALS];
   if (!raw) {
     return [];
   }

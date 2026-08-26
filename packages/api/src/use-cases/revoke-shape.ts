@@ -3,8 +3,6 @@ import { assemblePolicy, SHAPE_CATALOG } from '@hecaton/core';
 import type { Dependencies } from '../shared/dependencies.js';
 import { toGrantChangedEvent } from '../adapters/eventbridge/dto/event.mapper.js';
 
-const DEFAULT_POLICY_NAME = 'hecaton-operating-policy';
-
 export interface RevokeShapeInput {
   configName: string;
   roleName: string;
@@ -37,7 +35,11 @@ export async function revokeShape(
   const policyDocument = assemblePolicy(remainingGrants, SHAPE_CATALOG);
 
   // 4. Write the assembled policy to IAM
-  await deps.operatingPolicy.writePolicy(input.roleName, DEFAULT_POLICY_NAME, policyDocument);
+  await deps.operatingPolicy.writePolicy(
+    input.roleName,
+    deps.operatingPolicy.getDefaultPolicyName(),
+    policyDocument,
+  );
 
   // 5. Emit grant-changed event (best-effort)
   try {

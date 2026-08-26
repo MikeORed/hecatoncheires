@@ -40,6 +40,7 @@ function createMockDeps() {
     operatingPolicy: {
       writePolicy: vi.fn().mockResolvedValue(undefined),
       deletePolicy: vi.fn().mockResolvedValue(undefined),
+      getDefaultPolicyName: vi.fn().mockReturnValue('hecaton-operating-policy'),
     },
     busEmitter: {
       emit: vi.fn().mockResolvedValue(undefined),
