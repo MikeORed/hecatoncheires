@@ -3,6 +3,8 @@ name: CI - @hecaton/web
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'packages/docs/**'
 
 jobs:
   build-and-test:
