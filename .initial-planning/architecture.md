@@ -11,7 +11,7 @@ version: 2
 
 Monorepo structure, clean-architecture layering, package decomposition, construct interfaces, and deployment flow for Hecatoncheires.
 
-Source material: [[monorepo-exploration]], [[requirements]], [[diagrams]], [[exploration]], [[my-flavor-clean-arch]], [[ADR-0001-iam-operating-policy-modulator-over-hitl]]
+Source material: [diagrams.md](./diagrams.md) and [Hecatoncheires.md](./Hecatoncheires.md) in this folder. Also drawn from planning notes kept in a private Obsidian vault and not published here: `monorepo-exploration`, `requirements`, `exploration`, `my-flavor-clean-arch`, `ADR-0001-iam-operating-policy-modulator-over-hitl`.
 
 ---
 
@@ -29,7 +29,7 @@ Three agent type harnesses, built in the order that most efficiently proves gove
 
 ## Monorepo layout
 
-pnpm workspaces. Four packages, layered per [[my-flavor-clean-arch]].
+pnpm workspaces. Four packages, clean-architecture layered as described below.
 
 ```
 hecatoncheires/
@@ -185,7 +185,7 @@ Rules:
 
 ## Role model: boundary, base, operating policy
 
-Three layers on every agent role, per [[ADR-0001-iam-operating-policy-modulator-over-hitl]]:
+Three layers on every agent role:
 
 1. Permission Boundary — absolute ceiling, never modulated.
 2. Base config — minimal shared floor (invocation permissions, logging). Per-kind trust policy delta.
@@ -271,7 +271,7 @@ Trust policy shape varies by harness type:
 
 ### AgentPolicyModulator (breaker + capability control)
 
-One IAM-mutation engine. The breaker is the coarsest operation (revoke the invocation shape); a capability gate is a narrower operation. Per [[ADR-0001-iam-operating-policy-modulator-over-hitl]].
+One IAM-mutation engine. The breaker is the coarsest operation (revoke the invocation shape); a capability gate is a narrower operation. Both are the same operation against the same policy, which is why there is no separate breaker subsystem.
 
 ```typescript
 interface AgentPolicyModulatorProps {
@@ -531,7 +531,7 @@ CDK's `NodejsFunction` handles per-handler bundling from `packages/api/src/handl
 
 Phase 1-3 (manual): add a seed config in `packages/cdk/lib/config/seeds/`, instantiate a new `AgentConfigStack` in `bin/app.ts`, deploy.
 
-Phase 4 (self-service): API/CLI creates the seed, triggers CDK Pipeline. See [[exploration]] Phase 4.
+Phase 4 (self-service): API/CLI creates the seed, triggers CDK Pipeline. See the Phase 4 task list in [Hecatoncheires.md](./Hecatoncheires.md).
 
 ---
 

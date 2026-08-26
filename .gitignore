@@ -10,3 +10,6 @@ coverage/
 # Agent temp files (test output capture)
 *.tmp
 *.tmp.*
+
+# Purely local secondary files
+local/

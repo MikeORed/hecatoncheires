@@ -227,7 +227,7 @@ flowchart TB
 
 ## 6. Capability control flow (operating-policy modulation)
 
-How a sensitive AWS-backed capability is gated and granted. Replaces the earlier HITL approval flow (see [[ADR-0001-iam-operating-policy-modulator-over-hitl]]). There is no pause-resume: the capability is simply absent until granted, and its absence fails the AWS call.
+How a sensitive AWS-backed capability is gated and granted. Replaces an earlier stateful HITL approval flow, which was dropped as more machinery than the problem warranted. There is no pause-resume: the capability is simply absent until granted, and its absence fails the AWS call.
 
 ```mermaid
 sequenceDiagram

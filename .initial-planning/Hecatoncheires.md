@@ -15,7 +15,7 @@ status: Active
 > [!question] Why are we doing this?  
 > Autonomous agents need a governance and observability plane that matches their execution speed, or they become unaccountable cost and security liabilities.
 
-**Outcome:** A CDK-deployed AWS governance platform that observes and controls autonomous agent fleets via IAM enforcement, real-time telemetry, cost circuit breakers, and capability control through a modulated IAM operating policy (see [[ADR-0001-iam-operating-policy-modulator-over-hitl]]). Three harness types: AgentCore Managed Harness (config-driven, AWS-hosted loop), OpenClaw (external agent, role assumption only), and AgentCore Runtime (container-based, custom code). Separately, an event augmentation module extends agents to participate as signal processors on a shared EventBridge fabric.
+**Outcome:** A CDK-deployed AWS governance platform that observes and controls autonomous agent fleets via IAM enforcement, real-time telemetry, cost circuit breakers, and capability control through a modulated IAM operating policy. Three harness types: AgentCore Managed Harness (config-driven, AWS-hosted loop), OpenClaw (external agent, role assumption only), and AgentCore Runtime (container-based, custom code). Separately, an event augmentation module extends agents to participate as signal processors on a shared EventBridge fabric.
 
 **Success criteria:**
 
@@ -74,12 +74,12 @@ Two workstreams under one project:
 ## Tasks
 
 **Immediate (Requirements Phase):**
-- [x] Map the problem space (see [[exploration]])
+- [x] Map the problem space
 - [x] Document existing state: guardrails PR, IAM role patterns, inference profiles
 - [x] Identify and resolve architectural decisions
 - [x] Confirm invocation log ToolUse emission across APIs
-- [x] Derive formal requirements from exploration findings (see [[requirements]])
-- [x] Sketch component diagrams (see [[diagrams]] -- mermaid, 9 diagrams)
+- [x] Derive formal requirements from exploration findings
+- [x] Sketch component diagrams (see [diagrams.md](./diagrams.md) -- mermaid, 9 diagrams)
 - [ ] Define CDK construct interfaces (props, methods, outputs per L3)
 - [ ] Define AppConfig schemas (agent configs + runtime tunables)
 - [ ] Identify AWS service limits that could constrain the design
@@ -142,7 +142,7 @@ Items that don't fit neatly into Phases 1-4 but are known future needs. Collecte
 - Multi-account functional deployment. Structural prep is Phase 1 (bus policies, role chaining). Actual cross-account governance is a separate effort after the single-account platform is proven.
 - Direct API provisioner (Path B). Only if fleet churn or scale makes CDK Pipeline provisioning too slow. The grant ledger is the seed of the fleet registry this requires.
 - Broader capability shape taxonomy. The starter shapes (S3 prefix read/write, CloudWatch Logs read) expand as agent use cases grow. This is ongoing, not a single deliverable.
-- Invocation shim for arbitrary tool gating. The only way to gate non-AWS tools pre-execution. A different product with different properties (see [[ADR-0001-iam-operating-policy-modulator-over-hitl]]). Noted, not planned.
+- Invocation shim for arbitrary tool gating. The only way to gate non-AWS tools pre-execution. A different product with different properties. Noted, not planned.
 
 **Event Augmentation Module (parallel):**
 - [x] Design and implement OpenClaw EventBridge channel plugin
@@ -154,9 +154,7 @@ Items that don't fit neatly into Phases 1-4 but are known future needs. Collecte
 - [ ] Multi-agent coordination pattern documentation
 
 > [!tip] Task sources  
-> - [[exploration]] -- all architectural decisions and rationale  
-> - [[reference-agent-ops-presentation]] -- foundations and control patterns  
-> - [[eventbridge-channel-idea]] -- signal channel design
+> Vault notes (not in this repo): `exploration` for architectural decisions and rationale, `reference-agent-ops-presentation` for foundations and control patterns, `eventbridge-channel-idea` for signal channel design.
 
 ## Prior art and context
 
@@ -164,30 +162,41 @@ Items that don't fit neatly into Phases 1-4 but are known future needs. Collecte
 - Application inference profiles with cost labels -- in use today for cost attribution.
 - Token-based circuit breakers -- basic version exists informally, formalized in this project.
 - IAM role binding pattern -- proven in presentation demo (agent -> profile -> guardrail -> FM).
-- EventBridge channel plugin design -- full design in [[eventbridge-channel-idea]] with inbound/outbound options ranked.
+- EventBridge channel plugin design -- full design in the `eventbridge-channel-idea` vault note, with inbound/outbound options ranked.
 - AWS AgentCore Managed Harness (GA June 2026) -- config-driven agent runtime with `executionRoleArn`, built-in observability, per-invocation limits. Primary test rig for proving governance concepts.
 
 ## References
 
-- [[exploration]] -- problem space exploration (v1, all decisions resolved)
-- [[exploration-v0]] -- original working exploration doc (superseded)
-- [[requirements]] -- exhaustive requirements (45 reqs across 10 domains, phase-mapped)
-- [[diagrams]] -- architecture diagrams (mermaid, Obsidian-native)
-- [[architecture]] -- CDK + monorepo project layout, clean-arch layering, construct interfaces (v2)
-- [[architecture-v1]] -- archived: CDK-only flat structure (superseded by v2)
-- [[monorepo-exploration]] -- reasoning behind the monorepo structure and clean-arch mapping
-- [[pattern-and-service-review]] -- critical review of architecture/software patterns, service-tiering decisions, and the questions that reverse-engineer missing requirements
-- [[ADR-0001-iam-operating-policy-modulator-over-hitl]] -- decision: drop stateful HITL, govern via a modulated IAM operating policy (capability shapes)
-- [[project-brief]] -- full project brief (comprehensive, all diagrams inline)
-- [[reference-agent-ops-presentation]] -- "Opening the Black Box" presentation
-- [[eventbridge-channel-idea]] -- EventBridge signal channel design
-- [[eventbridge-plugin-handoff]] -- completed plugin implementation details, file map, integration checklist
+### In this repository
+
+- [architecture.md](./architecture.md) -- CDK + monorepo project layout, clean-arch layering, construct interfaces (v2)
+- [diagrams.md](./diagrams.md) -- architecture diagrams (mermaid, 9 diagrams)
+
+### Planning notes (private Obsidian vault, not published here)
+
+Listed for the author's own traceability. These are working notes, not authoritative
+specifications, and nothing in this repo should be read as depending on them.
+
+- `exploration` -- problem space exploration (v1, all decisions resolved); `exploration-v0` superseded
+- `requirements` -- exhaustive requirements (45 reqs across 10 domains, phase-mapped)
+- `architecture-v1` -- archived: CDK-only flat structure (superseded by v2)
+- `monorepo-exploration` -- reasoning behind the monorepo structure and clean-arch mapping
+- `my-flavor-clean-arch` -- personal clean-architecture layering convention
+- `pattern-and-service-review` -- critical review of architecture/software patterns and service-tiering decisions
+- `ADR-0001-iam-operating-policy-modulator-over-hitl` -- scope decision: stateful HITL was more machinery than the problem warranted, so capability control is done by rewriting the IAM operating policy instead
+- `project-brief` -- full project brief (comprehensive, all diagrams inline)
+- `reference-agent-ops-presentation` -- "Opening the Black Box" presentation
+- `eventbridge-channel-idea` -- EventBridge signal channel design
+- `eventbridge-plugin-handoff` -- plugin implementation details, file map, integration checklist
+
+### External
+
 - OpenClaw docs / source
 - AWS EventBridge, Lambda, IAM, Bedrock, AppConfig documentation
 - AgentCore documentation (generalization target)
 
 > [!todo] Add links  
-> CDK repo link, architecture diagrams, and ops runbooks will live here as they're created.
+> Ops runbooks and deployment guides will be added under "In this repository" as they're created.
 
 ## Weekly Status Updates
 
