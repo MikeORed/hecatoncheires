@@ -13,18 +13,26 @@ import { NamingGenerator, EnvVar } from '@hecaton/core';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-/** Props for the AgentPolicyModulator construct. */
-export interface AgentPolicyModulatorProps {
-  configName: string;
+/** A single profile binding with optional per-profile thresholds. */
+export interface ProfileBinding {
   profileEntityId: string;
   profileArn: string;
   modelId: string;
+  label: string;
+  thresholds?: { outputTokensPerHour: number };
+}
+
+/** Props for the AgentPolicyModulator construct. */
+export interface AgentPolicyModulatorProps {
+  configName: string;
+  profileBindings: ProfileBinding[];
   agentRole: iam.IRole;
   agentType: string;
   guardrailId: string;
   breakerLambda: lambda.IFunction;
   agentRegistryTable: dynamodb.ITable;
   stage: string;
+  /** Agent-level default thresholds. */
   thresholds: {
     outputTokensPerHour: number;
     guardrailBlocksPer10Min: number;
@@ -34,15 +42,20 @@ export interface AgentPolicyModulatorProps {
 
 /** Typed outputs from the AgentPolicyModulator construct. */
 export interface AgentPolicyModulatorOutputs {
-  tokenAlarm: cloudwatch.IAlarm;
-  blockAlarm: cloudwatch.IAlarm;
-  observationAlarm: cloudwatch.IAlarm;
+  perProfileAlarms: Array<{
+    label: string;
+    tokenAlarm: cloudwatch.IAlarm;
+    blockAlarm: cloudwatch.IAlarm;
+    observationAlarm: cloudwatch.IAlarm;
+  }>;
+  compositeAlarm: cloudwatch.CompositeAlarm;
 }
 
 /**
- * AgentPolicyModulator construct — composes per-agent CloudWatch alarms
- * that target the shared Breaker Lambda, and deploys a RegistrySeed custom
- * resource that manages the agent's registry records.
+ * AgentPolicyModulator construct — composes per-profile CloudWatch alarms
+ * with a single composite alarm that targets the shared Breaker Lambda,
+ * and deploys a RegistrySeed custom resource that manages the agent's
+ * registry records.
  */
 export class AgentPolicyModulator extends Construct {
   readonly outputs: AgentPolicyModulatorOutputs;
@@ -54,75 +67,84 @@ export class AgentPolicyModulator extends Construct {
     if (!props.configName || props.configName.trim().length === 0) {
       throw new Error('AgentPolicyModulator: configName must be non-empty');
     }
-    if (!props.profileEntityId || props.profileEntityId.trim().length === 0) {
-      throw new Error('AgentPolicyModulator: profileEntityId must be non-empty');
+    if (!props.profileBindings || props.profileBindings.length === 0) {
+      throw new Error('AgentPolicyModulator: profileBindings must be non-empty');
     }
     this.validateThresholds(props.thresholds);
 
     const naming = new NamingGenerator(props.stage);
-    const alarmNames = naming.alarmNames(props.configName);
 
-    // --- CloudWatch Alarms ---
-    const metricDimension = { InferenceProfileId: props.profileEntityId };
+    // --- Per-Profile CloudWatch Alarms ---
+    const allAlarms: cloudwatch.IAlarm[] = [];
+    const perProfileAlarms: AgentPolicyModulatorOutputs['perProfileAlarms'] = [];
 
-    const tokenAlarm = new cloudwatch.Alarm(this, 'TokenAlarm', {
-      alarmName: alarmNames.token,
-      metric: new cloudwatch.Metric({
-        namespace: 'AWS/Bedrock',
-        metricName: 'OutputTokenCount',
-        dimensionsMap: metricDimension,
-        statistic: 'Sum',
-        period: cdk.Duration.seconds(3600),
-      }),
-      threshold: props.thresholds.outputTokensPerHour,
-      evaluationPeriods: 1,
-      datapointsToAlarm: 1,
-      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
-      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+    for (const binding of props.profileBindings) {
+      const names = naming.perProfileAlarmNames(props.configName, binding.label);
+      const effectiveTokenThreshold =
+        binding.thresholds?.outputTokensPerHour ?? props.thresholds.outputTokensPerHour;
+
+      const tokenAlarm = new cloudwatch.Alarm(this, `TokenAlarm-${binding.label}`, {
+        alarmName: names.token,
+        metric: new cloudwatch.Metric({
+          namespace: 'AWS/Bedrock',
+          metricName: 'OutputTokenCount',
+          dimensionsMap: { InferenceProfileId: binding.profileEntityId },
+          statistic: 'Sum',
+          period: cdk.Duration.seconds(3600),
+        }),
+        threshold: effectiveTokenThreshold,
+        evaluationPeriods: 1,
+        datapointsToAlarm: 1,
+        comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+        treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+      });
+
+      const blockAlarm = new cloudwatch.Alarm(this, `BlockAlarm-${binding.label}`, {
+        alarmName: names.block,
+        metric: new cloudwatch.Metric({
+          namespace: 'AWS/Bedrock',
+          metricName: 'GuardrailBlocked',
+          dimensionsMap: { InferenceProfileId: binding.profileEntityId },
+          statistic: 'Sum',
+          period: cdk.Duration.seconds(600),
+        }),
+        threshold: props.thresholds.guardrailBlocksPer10Min,
+        evaluationPeriods: 1,
+        datapointsToAlarm: 1,
+        comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+        treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+      });
+
+      const observationAlarm = new cloudwatch.Alarm(this, `ObservationAlarm-${binding.label}`, {
+        alarmName: names.observation,
+        metric: new cloudwatch.Metric({
+          namespace: 'AWS/Bedrock',
+          metricName: 'GuardrailObserved',
+          dimensionsMap: { InferenceProfileId: binding.profileEntityId },
+          statistic: 'Sum',
+          period: cdk.Duration.seconds(3600),
+        }),
+        threshold: props.thresholds.guardrailObservationsPerHour,
+        evaluationPeriods: 1,
+        datapointsToAlarm: 1,
+        comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+        treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+      });
+
+      allAlarms.push(tokenAlarm, blockAlarm, observationAlarm);
+      perProfileAlarms.push({ label: binding.label, tokenAlarm, blockAlarm, observationAlarm });
+    }
+
+    // --- Composite Alarm → Breaker Lambda ---
+    const compositeAlarm = new cloudwatch.CompositeAlarm(this, 'CompositeAlarm', {
+      compositeAlarmName: `${naming.projectPrefix}-${props.stage}-${props.configName}-composite`,
+      alarmRule: cloudwatch.AlarmRule.anyOf(...allAlarms),
     });
 
-    const blockAlarm = new cloudwatch.Alarm(this, 'BlockAlarm', {
-      alarmName: alarmNames.block,
-      metric: new cloudwatch.Metric({
-        namespace: 'AWS/Bedrock',
-        metricName: 'GuardrailBlocked',
-        dimensionsMap: metricDimension,
-        statistic: 'Sum',
-        period: cdk.Duration.seconds(600),
-      }),
-      threshold: props.thresholds.guardrailBlocksPer10Min,
-      evaluationPeriods: 1,
-      datapointsToAlarm: 1,
-      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
-      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
-    });
-
-    const observationAlarm = new cloudwatch.Alarm(this, 'ObservationAlarm', {
-      alarmName: alarmNames.observation,
-      metric: new cloudwatch.Metric({
-        namespace: 'AWS/Bedrock',
-        metricName: 'GuardrailObserved',
-        dimensionsMap: metricDimension,
-        statistic: 'Sum',
-        period: cdk.Duration.seconds(3600),
-      }),
-      threshold: props.thresholds.guardrailObservationsPerHour,
-      evaluationPeriods: 1,
-      datapointsToAlarm: 1,
-      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
-      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
-    });
-
-    // --- Alarm actions → Breaker Lambda ---
-    // Use a simple alarm action config that points to the Lambda ARN without
-    // adding permissions here (permissions are managed in SharedInfraStack to
-    // avoid cross-stack circular dependencies).
-    const alarmActionConfig: cloudwatch.IAlarmAction = {
+    const compositeAction: cloudwatch.IAlarmAction = {
       bind: () => ({ alarmActionArn: props.breakerLambda.functionArn }),
     };
-    tokenAlarm.addAlarmAction(alarmActionConfig);
-    blockAlarm.addAlarmAction(alarmActionConfig);
-    observationAlarm.addAlarmAction(alarmActionConfig);
+    compositeAlarm.addAlarmAction(compositeAction);
 
     // --- RegistrySeed Custom Resource ---
     const registrySeedHandler = new NodejsFunction(this, 'RegistrySeedHandler', {
@@ -158,10 +180,13 @@ export class AgentPolicyModulator extends Construct {
       properties: {
         configName: props.configName,
         roleName: props.agentRole.roleName,
-        profileEntityId: props.profileEntityId,
-        profileArn: props.profileArn,
+        profiles: props.profileBindings.map((b) => ({
+          profileEntityId: b.profileEntityId,
+          profileArn: b.profileArn,
+          modelId: b.modelId,
+          label: b.label,
+        })),
         agentType: props.agentType,
-        modelId: props.modelId,
         guardrailId: props.guardrailId,
       },
     });
@@ -180,7 +205,7 @@ export class AgentPolicyModulator extends Construct {
     }
 
     // --- Outputs ---
-    this.outputs = { tokenAlarm, blockAlarm, observationAlarm };
+    this.outputs = { perProfileAlarms, compositeAlarm };
   }
 
   private validateThresholds(thresholds: AgentPolicyModulatorProps['thresholds']): void {

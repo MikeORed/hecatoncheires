@@ -5,15 +5,15 @@ import { InvalidShapeParametersError } from '../../errors/index.js';
 import type { ShapeTemplate } from '../../types/index.js';
 
 describe('resolveShape', () => {
-  const coreInvocationTemplate: ShapeTemplate = {
-    shapeName: 'core-invocation',
+  const singleParamTemplate: ShapeTemplate = {
+    shapeName: 'single-param-shape',
     riskTier: 'medium',
-    requiredParameters: ['inferenceProfileArn'],
+    requiredParameters: ['resourceArn'],
     statements: [
       {
         Effect: 'Allow',
         Action: ['bedrock:InvokeModel', 'bedrock:InvokeModelWithResponseStream'],
-        Resource: '${inferenceProfileArn}',
+        Resource: '${resourceArn}',
       },
     ],
   };
@@ -38,8 +38,8 @@ describe('resolveShape', () => {
   };
 
   it('substitutes a single placeholder in Resource', () => {
-    const result = resolveShape(coreInvocationTemplate, {
-      inferenceProfileArn: 'arn:aws:bedrock:us-east-1:123456789012:inference-profile/my-profile',
+    const result = resolveShape(singleParamTemplate, {
+      resourceArn: 'arn:aws:bedrock:us-east-1:123456789012:inference-profile/my-profile',
     });
 
     expect(result).toHaveLength(1);
@@ -70,7 +70,7 @@ describe('resolveShape', () => {
   });
 
   it('throws InvalidShapeParametersError when parameters are missing', () => {
-    expect(() => resolveShape(coreInvocationTemplate, {})).toThrow(
+    expect(() => resolveShape(singleParamTemplate, {})).toThrow(
       InvalidShapeParametersError,
     );
   });
@@ -123,8 +123,8 @@ describe('resolveShape', () => {
   });
 
   it('does not include Condition when template has no Condition', () => {
-    const result = resolveShape(coreInvocationTemplate, {
-      inferenceProfileArn: 'arn:aws:bedrock:us-east-1:123456789012:inference-profile/test',
+    const result = resolveShape(singleParamTemplate, {
+      resourceArn: 'arn:aws:bedrock:us-east-1:123456789012:inference-profile/test',
     });
 
     expect(result[0].Condition).toBeUndefined();

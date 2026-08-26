@@ -1,4 +1,4 @@
-import type { GrantRecord } from '@hecaton/core';
+import type { GrantRecord, PolicyAssemblyContext } from '@hecaton/core';
 import { validateGrant, assemblePolicy, validatePolicySize, SHAPE_CATALOG } from '@hecaton/core';
 
 import type { Dependencies } from '../shared/dependencies.js';
@@ -29,7 +29,9 @@ export async function grantShape(
   const allGrants = await deps.grantLedger.queryGrantsByConfig(grant.configName);
 
   // 4. Assemble the operating policy
-  const policyDocument = assemblePolicy(allGrants, SHAPE_CATALOG);
+  // TODO(task-10.1): Fetch profile ARNs from registry adapter
+  const context: PolicyAssemblyContext = { profileArns: [] };
+  const policyDocument = assemblePolicy(allGrants, SHAPE_CATALOG, context);
 
   // 5. Validate the policy size
   const sizeValidation = validatePolicySize(policyDocument);

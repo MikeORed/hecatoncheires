@@ -78,7 +78,9 @@ for (const seedFile of seedFiles) {
     stage,
     configName,
     agentType: 'agentcore-managed',
-    modelId: seedConfig.modelId as string,
+    modelBindings: seedConfig.modelBindings
+      ? (seedConfig.modelBindings as AgentCoreManagedStackProps['modelBindings'])
+      : [{ modelId: seedConfig.modelId as string, label: 'default' }],
     thresholds: seedConfig.thresholds as AgentCoreManagedStackProps['thresholds'],
     harnessConfig: seedConfig.harnessConfig as AgentCoreManagedStackProps['harnessConfig'],
     signalChannel: seedConfig.signalChannel as AgentCoreManagedStackProps['signalChannel'],

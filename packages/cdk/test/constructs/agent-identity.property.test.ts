@@ -40,7 +40,7 @@ describe('Property 2: Trust policy correctness per agent type', () => {
     new AgentIdentity(stack, 'Identity', {
       configName: props.configName,
       agentType: props.agentType,
-      profileArn: 'arn:aws:bedrock:us-east-1:123456789012:inference-profile/test-profile',
+      profileArns: ['arn:aws:bedrock:us-east-1:123456789012:inference-profile/test-profile'],
       guardrailId: 'test-guardrail-id',
       stage: 'test',
       tags: { [`${naming.projectFullName}:managed`]: 'true' },
@@ -143,7 +143,7 @@ describe('Property 6: Condition key enforcement on Bedrock actions', () => {
     new AgentIdentity(stack, 'Identity', {
       configName: props.configName,
       agentType: props.agentType,
-      profileArn: props.profileArn,
+      profileArns: [props.profileArn],
       guardrailId: props.guardrailId,
       stage: 'test',
       tags: { [`${naming.projectFullName}:managed`]: 'true' },
@@ -206,15 +206,24 @@ describe('Property 6: Condition key enforcement on Bedrock actions', () => {
               // Must have a Condition block
               expect(stmt.Condition).toBeDefined();
 
-              // Must have StringEquals condition
-              expect(stmt.Condition!.StringEquals).toBeDefined();
+              // Must have ForAnyValue:StringEquals condition for profile ARNs (multi-profile)
+              expect(stmt.Condition!['ForAnyValue:StringEquals']).toBeDefined();
 
-              const stringEquals = stmt.Condition!.StringEquals;
+              const forAnyValueEquals = stmt.Condition!['ForAnyValue:StringEquals'];
 
               // Must include bedrock:InferenceProfileArn condition key
-              expect(stringEquals['bedrock:InferenceProfileArn']).toBeDefined();
-              // Value must match the profileArn passed as props
-              expect(stringEquals['bedrock:InferenceProfileArn']).toBe(profileArn);
+              expect(forAnyValueEquals['bedrock:InferenceProfileArn']).toBeDefined();
+              // Value must be an array containing the profileArn passed as props
+              const profileArnValue = forAnyValueEquals['bedrock:InferenceProfileArn'];
+              if (Array.isArray(profileArnValue)) {
+                expect(profileArnValue).toContain(profileArn);
+              } else {
+                expect(profileArnValue).toBe(profileArn);
+              }
+
+              // Must have StringEquals for guardrail condition
+              expect(stmt.Condition!.StringEquals).toBeDefined();
+              const stringEquals = stmt.Condition!.StringEquals;
 
               // Must include bedrock:GuardrailIdentifier condition key
               expect(stringEquals['bedrock:GuardrailIdentifier']).toBeDefined();
@@ -255,7 +264,7 @@ describe('Property 5: Deny-by-default operating policy', () => {
     new AgentIdentity(stack, 'Identity', {
       configName: props.configName,
       agentType: props.agentType,
-      profileArn: 'arn:aws:bedrock:us-east-1:123456789012:inference-profile/test-profile',
+      profileArns: ['arn:aws:bedrock:us-east-1:123456789012:inference-profile/test-profile'],
       guardrailId: 'test-guardrail-id',
       stage: 'test',
       tags: { [`${naming.projectFullName}:managed`]: 'true' },
@@ -340,7 +349,7 @@ describe('Property 8: S3 resource scoping', () => {
     new AgentIdentity(stack, 'Identity', {
       configName: props.configName,
       agentType: props.agentType,
-      profileArn: 'arn:aws:bedrock:us-east-1:123456789012:inference-profile/test-profile',
+      profileArns: ['arn:aws:bedrock:us-east-1:123456789012:inference-profile/test-profile'],
       guardrailId: 'test-guardrail-id',
       stage: 'test',
       tags: { [`${naming.projectFullName}:managed`]: 'true' },

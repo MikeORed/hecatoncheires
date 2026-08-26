@@ -1,7 +1,12 @@
 {
   "configName": "test-managed",
   "agentType": "agentcore-managed",
-  "modelId": "us.anthropic.claude-sonnet-4-20250514-v1:0",
+  "modelBindings": [
+    {
+      "modelId": "us.anthropic.claude-sonnet-4-20250514-v1:0",
+      "label": "default"
+    }
+  ],
   "thresholds": {
     "outputTokensPerHour": 500,
     "guardrailBlocksPer10Min": 3,

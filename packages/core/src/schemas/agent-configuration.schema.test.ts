@@ -8,7 +8,9 @@ describe('AgentConfigurationSchema', () => {
   const validInput = {
     configName: 'my-agent-01',
     agentType: 'agentcore-managed' as const,
-    modelId: 'anthropic.claude-3-sonnet',
+    modelBindings: [
+      { modelId: 'anthropic.claude-3-sonnet', label: 'primary' },
+    ],
     guardrailId: 'gr-abc123',
     owner: 'team-platform',
   };
@@ -17,7 +19,9 @@ describe('AgentConfigurationSchema', () => {
     const result = AgentConfigurationSchema.parse(validInput);
     expect(result.configName).toBe('my-agent-01');
     expect(result.agentType).toBe('agentcore-managed');
-    expect(result.modelId).toBe('anthropic.claude-3-sonnet');
+    expect(result.modelBindings).toHaveLength(1);
+    expect(result.modelBindings[0].modelId).toBe('anthropic.claude-3-sonnet');
+    expect(result.modelBindings[0].label).toBe('primary');
     expect(result.guardrailId).toBe('gr-abc123');
     expect(result.guardrailVersion).toBe('DRAFT');
     expect(result.owner).toBe('team-platform');
@@ -43,6 +47,130 @@ describe('AgentConfigurationSchema', () => {
       });
       expect(result.success).toBe(true);
     }
+  });
+
+  it('accepts model binding with optional thresholds', () => {
+    const result = AgentConfigurationSchema.parse({
+      ...validInput,
+      modelBindings: [
+        { modelId: 'anthropic.claude-3-sonnet', label: 'primary', thresholds: { outputTokensPerHour: 5000 } },
+      ],
+    });
+    expect(result.modelBindings[0].thresholds?.outputTokensPerHour).toBe(5000);
+  });
+
+  it('accepts multiple model bindings with unique labels', () => {
+    const result = AgentConfigurationSchema.parse({
+      ...validInput,
+      modelBindings: [
+        { modelId: 'anthropic.claude-3-sonnet', label: 'primary' },
+        { modelId: 'anthropic.claude-3-haiku', label: 'fast' },
+        { modelId: 'amazon.titan-text-express', label: 'cheap' },
+      ],
+    });
+    expect(result.modelBindings).toHaveLength(3);
+  });
+
+  it('accepts up to 5 model bindings', () => {
+    const result = AgentConfigurationSchema.safeParse({
+      ...validInput,
+      modelBindings: [
+        { modelId: 'model-a', label: 'a' },
+        { modelId: 'model-b', label: 'b' },
+        { modelId: 'model-c', label: 'c' },
+        { modelId: 'model-d', label: 'd' },
+        { modelId: 'model-e', label: 'e' },
+      ],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  describe('modelBindings validation', () => {
+    it('rejects empty modelBindings array', () => {
+      const result = AgentConfigurationSchema.safeParse({
+        ...validInput,
+        modelBindings: [],
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects more than 5 model bindings', () => {
+      const result = AgentConfigurationSchema.safeParse({
+        ...validInput,
+        modelBindings: [
+          { modelId: 'model-a', label: 'a' },
+          { modelId: 'model-b', label: 'b' },
+          { modelId: 'model-c', label: 'c' },
+          { modelId: 'model-d', label: 'd' },
+          { modelId: 'model-e', label: 'e' },
+          { modelId: 'model-f', label: 'f' },
+        ],
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects duplicate labels', () => {
+      const result = AgentConfigurationSchema.safeParse({
+        ...validInput,
+        modelBindings: [
+          { modelId: 'anthropic.claude-3-sonnet', label: 'primary' },
+          { modelId: 'anthropic.claude-3-haiku', label: 'primary' },
+        ],
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects empty modelId in a binding', () => {
+      const result = AgentConfigurationSchema.safeParse({
+        ...validInput,
+        modelBindings: [{ modelId: '', label: 'primary' }],
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects label starting with a digit', () => {
+      const result = AgentConfigurationSchema.safeParse({
+        ...validInput,
+        modelBindings: [{ modelId: 'some-model', label: '1bad' }],
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects label with uppercase letters', () => {
+      const result = AgentConfigurationSchema.safeParse({
+        ...validInput,
+        modelBindings: [{ modelId: 'some-model', label: 'Primary' }],
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects label longer than 30 characters', () => {
+      const result = AgentConfigurationSchema.safeParse({
+        ...validInput,
+        modelBindings: [{ modelId: 'some-model', label: 'a'.repeat(31) }],
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects non-positive outputTokensPerHour', () => {
+      const result = AgentConfigurationSchema.safeParse({
+        ...validInput,
+        modelBindings: [
+          { modelId: 'some-model', label: 'primary', thresholds: { outputTokensPerHour: 0 } },
+        ],
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects non-integer outputTokensPerHour', () => {
+      const result = AgentConfigurationSchema.safeParse({
+        ...validInput,
+        modelBindings: [
+          { modelId: 'some-model', label: 'primary', thresholds: { outputTokensPerHour: 1.5 } },
+        ],
+      });
+      expect(result.success).toBe(false);
+    });
   });
 
   describe('configName validation', () => {
@@ -104,14 +232,6 @@ describe('AgentConfigurationSchema', () => {
   });
 
   describe('required non-empty string fields', () => {
-    it('rejects empty modelId', () => {
-      const result = AgentConfigurationSchema.safeParse({
-        ...validInput,
-        modelId: '',
-      });
-      expect(result.success).toBe(false);
-    });
-
     it('rejects empty guardrailId', () => {
       const result = AgentConfigurationSchema.safeParse({
         ...validInput,

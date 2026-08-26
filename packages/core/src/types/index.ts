@@ -2,6 +2,8 @@ import { z } from 'zod';
 
 import {
   AgentConfigurationSchema,
+  ModelBindingSchema,
+  ModelBindingThresholdsSchema,
   RuntimeTunablesSchema,
   ShapeTemplateSchema,
   GrantRecordSchema,
@@ -10,6 +12,8 @@ import {
 } from '../schemas/index.js';
 
 export type AgentConfiguration = z.infer<typeof AgentConfigurationSchema>;
+export type ModelBinding = z.infer<typeof ModelBindingSchema>;
+export type ModelBindingThresholds = z.infer<typeof ModelBindingThresholdsSchema>;
 export type RuntimeTunables = z.infer<typeof RuntimeTunablesSchema>;
 export type ShapeTemplate = z.infer<typeof ShapeTemplateSchema>;
 export type GrantRecord = z.infer<typeof GrantRecordSchema>;

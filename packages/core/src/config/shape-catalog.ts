@@ -12,7 +12,7 @@ export const SHAPE_CATALOG: readonly ShapeTemplate[] = Object.freeze([
   {
     shapeName: 'core-invocation',
     riskTier: 'medium',
-    requiredParameters: ['inferenceProfileArn'],
+    requiredParameters: [],
     statements: [
       {
         Effect: 'Allow',
@@ -22,7 +22,7 @@ export const SHAPE_CATALOG: readonly ShapeTemplate[] = Object.freeze([
           'bedrock:Converse',
           'bedrock:ConverseStream',
         ],
-        Resource: '${inferenceProfileArn}',
+        Resource: '*',
       },
     ],
   },

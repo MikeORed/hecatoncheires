@@ -6,7 +6,7 @@ export interface FleetAgent {
   agentId: string;
   configName: string;
   agentType: string;
-  modelId: string;
+  modelIds: string[];
   status: string;
   breakerState: string;
   grants: GrantRecord[];
@@ -36,7 +36,7 @@ export async function queryFleetState(deps: Dependencies): Promise<FleetAgent[]>
     agentId: agent.agentId,
     configName: agent.configName,
     agentType: agent.agentType,
-    modelId: agent.modelId,
+    modelIds: agent.profiles.map((p) => p.modelId),
     status: agent.status,
     breakerState: agent.breakerState,
     grants: grantsByConfig[agent.configName] ?? [],

@@ -1,4 +1,5 @@
 import { assemblePolicy, SHAPE_CATALOG } from '@hecaton/core';
+import type { PolicyAssemblyContext } from '@hecaton/core';
 
 import type { Dependencies } from '../shared/dependencies.js';
 import { toGrantChangedEvent } from '../adapters/eventbridge/dto/event.mapper.js';
@@ -32,7 +33,9 @@ export async function revokeShape(
   const remainingGrants = await deps.grantLedger.queryGrantsByConfig(input.configName);
 
   // 3. Assemble the operating policy from remaining grants
-  const policyDocument = assemblePolicy(remainingGrants, SHAPE_CATALOG);
+  // TODO(task-10.1): Fetch profile ARNs from registry adapter
+  const context: PolicyAssemblyContext = { profileArns: [] };
+  const policyDocument = assemblePolicy(remainingGrants, SHAPE_CATALOG, context);
 
   // 4. Write the assembled policy to IAM
   await deps.operatingPolicy.writePolicy(

@@ -7,7 +7,11 @@ import {
 import type { AttributeValue } from '@aws-sdk/client-dynamodb';
 import { InternalError } from '@hecaton/core';
 
-import type { AgentRegistryPort, AgentRegistryRecord } from '../../ports/agent-registry.port.js';
+import type {
+  AgentRegistryPort,
+  AgentRegistryRecord,
+  RegistryProfileRecord,
+} from '../../ports/agent-registry.port.js';
 
 export class AgentRegistryAdapter implements AgentRegistryPort {
   constructor(
@@ -27,6 +31,29 @@ export class AgentRegistryAdapter implements AgentRegistryPort {
       return this.mapToRecord(result.Item);
     } catch (err) {
       throw new InternalError('Failed to get agent by agentId', {
+        originalError: err instanceof Error ? err.message : String(err),
+      });
+    }
+  }
+
+  async getByProfileArn(profileArn: string): Promise<AgentRegistryRecord | null> {
+    try {
+      const result = await this.client.send(
+        new QueryCommand({
+          TableName: this.tableName,
+          IndexName: 'profileArn-index',
+          KeyConditionExpression: 'profileArn = :arn',
+          ExpressionAttributeValues: { ':arn': { S: profileArn } },
+          Limit: 1,
+        }),
+      );
+      if (!result.Items || result.Items.length === 0) return null;
+      const agentId = result.Items[0]['agentId']?.S;
+      if (!agentId) return null;
+      return this.getByAgentId(agentId);
+    } catch (err) {
+      if (err instanceof InternalError) throw err;
+      throw new InternalError('Failed to get agent by profileArn', {
         originalError: err instanceof Error ? err.message : String(err),
       });
     }
@@ -137,13 +164,21 @@ export class AgentRegistryAdapter implements AgentRegistryPort {
       agentId: item['agentId']?.S ?? '',
       configName: item['configName']?.S ?? '',
       roleName: item['roleName']?.S ?? '',
-      profileEntityId: item['profileEntityId']?.S ?? '',
-      profileArn: item['profileArn']?.S ?? '',
+      profiles: this.mapProfiles(item['profiles']),
       agentType: item['agentType']?.S ?? '',
-      modelId: item['modelId']?.S ?? '',
       guardrailId: item['guardrailId']?.S ?? '',
       status: item['status']?.S ?? '',
       breakerState: item['breakerState']?.S ?? '',
     };
+  }
+
+  private mapProfiles(attr: AttributeValue | undefined): RegistryProfileRecord[] {
+    if (!attr?.L) return [];
+    return attr.L.map((entry) => ({
+      profileArn: entry.M?.['profileArn']?.S ?? '',
+      profileEntityId: entry.M?.['profileEntityId']?.S ?? '',
+      modelId: entry.M?.['modelId']?.S ?? '',
+      label: entry.M?.['label']?.S ?? '',
+    }));
   }
 }

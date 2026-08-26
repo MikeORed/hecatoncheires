@@ -19,13 +19,13 @@ describe('SHAPE_CATALOG', () => {
       ]);
     });
 
-    it('uses ${inferenceProfileArn} as the Resource for all actions', () => {
+    it('uses * as a placeholder Resource (resolved at policy assembly time)', () => {
       const statement = shape!.statements[0];
-      expect(statement.Resource).toBe('${inferenceProfileArn}');
+      expect(statement.Resource).toBe('*');
     });
 
-    it('declares inferenceProfileArn as a required parameter', () => {
-      expect(shape!.requiredParameters).toEqual(['inferenceProfileArn']);
+    it('has an empty requiredParameters array (profile ARNs come from context)', () => {
+      expect(shape!.requiredParameters).toEqual([]);
     });
   });
 });

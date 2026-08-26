@@ -38,6 +38,24 @@ export class NamingGenerator {
     return `${this.projectPrefix}-${this.stage}-${configName}-profile`;
   }
 
+  /** Pattern: hecaton-{stage}-{configName}-{label}-profile */
+  multiProfileName(configName: string, label: string): string {
+    return `${this.projectPrefix}-${this.stage}-${configName}-${label}-profile`;
+  }
+
+  /** Per-profile alarm naming. Pattern: hecaton-{stage}-{configName}-{label}-{type}-alarm */
+  perProfileAlarmNames(
+    configName: string,
+    label: string,
+  ): { token: string; block: string; observation: string } {
+    const prefix = `${this.projectPrefix}-${this.stage}-${configName}-${label}`;
+    return {
+      token: `${prefix}-token-alarm`,
+      block: `${prefix}-block-alarm`,
+      observation: `${prefix}-observation-alarm`,
+    };
+  }
+
   /** Pattern: hecaton-{stage}-{configName}-guardrail */
   guardrailName(configName: string): string {
     return `${this.projectPrefix}-${this.stage}-${configName}-guardrail`;

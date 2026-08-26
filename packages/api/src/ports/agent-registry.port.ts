@@ -1,11 +1,16 @@
+export interface RegistryProfileRecord {
+  profileArn: string;
+  profileEntityId: string;
+  modelId: string;
+  label: string;
+}
+
 export interface AgentRegistryRecord {
   agentId: string;
   configName: string;
   roleName: string;
-  profileEntityId: string;
-  profileArn: string;
+  profiles: RegistryProfileRecord[];
   agentType: string;
-  modelId: string;
   guardrailId: string;
   status: string;
   breakerState: string;
@@ -13,6 +18,7 @@ export interface AgentRegistryRecord {
 
 export interface AgentRegistryPort {
   getByAgentId(agentId: string): Promise<AgentRegistryRecord | null>;
+  getByProfileArn(profileArn: string): Promise<AgentRegistryRecord | null>;
   getByProfileEntityId(profileEntityId: string): Promise<AgentRegistryRecord | null>;
   getByConfigName(configName: string): Promise<AgentRegistryRecord | null>;
   updateBreakerState(agentId: string, breakerState: string, status: string): Promise<void>;

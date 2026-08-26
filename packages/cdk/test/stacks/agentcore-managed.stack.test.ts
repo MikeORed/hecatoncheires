@@ -16,13 +16,15 @@ import {
 function createManagedTestStacks(overrides?: Partial<{
   stage: string;
   configName: string;
-  modelId: string;
+  modelBindings: Array<{ modelId: string; label: string; thresholds?: { outputTokensPerHour: number } }>;
   harnessConfig: Partial<HarnessConfig>;
   signalChannel: AgentCoreManagedStackProps['signalChannel'];
 }>) {
   const stage = overrides?.stage ?? 'test';
   const configName = overrides?.configName ?? 'test-managed';
-  const modelId = overrides?.modelId ?? 'us.anthropic.claude-sonnet-4-20250514-v1:0';
+  const modelBindings = overrides?.modelBindings ?? [
+    { modelId: 'us.anthropic.claude-sonnet-4-20250514-v1:0', label: 'default' },
+  ];
 
   const app = new cdk.App();
   const sharedInfra = new SharedInfraStack(app, 'SharedInfra', { stage });
@@ -36,7 +38,7 @@ function createManagedTestStacks(overrides?: Partial<{
     stage,
     configName,
     agentType: 'agentcore-managed',
-    modelId,
+    modelBindings,
     thresholds: {
       outputTokensPerHour: 500,
       guardrailBlocksPer10Min: 3,
@@ -143,7 +145,7 @@ describe('AgentCoreManagedStack — CfnHarness resource creation', () => {
 
   it('uses a different modelId for the inference profile when configured', () => {
     const { template } = createManagedTestStacks({
-      modelId: 'us.anthropic.claude-haiku-3-20240307-v1:0',
+      modelBindings: [{ modelId: 'us.anthropic.claude-haiku-3-20240307-v1:0', label: 'default' }],
     });
     // The inference profile resource uses the seed modelId as its source
     template.hasResourceProperties('AWS::Bedrock::ApplicationInferenceProfile', {
@@ -594,7 +596,7 @@ describe('AgentCoreManagedStack — Input validation errors', () => {
         stage: 'test',
         configName: 'test-managed',
         agentType: 'openclaw' as 'agentcore-managed',
-        modelId: 'us.anthropic.claude-sonnet-4-20250514-v1:0',
+        modelBindings: [{ modelId: 'us.anthropic.claude-sonnet-4-20250514-v1:0', label: 'default' }],
         thresholds: {
           outputTokensPerHour: 500,
           guardrailBlocksPer10Min: 3,

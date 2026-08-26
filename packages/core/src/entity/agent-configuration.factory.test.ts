@@ -2,12 +2,12 @@ import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { createAgentConfiguration } from './agent-configuration.factory.js';
 import { ValidationError } from '../errors/validation-error.js';
+import {
+  arbConfigName,
+  arbModelBindings,
+} from '../test-generators/agent-configuration.arb.js';
 
 const PBT_CONFIG = { numRuns: 100 };
-
-const configNameArb = fc
-  .stringMatching(/^[a-z][a-z0-9-]*[a-z0-9]$/)
-  .filter((s) => s.length >= 2 && s.length <= 40);
 
 const agentTypeArb = fc.constantFrom(
   'agentcore-managed',
@@ -20,9 +20,9 @@ const nonEmptyStringArb = fc
   .filter((s) => s.trim().length > 0);
 
 const validInputArb = fc.record({
-  configName: configNameArb,
+  configName: arbConfigName,
   agentType: agentTypeArb,
-  modelId: nonEmptyStringArb,
+  modelBindings: arbModelBindings,
   guardrailId: nonEmptyStringArb,
   guardrailVersion: nonEmptyStringArb,
   owner: nonEmptyStringArb,
@@ -44,7 +44,11 @@ describe('AgentConfiguration Factory - Property Tests', () => {
         expect(Object.isFrozen(result)).toBe(true);
         expect(result.configName).toBe(input.configName);
         expect(result.agentType).toBe(input.agentType);
-        expect(result.modelId).toBe(input.modelId);
+        expect(result.modelBindings).toHaveLength(input.modelBindings.length);
+        for (let i = 0; i < input.modelBindings.length; i++) {
+          expect(result.modelBindings[i].modelId).toBe(input.modelBindings[i].modelId);
+          expect(result.modelBindings[i].label).toBe(input.modelBindings[i].label);
+        }
         expect(result.guardrailId).toBe(input.guardrailId);
         expect(result.guardrailVersion).toBe(input.guardrailVersion);
         expect(result.owner).toBe(input.owner);
@@ -73,7 +77,7 @@ describe('AgentConfiguration Factory - Property Tests', () => {
       fc.record({
         configName: fc.stringMatching(/^[0-9][a-z0-9-]*[a-z0-9]$/),
         agentType: agentTypeArb,
-        modelId: nonEmptyStringArb,
+        modelBindings: arbModelBindings,
         guardrailId: nonEmptyStringArb,
         guardrailVersion: nonEmptyStringArb,
         owner: nonEmptyStringArb,
@@ -82,7 +86,7 @@ describe('AgentConfiguration Factory - Property Tests', () => {
       fc.record({
         configName: fc.stringMatching(/^[a-z][A-Z][a-z0-9]$/),
         agentType: agentTypeArb,
-        modelId: nonEmptyStringArb,
+        modelBindings: arbModelBindings,
         guardrailId: nonEmptyStringArb,
         guardrailVersion: nonEmptyStringArb,
         owner: nonEmptyStringArb,
@@ -91,25 +95,25 @@ describe('AgentConfiguration Factory - Property Tests', () => {
       fc.record({
         configName: fc.integer(),
         agentType: agentTypeArb,
-        modelId: nonEmptyStringArb,
+        modelBindings: arbModelBindings,
         guardrailId: nonEmptyStringArb,
         guardrailVersion: nonEmptyStringArb,
         owner: nonEmptyStringArb,
       }),
       // Invalid agentType
       fc.record({
-        configName: configNameArb,
+        configName: arbConfigName,
         agentType: fc.constant('invalid-type'),
-        modelId: nonEmptyStringArb,
+        modelBindings: arbModelBindings,
         guardrailId: nonEmptyStringArb,
         guardrailVersion: nonEmptyStringArb,
         owner: nonEmptyStringArb,
       }),
-      // Empty modelId
+      // Empty modelBindings array
       fc.record({
-        configName: configNameArb,
+        configName: arbConfigName,
         agentType: agentTypeArb,
-        modelId: fc.constant(''),
+        modelBindings: fc.constant([]),
         guardrailId: nonEmptyStringArb,
         guardrailVersion: nonEmptyStringArb,
         owner: nonEmptyStringArb,
@@ -143,9 +147,9 @@ describe('AgentConfiguration Factory - Property Tests', () => {
    */
   it('Property 3: guardrailVersion defaults to DRAFT when omitted', () => {
     const inputWithoutGuardrailVersionArb = fc.record({
-      configName: configNameArb,
+      configName: arbConfigName,
       agentType: agentTypeArb,
-      modelId: nonEmptyStringArb,
+      modelBindings: arbModelBindings,
       guardrailId: nonEmptyStringArb,
       owner: nonEmptyStringArb,
     });

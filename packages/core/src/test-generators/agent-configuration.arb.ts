@@ -40,6 +40,37 @@ export const arbInvalidConfigName = fc.oneof(
 );
 
 /**
+ * Arbitrary for valid model binding labels matching ModelBindingLabelPattern:
+ *   ^[a-z][a-z0-9-]*$
+ * Length: 1–30 characters.
+ */
+export const arbModelBindingLabel = fc
+  .stringMatching(/^[a-z][a-z0-9-]*$/)
+  .filter((s) => s.length >= 1 && s.length <= 30);
+
+/**
+ * Arbitrary for a single valid ModelBinding object.
+ */
+export const arbModelBinding = fc.record({
+  modelId: fc.string({ minLength: 1, maxLength: 100 }),
+  label: arbModelBindingLabel,
+  thresholds: fc.option(
+    fc.record({ outputTokensPerHour: fc.integer({ min: 1, max: 1_000_000 }) }),
+    { nil: undefined },
+  ),
+});
+
+/**
+ * Arbitrary for a valid modelBindings array (1–5 entries, unique labels).
+ */
+export const arbModelBindings = fc
+  .array(arbModelBinding, { minLength: 1, maxLength: 5 })
+  .filter((bindings) => {
+    const labels = bindings.map((b) => b.label);
+    return new Set(labels).size === labels.length;
+  });
+
+/**
  * Arbitrary for a valid AgentConfiguration object conforming to AgentConfigurationSchema.
  */
 export const arbAgentConfiguration = fc.record({
@@ -49,7 +80,7 @@ export const arbAgentConfiguration = fc.record({
     'openclaw' as const,
     'agentcore-runtime' as const,
   ),
-  modelId: fc.string({ minLength: 1, maxLength: 100 }),
+  modelBindings: arbModelBindings,
   guardrailId: fc.string({ minLength: 1, maxLength: 100 }),
   guardrailVersion: fc.string({ minLength: 1, maxLength: 50 }),
   owner: fc.string({ minLength: 1, maxLength: 100 }),
@@ -66,7 +97,7 @@ export const arbInvalidAgentConfiguration = fc.record({
     'openclaw' as const,
     'agentcore-runtime' as const,
   ),
-  modelId: fc.string({ minLength: 1, maxLength: 100 }),
+  modelBindings: arbModelBindings,
   guardrailId: fc.string({ minLength: 1, maxLength: 100 }),
   guardrailVersion: fc.string({ minLength: 1, maxLength: 50 }),
   owner: fc.string({ minLength: 1, maxLength: 100 }),

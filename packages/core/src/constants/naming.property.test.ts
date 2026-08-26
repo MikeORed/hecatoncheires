@@ -520,3 +520,109 @@ describe('Magic String Cleanup Properties', () => {
     });
   });
 });
+
+
+describe('Multi-Profile Identity: Per-profile alarm naming', () => {
+  // Feature: multi-profile-identity
+  // **Validates: Requirements 5.5**
+
+  /**
+   * Generator for valid model binding labels matching ^[a-z][a-z0-9-]*$, 1–30 chars.
+   */
+  const validLabel = fc
+    .stringMatching(/^[a-z][a-z0-9-]*$/)
+    .filter((s) => s.length >= 1 && s.length <= 30);
+
+  describe('Property 5: Per-profile alarm naming follows pattern', () => {
+    it('perProfileAlarmNames.token matches hecaton-{stage}-{configName}-{label}-token-alarm', () => {
+      fc.assert(
+        fc.property(validStage, validConfigName, validLabel, (stage, configName, label) => {
+          const naming = new NamingGenerator(stage);
+          const alarms = naming.perProfileAlarmNames(configName, label);
+          expect(alarms.token).toBe(
+            `hecaton-${stage}-${configName}-${label}-token-alarm`,
+          );
+        }),
+        { numRuns: 200 },
+      );
+    });
+
+    it('perProfileAlarmNames.block matches hecaton-{stage}-{configName}-{label}-block-alarm', () => {
+      fc.assert(
+        fc.property(validStage, validConfigName, validLabel, (stage, configName, label) => {
+          const naming = new NamingGenerator(stage);
+          const alarms = naming.perProfileAlarmNames(configName, label);
+          expect(alarms.block).toBe(
+            `hecaton-${stage}-${configName}-${label}-block-alarm`,
+          );
+        }),
+        { numRuns: 200 },
+      );
+    });
+
+    it('perProfileAlarmNames.observation matches hecaton-{stage}-{configName}-{label}-observation-alarm', () => {
+      fc.assert(
+        fc.property(validStage, validConfigName, validLabel, (stage, configName, label) => {
+          const naming = new NamingGenerator(stage);
+          const alarms = naming.perProfileAlarmNames(configName, label);
+          expect(alarms.observation).toBe(
+            `hecaton-${stage}-${configName}-${label}-observation-alarm`,
+          );
+        }),
+        { numRuns: 200 },
+      );
+    });
+
+    it('multiProfileName matches hecaton-{stage}-{configName}-{label}-profile', () => {
+      fc.assert(
+        fc.property(validStage, validConfigName, validLabel, (stage, configName, label) => {
+          const naming = new NamingGenerator(stage);
+          expect(naming.multiProfileName(configName, label)).toBe(
+            `hecaton-${stage}-${configName}-${label}-profile`,
+          );
+        }),
+        { numRuns: 200 },
+      );
+    });
+
+    it('perProfileAlarmNames returns exactly three keys: token, block, observation', () => {
+      fc.assert(
+        fc.property(validStage, validConfigName, validLabel, (stage, configName, label) => {
+          const naming = new NamingGenerator(stage);
+          const alarms = naming.perProfileAlarmNames(configName, label);
+          const keys = Object.keys(alarms).sort();
+          expect(keys).toEqual(['block', 'observation', 'token']);
+        }),
+        { numRuns: 200 },
+      );
+    });
+
+    it('perProfileAlarmNames produces distinct values for all three alarm types', () => {
+      fc.assert(
+        fc.property(validStage, validConfigName, validLabel, (stage, configName, label) => {
+          const naming = new NamingGenerator(stage);
+          const alarms = naming.perProfileAlarmNames(configName, label);
+          const values = [alarms.token, alarms.block, alarms.observation];
+          expect(new Set(values).size).toBe(3);
+        }),
+        { numRuns: 200 },
+      );
+    });
+
+    it('perProfileAlarmNames and multiProfileName are deterministic', () => {
+      fc.assert(
+        fc.property(validStage, validConfigName, validLabel, (stage, configName, label) => {
+          const naming1 = new NamingGenerator(stage);
+          const naming2 = new NamingGenerator(stage);
+          expect(naming1.perProfileAlarmNames(configName, label)).toEqual(
+            naming2.perProfileAlarmNames(configName, label),
+          );
+          expect(naming1.multiProfileName(configName, label)).toBe(
+            naming2.multiProfileName(configName, label),
+          );
+        }),
+        { numRuns: 100 },
+      );
+    });
+  });
+});

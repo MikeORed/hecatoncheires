@@ -10,7 +10,7 @@ import {
 
 const testCatalog: readonly ShapeTemplate[] = [
   {
-    shapeName: 'core-invocation',
+    shapeName: 'bedrock-invoke',
     riskTier: 'medium',
     requiredParameters: ['inferenceProfileArn'],
     statements: [
@@ -38,7 +38,7 @@ const testCatalog: readonly ShapeTemplate[] = [
 function makeGrant(overrides: Partial<GrantRecord> = {}): GrantRecord {
   return {
     configName: 'test-agent',
-    shapeName: 'core-invocation',
+    shapeName: 'bedrock-invoke',
     parameters: { inferenceProfileArn: 'arn:aws:bedrock:us-east-1:123456789012:profile/test' },
     grantedAt: '2024-01-01T00:00:00Z',
     grantedBy: 'admin',

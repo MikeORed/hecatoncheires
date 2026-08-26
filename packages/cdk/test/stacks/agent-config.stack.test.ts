@@ -13,7 +13,7 @@ function createTestStacks(overrides?: {
   stage?: string;
   configName?: string;
   agentType?: 'agentcore-managed' | 'openclaw' | 'agentcore-runtime';
-  modelId?: string;
+  modelBindings?: Array<{ modelId: string; label: string; thresholds?: { outputTokensPerHour: number } }>;
   externalPrincipalArn?: string;
   guardrailOverrides?: {
     contentFilters?: {
@@ -27,7 +27,9 @@ function createTestStacks(overrides?: {
   const stage = overrides?.stage ?? 'test';
   const configName = overrides?.configName ?? 'sre-ops';
   const agentType = overrides?.agentType ?? 'agentcore-managed';
-  const modelId = overrides?.modelId ?? 'us.anthropic.claude-sonnet-4-20250514-v1:0';
+  const modelBindings = overrides?.modelBindings ?? [
+    { modelId: 'us.anthropic.claude-sonnet-4-20250514-v1:0', label: 'default' },
+  ];
 
   const app = new cdk.App();
   const sharedInfra = new SharedInfraStack(app, 'SharedInfra', { stage });
@@ -35,7 +37,7 @@ function createTestStacks(overrides?: {
     stage,
     configName,
     agentType,
-    modelId,
+    modelBindings,
     thresholds: {
       outputTokensPerHour: 100000,
       guardrailBlocksPer10Min: 5,
@@ -126,10 +128,10 @@ describe('AgentConfigStack (via TestAgentConfigStack)', () => {
       });
     });
 
-    it('names the inference profile using NamingGenerator pattern', () => {
+    it('names the inference profile using NamingGenerator multi-profile pattern', () => {
       const namingTest = new NamingGenerator('test');
       defaultTemplate.hasResourceProperties('AWS::Bedrock::ApplicationInferenceProfile', {
-        InferenceProfileName: namingTest.profileName('sre-ops'),
+        InferenceProfileName: namingTest.multiProfileName('sre-ops', 'default'),
       });
     });
 
@@ -218,14 +220,20 @@ describe('AgentConfigStack (via TestAgentConfigStack)', () => {
 
     it('throws synthesis error when modelId is empty', () => {
       expect(() => {
-        createTestStacks({ modelId: '' });
+        createTestStacks({ modelBindings: [{ modelId: '', label: 'default' }] });
       }).toThrow(/modelId must be a non-empty string/);
     });
 
     it('throws synthesis error when modelId is only whitespace', () => {
       expect(() => {
-        createTestStacks({ modelId: '   ' });
+        createTestStacks({ modelBindings: [{ modelId: '   ', label: 'default' }] });
       }).toThrow(/modelId must be a non-empty string/);
+    });
+
+    it('throws synthesis error when modelBindings array is empty', () => {
+      expect(() => {
+        createTestStacks({ modelBindings: [] });
+      }).toThrow(/at least one model binding is required/);
     });
   });
 
@@ -288,10 +296,10 @@ describe('AgentConfigStack (via TestAgentConfigStack)', () => {
   });
 
   describe('Resource naming', () => {
-    it('inference profile name follows NamingGenerator pattern', () => {
+    it('inference profile name follows NamingGenerator multi-profile pattern', () => {
       const naming = new NamingGenerator('prod');
       prodTemplate.hasResourceProperties('AWS::Bedrock::ApplicationInferenceProfile', {
-        InferenceProfileName: naming.profileName('code-review'),
+        InferenceProfileName: naming.multiProfileName('code-review', 'default'),
       });
     });
 
@@ -353,17 +361,22 @@ describe('AgentPolicyModulator integration (via TestAgentConfigStack)', () => {
   });
 
   describe('ProfileEntityId output', () => {
-    it('exports profileEntityId as a CfnOutput', () => {
-      defaultTemplate.hasOutput('ProfileEntityId', {});
+    it('exports profileEntityId as CfnOutputs (one per profile)', () => {
+      // With a single binding labeled 'default', the output logical ID includes the label
+      const outputs = defaultTemplate.findOutputs('*');
+      const profileOutputKeys = Object.keys(outputs).filter((k) =>
+        k.includes('ProfileEntityId'),
+      );
+      expect(profileOutputKeys.length).toBeGreaterThanOrEqual(1);
     });
   });
 
   describe('Modulator outputs', () => {
-    it('exposes modulator outputs with all alarm references', () => {
+    it('exposes modulator outputs with per-profile alarms and composite alarm', () => {
       expect(defaultAgentStack.modulator).toBeDefined();
-      expect(defaultAgentStack.modulator.tokenAlarm).toBeDefined();
-      expect(defaultAgentStack.modulator.blockAlarm).toBeDefined();
-      expect(defaultAgentStack.modulator.observationAlarm).toBeDefined();
+      expect(defaultAgentStack.modulator.perProfileAlarms).toBeDefined();
+      expect(defaultAgentStack.modulator.perProfileAlarms.length).toBeGreaterThanOrEqual(1);
+      expect(defaultAgentStack.modulator.compositeAlarm).toBeDefined();
     });
   });
 });
@@ -473,8 +486,10 @@ describe('AgentIdentity (via TestAgentConfigStack)', () => {
         Record<string, unknown>
       >;
       expect(condition).toBeDefined();
+      // Profile ARN uses ForAnyValue:StringEquals for multi-profile support
+      expect(condition['ForAnyValue:StringEquals']).toBeDefined();
+      expect(condition['ForAnyValue:StringEquals']['bedrock:InferenceProfileArn']).toBeDefined();
       expect(condition.StringEquals).toBeDefined();
-      expect(condition.StringEquals['bedrock:InferenceProfileArn']).toBeDefined();
       expect(condition.StringEquals['bedrock:GuardrailIdentifier']).toBeDefined();
     });
 
