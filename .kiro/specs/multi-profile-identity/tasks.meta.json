@@ -1,0 +1,545 @@
+{
+  "pbtResults": {
+    "1.4 Write property test for duplicate label rejection": {
+      "status": "passed",
+      "lastRunTimestamp": 1787776705720
+    },
+    "3.3 Write property test for per-profile alarm naming": {
+      "status": "passed",
+      "lastRunTimestamp": 1787776707085
+    },
+    "1.3 Write property tests for model bindings validation": {
+      "status": "passed",
+      "lastRunTimestamp": 1787776872619
+    },
+    "2.3 Write property test for policy assembly core-invocation resolution": {
+      "status": "passed",
+      "lastRunTimestamp": 1787777056746
+    },
+    "9.4 Write property test for registry profile ordering": {
+      "status": "passed",
+      "lastRunTimestamp": 1787780341573
+    },
+    "9.3 Write property test for profile exclusivity enforcement": {
+      "status": "passed",
+      "lastRunTimestamp": 1787780492246
+    }
+  },
+  "executionHistory": {
+    "1.1 Create `ModelBindingSchema` and update `AgentConfigurationSchema`": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775592688
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775602540
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787776360294
+      }
+    ],
+    "1.2 Update types and entity factory": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775592736
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787776365587
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787776492699
+      }
+    ],
+    "1.3 Write property tests for model bindings validation": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775592784
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787776496932
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787776933146
+      }
+    ],
+    "1.4 Write property test for duplicate label rejection": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775592847
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787776497680
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787776934060
+      }
+    ],
+    "2.1 Update `core-invocation` shape in the shape catalog": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775592888
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787776366469
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787776491111
+      }
+    ],
+    "2.2 Add `PolicyAssemblyContext` interface and update `assemblePolicy`": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775592935
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787776498537
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787776935080
+      }
+    ],
+    "2.3 Write property test for policy assembly core-invocation resolution": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775592987
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787776940641
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787777138930
+      }
+    ],
+    "3.1 Add `ProfileExclusivityError`": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775593027
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775603293
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787776361183
+      }
+    ],
+    "3.2 Add `NamingGenerator` multi-profile methods": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775593063
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787776367232
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787776491911
+      }
+    ],
+    "3.3 Write property test for per-profile alarm naming": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775593098
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787776499355
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787776935974
+      }
+    ],
+    "4.1 Update `packages/core/src/public-api.ts` barrel exports": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775593141
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787776500209
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787776936947
+      }
+    ],
+    "4.2 Update existing core tests": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775593190
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787776941484
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787777139958
+      }
+    ],
+    "5. Checkpoint - Core package": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775593242
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787777149480
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787777152669
+      }
+    ],
+    "6.1 Update `AgentIdentity` construct for multi-profile": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775593285
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787777153491
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787777902839
+      }
+    ],
+    "6.2 Update `AgentConfigStack` for multi-profile loop": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775593326
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787777154373
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787777903817
+      }
+    ],
+    "6.3 Update `AgentPolicyModulator` construct for per-profile alarms": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775593370
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787777155200
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787777904684
+      }
+    ],
+    "7.1 Update `bin/app.ts` stack instantiation": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775593412
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787777909090
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787778019275
+      }
+    ],
+    "7.2 Update seed file format": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775593467
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787777909839
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787778020026
+      }
+    ],
+    "7.3 Update existing CDK tests": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775593503
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787777910699
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787778020822
+      }
+    ],
+    "8. Checkpoint - CDK package": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775593545
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787778025222
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787778028911
+      }
+    ],
+    "9.1 Update agent registry adapter for multi-profile storage": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775593586
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787778033058
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787779824492
+      }
+    ],
+    "9.2 Implement profile exclusivity check with transactional write": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775593621
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787779828663
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787780173779
+      }
+    ],
+    "9.3 Write property test for profile exclusivity enforcement": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775593669
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787780179116
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787780523126
+      }
+    ],
+    "9.4 Write property test for registry profile ordering": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775593718
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787780179913
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787780523965
+      }
+    ],
+    "9.5 Update existing registry adapter tests": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775593757
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787779829501
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787780174667
+      }
+    ],
+    "10.1 Update grant use-case to pass `PolicyAssemblyContext`": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775593794
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787780180731
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787780524992
+      }
+    ],
+    "11. Final checkpoint": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787775593833
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787780531420
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787780681821
+      }
+    ],
+    "1. Core schema and types": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787776934090
+      }
+    ],
+    "3. Core errors and naming utilities": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787776936009
+      }
+    ],
+    "2. Shape catalog and policy assembly": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787777138978
+      }
+    ],
+    "4. Core public API barrel and existing test fixes": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787777139986
+      }
+    ],
+    "6. CDK constructs": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787777904720
+      }
+    ],
+    "7. CDK wiring and seed files": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787778020867
+      }
+    ],
+    "9. API agent registry adapter": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787780524017
+      }
+    ],
+    "10. API use-case layer wiring": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787780525049
+      }
+    ]
+  }
+}

@@ -41,6 +41,20 @@ describe('NamingGenerator', () => {
       });
     });
 
+    it('multiProfileName produces correct pattern', () => {
+      expect(naming.multiProfileName(configName, 'primary')).toBe(
+        'hecaton-dev-sre-ops-primary-profile',
+      );
+    });
+
+    it('perProfileAlarmNames produces correct patterns', () => {
+      expect(naming.perProfileAlarmNames(configName, 'primary')).toEqual({
+        token: 'hecaton-dev-sre-ops-primary-token-alarm',
+        block: 'hecaton-dev-sre-ops-primary-block-alarm',
+        observation: 'hecaton-dev-sre-ops-primary-observation-alarm',
+      });
+    });
+
     it('queueNames produces correct patterns', () => {
       expect(naming.queueNames(configName)).toEqual({
         signals: 'hecaton-dev-sre-ops-signals.fifo',

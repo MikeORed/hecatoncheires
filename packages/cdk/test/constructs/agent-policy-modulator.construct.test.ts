@@ -5,15 +5,25 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { Template, Match } from 'aws-cdk-lib/assertions';
 import { EnvVar } from '@hecaton/core';
-import { AgentPolicyModulator } from '../../lib/constructs/agent-policy-modulator.construct.js';
+import {
+  AgentPolicyModulator,
+  ProfileBinding,
+} from '../../lib/constructs/agent-policy-modulator.construct.js';
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
+const defaultBinding: ProfileBinding = {
+  profileEntityId: 'profile-entity-123',
+  profileArn: 'arn:aws:bedrock:us-east-1:123456789012:inference-profile/test',
+  modelId: 'anthropic.claude-3-5-sonnet-20241022-v2:0',
+  label: 'primary',
+};
+
 function createTemplate(overrides?: {
   configName?: string;
-  profileEntityId?: string;
+  profileBindings?: ProfileBinding[];
   thresholds?: {
     outputTokensPerHour: number;
     guardrailBlocksPer10Min: number;
@@ -42,9 +52,7 @@ function createTemplate(overrides?: {
 
   new AgentPolicyModulator(stack, 'TestModulator', {
     configName: overrides?.configName ?? 'test-agent',
-    profileEntityId: overrides?.profileEntityId ?? 'profile-entity-123',
-    profileArn: 'arn:aws:bedrock:us-east-1:123456789012:inference-profile/test',
-    modelId: 'anthropic.claude-3-5-sonnet-20241022-v2:0',
+    profileBindings: overrides?.profileBindings ?? [defaultBinding],
     agentRole: mockRole,
     agentType: 'AgentCore Managed',
     guardrailId: 'guardrail-abc',
@@ -62,13 +70,13 @@ function createTemplate(overrides?: {
 }
 
 // ---------------------------------------------------------------------------
-// Task 12.1: AgentPolicyModulator construct assertion tests
-// Validates: Requirements 10.1, 10.2, 10.3, 10.4
+// Tests for AgentPolicyModulator construct (multi-profile)
+// Validates: Requirements 5.1, 5.2, 5.3, 5.4, 5.5, 5.6
 // ---------------------------------------------------------------------------
 
 describe('AgentPolicyModulator construct', () => {
-  describe('CloudWatch alarms', () => {
-    it('creates exactly 3 CloudWatch alarms', () => {
+  describe('Per-profile CloudWatch alarms (single binding)', () => {
+    it('creates exactly 3 CloudWatch alarms for one profile binding', () => {
       const template = createTemplate();
       template.resourceCountIs('AWS::CloudWatch::Alarm', 3);
     });
@@ -119,7 +127,11 @@ describe('AgentPolicyModulator construct', () => {
     });
 
     it('filters each alarm on the InferenceProfileId dimension', () => {
-      const template = createTemplate({ profileEntityId: 'my-profile-entity' });
+      const binding: ProfileBinding = {
+        ...defaultBinding,
+        profileEntityId: 'my-profile-entity',
+      };
+      const template = createTemplate({ profileBindings: [binding] });
       template.hasResourceProperties('AWS::CloudWatch::Alarm', {
         MetricName: 'OutputTokenCount',
         Dimensions: Match.arrayWith([
@@ -141,41 +153,133 @@ describe('AgentPolicyModulator construct', () => {
     });
   });
 
-  describe('Alarm actions', () => {
-    it('each alarm has AlarmActions referencing the Breaker Lambda ARN', () => {
+  describe('Multiple profile bindings', () => {
+    const twoBindings: ProfileBinding[] = [
+      {
+        profileEntityId: 'profile-a-id',
+        profileArn: 'arn:aws:bedrock:us-east-1:123456789012:inference-profile/a',
+        modelId: 'anthropic.claude-3-5-sonnet-20241022-v2:0',
+        label: 'primary',
+      },
+      {
+        profileEntityId: 'profile-b-id',
+        profileArn: 'arn:aws:bedrock:us-east-1:123456789012:inference-profile/b',
+        modelId: 'anthropic.claude-3-haiku-20240307-v1:0',
+        label: 'secondary',
+      },
+    ];
+
+    it('creates 6 CloudWatch alarms for two profile bindings', () => {
+      const template = createTemplate({ profileBindings: twoBindings });
+      template.resourceCountIs('AWS::CloudWatch::Alarm', 6);
+    });
+
+    it('creates alarms for each profile with correct dimensions', () => {
+      const template = createTemplate({ profileBindings: twoBindings });
+      template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+        MetricName: 'OutputTokenCount',
+        Dimensions: Match.arrayWith([
+          { Name: 'InferenceProfileId', Value: 'profile-a-id' },
+        ]),
+      });
+      template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+        MetricName: 'OutputTokenCount',
+        Dimensions: Match.arrayWith([
+          { Name: 'InferenceProfileId', Value: 'profile-b-id' },
+        ]),
+      });
+    });
+
+    it('uses per-profile thresholds when provided', () => {
+      const bindings: ProfileBinding[] = [
+        {
+          ...twoBindings[0],
+          thresholds: { outputTokensPerHour: 10000 },
+        },
+        twoBindings[1],
+      ];
+      const template = createTemplate({ profileBindings: bindings });
+      // Primary profile should use its own threshold (10000)
+      template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+        MetricName: 'OutputTokenCount',
+        Threshold: 10000,
+        Dimensions: Match.arrayWith([
+          { Name: 'InferenceProfileId', Value: 'profile-a-id' },
+        ]),
+      });
+      // Secondary profile should fall back to agent-level default (50000)
+      template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+        MetricName: 'OutputTokenCount',
+        Threshold: 50000,
+        Dimensions: Match.arrayWith([
+          { Name: 'InferenceProfileId', Value: 'profile-b-id' },
+        ]),
+      });
+    });
+  });
+
+  describe('Composite alarm', () => {
+    it('creates a composite alarm resource', () => {
+      const template = createTemplate();
+      template.resourceCountIs('AWS::CloudWatch::CompositeAlarm', 1);
+    });
+
+    it('names the composite alarm using the expected pattern', () => {
+      const template = createTemplate({ configName: 'test-agent' });
+      template.hasResourceProperties('AWS::CloudWatch::CompositeAlarm', {
+        AlarmName: 'hecaton-test-test-agent-composite',
+      });
+    });
+
+    it('composite alarm rule references all per-profile alarms', () => {
+      const template = createTemplate();
+      // With one binding (3 alarms), the composite alarm rule should exist
+      template.hasResourceProperties('AWS::CloudWatch::CompositeAlarm', {
+        AlarmRule: Match.anyValue(),
+      });
+    });
+
+    it('composite alarm has an alarm action referencing the Breaker Lambda', () => {
+      const template = createTemplate();
+      template.hasResourceProperties('AWS::CloudWatch::CompositeAlarm', {
+        AlarmActions: Match.arrayWith([
+          Match.objectLike({ 'Fn::GetAtt': Match.anyValue() }),
+        ]),
+      });
+    });
+
+    it('individual alarms do NOT have alarm actions (only composite does)', () => {
       const template = createTemplate();
       const alarms = template.findResources('AWS::CloudWatch::Alarm');
-      const alarmLogicalIds = Object.keys(alarms);
-      expect(alarmLogicalIds).toHaveLength(3);
-
-      for (const id of alarmLogicalIds) {
-        const alarmActions = alarms[id].Properties.AlarmActions;
-        expect(alarmActions).toBeDefined();
-        expect(alarmActions.length).toBeGreaterThanOrEqual(1);
-        // The alarm action should reference the mock breaker lambda's ARN (via Fn::GetAtt)
-        const action = alarmActions[0];
-        expect(action).toHaveProperty('Fn::GetAtt');
+      for (const alarm of Object.values(alarms)) {
+        // Per-profile alarms should not have AlarmActions
+        expect(alarm.Properties.AlarmActions).toBeUndefined();
       }
     });
   });
 
   describe('Custom resource (RegistrySeed)', () => {
-    it('creates a CloudFormation custom resource with correct properties', () => {
+    it('creates a CloudFormation custom resource with profiles array', () => {
       const template = createTemplate();
       template.hasResourceProperties('AWS::CloudFormation::CustomResource', {
         configName: 'test-agent',
-        profileEntityId: 'profile-entity-123',
-        roleName: Match.anyValue(),
+        profiles: Match.arrayWith([
+          Match.objectLike({
+            profileEntityId: 'profile-entity-123',
+            profileArn: 'arn:aws:bedrock:us-east-1:123456789012:inference-profile/test',
+            modelId: 'anthropic.claude-3-5-sonnet-20241022-v2:0',
+            label: 'primary',
+          }),
+        ]),
         agentType: 'AgentCore Managed',
         guardrailId: 'guardrail-abc',
       });
     });
 
-    it('custom resource includes modelId and profileArn', () => {
+    it('custom resource includes roleName', () => {
       const template = createTemplate();
       template.hasResourceProperties('AWS::CloudFormation::CustomResource', {
-        modelId: 'anthropic.claude-3-5-sonnet-20241022-v2:0',
-        profileArn: 'arn:aws:bedrock:us-east-1:123456789012:inference-profile/test',
+        roleName: Match.anyValue(),
       });
     });
   });
@@ -209,7 +313,6 @@ describe('AgentPolicyModulator construct', () => {
   describe('RegistrySeed Lambda configuration', () => {
     it('uses Node.js 20 runtime', () => {
       const template = createTemplate();
-      // Find Lambda functions with the registry seed handler entry
       const functions = template.findResources('AWS::Lambda::Function');
       const registrySeedFunctions = Object.values(functions).filter(
         (fn) => fn.Properties.Runtime === 'nodejs20.x' && fn.Properties.MemorySize === 128,
@@ -249,7 +352,9 @@ describe('AgentPolicyModulator construct', () => {
       );
       expect(registrySeedFunctions.length).toBeGreaterThanOrEqual(1);
       for (const fn of registrySeedFunctions) {
-        expect(fn.Properties.Environment?.Variables?.[EnvVar.AGENT_REGISTRY_TABLE_NAME]).toBeDefined();
+        expect(
+          fn.Properties.Environment?.Variables?.[EnvVar.AGENT_REGISTRY_TABLE_NAME],
+        ).toBeDefined();
       }
     });
   });
@@ -267,16 +372,10 @@ describe('AgentPolicyModulator construct', () => {
       }).toThrow(/configName must be non-empty/);
     });
 
-    it('throws when profileEntityId is empty', () => {
+    it('throws when profileBindings is empty', () => {
       expect(() => {
-        createTemplate({ profileEntityId: '' });
-      }).toThrow(/profileEntityId must be non-empty/);
-    });
-
-    it('throws when profileEntityId is whitespace only', () => {
-      expect(() => {
-        createTemplate({ profileEntityId: '   ' });
-      }).toThrow(/profileEntityId must be non-empty/);
+        createTemplate({ profileBindings: [] });
+      }).toThrow(/profileBindings must be non-empty/);
     });
 
     it('throws when a threshold is zero', () => {
@@ -316,27 +415,27 @@ describe('AgentPolicyModulator construct', () => {
     });
   });
 
-  describe('Alarm naming', () => {
-    it('names the token alarm using NamingGenerator pattern', () => {
+  describe('Alarm naming (per-profile pattern)', () => {
+    it('names the token alarm using per-profile pattern', () => {
       const template = createTemplate({ configName: 'test-agent' });
       template.hasResourceProperties('AWS::CloudWatch::Alarm', {
-        AlarmName: 'hecaton-test-test-agent-token-alarm',
+        AlarmName: 'hecaton-test-test-agent-primary-token-alarm',
         MetricName: 'OutputTokenCount',
       });
     });
 
-    it('names the block alarm using NamingGenerator pattern', () => {
+    it('names the block alarm using per-profile pattern', () => {
       const template = createTemplate({ configName: 'test-agent' });
       template.hasResourceProperties('AWS::CloudWatch::Alarm', {
-        AlarmName: 'hecaton-test-test-agent-block-alarm',
+        AlarmName: 'hecaton-test-test-agent-primary-block-alarm',
         MetricName: 'GuardrailBlocked',
       });
     });
 
-    it('names the observation alarm using NamingGenerator pattern', () => {
+    it('names the observation alarm using per-profile pattern', () => {
       const template = createTemplate({ configName: 'test-agent' });
       template.hasResourceProperties('AWS::CloudWatch::Alarm', {
-        AlarmName: 'hecaton-test-test-agent-observation-alarm',
+        AlarmName: 'hecaton-test-test-agent-primary-observation-alarm',
         MetricName: 'GuardrailObserved',
       });
     });

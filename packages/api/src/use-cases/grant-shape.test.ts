@@ -30,9 +30,11 @@ function createMockDeps(overrides?: Partial<Dependencies>): Dependencies {
     },
     agentRegistry: {
       getByAgentId: vi.fn().mockResolvedValue(null),
+      getByProfileArn: vi.fn().mockResolvedValue(null),
       getByProfileEntityId: vi.fn().mockResolvedValue(null),
       getByConfigName: vi.fn().mockResolvedValue(null),
       updateBreakerState: vi.fn().mockResolvedValue(undefined),
+      registerAgent: vi.fn().mockResolvedValue(undefined),
       listAll: vi.fn().mockResolvedValue([]),
     },
     ...overrides,
@@ -89,8 +91,8 @@ describe('Feature: phase-1-api-package-setup', () => {
       const grant: GrantRecord = {
         grantId: '01912345-6789-7abc-8def-0123456789ab',
         configName: 'test-agent',
-        shapeName: 'core-invocation',
-        parameters: {}, // missing inferenceProfileArn
+        shapeName: 's3-prefix-read',
+        parameters: {}, // missing bucketArn and prefix
         grantedAt: '2026-07-20T12:00:00.000Z',
         grantedBy: 'admin@company.com',
       };

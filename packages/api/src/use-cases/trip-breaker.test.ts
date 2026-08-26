@@ -22,9 +22,11 @@ function createMockDeps(overrides?: Partial<BreakerDependencies>): BreakerDepend
     },
     agentRegistry: {
       getByAgentId: vi.fn().mockResolvedValue(null),
+      getByProfileArn: vi.fn().mockResolvedValue(null),
       getByProfileEntityId: vi.fn().mockResolvedValue(null),
       getByConfigName: vi.fn().mockResolvedValue(null),
       updateBreakerState: vi.fn().mockResolvedValue(undefined),
+      registerAgent: vi.fn().mockResolvedValue(undefined),
       listAll: vi.fn().mockResolvedValue([]),
     },
     snsNotifier: {
@@ -145,9 +147,11 @@ describe('trip-breaker use-case', () => {
       const deps = createMockDeps({
         agentRegistry: {
           getByAgentId: vi.fn().mockResolvedValue(null),
+          getByProfileArn: vi.fn().mockResolvedValue(null),
           getByProfileEntityId: vi.fn().mockResolvedValue(null),
           getByConfigName: vi.fn().mockResolvedValue(null),
           updateBreakerState: vi.fn().mockRejectedValue(new Error('DynamoDB failure')),
+          registerAgent: vi.fn().mockResolvedValue(undefined),
           listAll: vi.fn().mockResolvedValue([]),
         },
       });

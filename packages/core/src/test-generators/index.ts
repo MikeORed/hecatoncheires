@@ -1,6 +1,9 @@
 export {
   arbConfigName,
   arbInvalidConfigName,
+  arbModelBindingLabel,
+  arbModelBinding,
+  arbModelBindings,
   arbAgentConfiguration,
   arbInvalidAgentConfiguration,
 } from './agent-configuration.arb.js';

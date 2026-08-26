@@ -9,8 +9,8 @@ export interface AgentIdentityProps {
   configName: string;
   /** The agent harness type — determines trust policy principal. */
   agentType: 'agentcore-managed' | 'openclaw' | 'agentcore-runtime';
-  /** The ARN of the inference profile, created by AgentConfigStack. */
-  profileArn: string;
+  /** All inference profile ARNs for this agent, created by AgentConfigStack. */
+  profileArns: string[];
   /** The ID of the guardrail, created by AgentConfigStack. */
   guardrailId: string;
   /** Required when agentType === 'openclaw'. The IAM principal ARN trusted to assume this role. */
@@ -62,7 +62,7 @@ export class AgentIdentity extends Construct {
   constructor(scope: Construct, id: string, props: AgentIdentityProps) {
     super(scope, id);
 
-    const { configName, agentType, profileArn, guardrailId, externalPrincipalArn, stage } = props;
+    const { configName, agentType, profileArns, guardrailId, externalPrincipalArn, stage } = props;
 
     // --- Validation ---
     if (agentType === 'openclaw') {
@@ -90,8 +90,10 @@ export class AgentIdentity extends Construct {
           ],
           resources: ['*'],
           conditions: {
+            'ForAnyValue:StringEquals': {
+              'bedrock:InferenceProfileArn': profileArns,
+            },
             StringEquals: {
-              'bedrock:InferenceProfileArn': profileArn,
               'bedrock:GuardrailIdentifier': guardrailId,
             },
           },

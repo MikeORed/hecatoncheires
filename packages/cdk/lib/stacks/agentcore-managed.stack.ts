@@ -151,8 +151,9 @@ export class AgentCoreManagedStack extends AgentConfigStack {
 
     // Build model configuration — use the governance-created inference profile ARN
     // (not the raw modelId from the seed) so the agent is forced through it.
+    // Uses the first profile ARN as the primary model for the harness.
     const bedrockModelConfig: bedrockagentcore.CfnHarness.HarnessBedrockModelConfigProperty = {
-      modelId: this.profileArn,
+      modelId: this.profileArns[0],
       ...(props.harnessConfig.maxTokens !== undefined && {
         maxTokens: props.harnessConfig.maxTokens,
       }),

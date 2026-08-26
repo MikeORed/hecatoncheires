@@ -18,6 +18,16 @@ import {
 } from '../constructs/agent-policy-modulator.construct.js';
 import { GuardrailPolicyConfig } from './shared-infra.stack.js';
 
+/** A single model binding within the agent configuration. */
+export interface ModelBindingProp {
+  /** Bedrock model ID for this inference profile. */
+  modelId: string;
+  /** Human-readable label (lowercase alphanumeric + hyphens, max 30 chars). */
+  label: string;
+  /** Optional per-profile alarm thresholds (overrides agent-level defaults). */
+  thresholds?: { outputTokensPerHour: number };
+}
+
 export interface AgentConfigStackProps extends cdk.StackProps {
   /** Deployment stage (e.g., 'dev', 'staging', 'prod'). */
   stage: string;
@@ -25,13 +35,13 @@ export interface AgentConfigStackProps extends cdk.StackProps {
   configName: string;
   /** Agent harness type — determines trust policy principal. */
   agentType: 'agentcore-managed' | 'openclaw' | 'agentcore-runtime';
-  /** Bedrock model ID for the inference profile. */
-  modelId: string;
+  /** Ordered model bindings — each produces its own inference profile. */
+  modelBindings: ModelBindingProp[];
   /** Optional per-agent guardrail overrides merged with the default config. */
   guardrailOverrides?: Partial<GuardrailPolicyConfig>;
   /** Required when agentType === 'openclaw'. The IAM principal ARN trusted to assume this role. */
   externalPrincipalArn?: string;
-  /** CloudWatch alarm thresholds for the AgentPolicyModulator. */
+  /** CloudWatch alarm thresholds for the AgentPolicyModulator (agent-level defaults). */
   thresholds: {
     outputTokensPerHour: number;
     guardrailBlocksPer10Min: number;
@@ -53,20 +63,21 @@ export interface AgentConfigStackProps extends cdk.StackProps {
 /**
  * Abstract base class for per-agent configuration stacks.
  *
- * Validates configuration, creates the inference profile and guardrail resources,
- * then instantiates AgentIdentity passing the resolved profileArn and guardrailId.
- * After identity is established, instantiates AgentPolicyModulator with alarms and
- * registry seeding. Subclasses extend this to add further constructs (bus channel, etc.).
+ * Validates configuration, creates one inference profile per model binding and
+ * guardrail resources, then instantiates AgentIdentity passing the resolved
+ * profileArns and guardrailId. After identity is established, instantiates
+ * AgentPolicyModulator with alarms and registry seeding. Subclasses extend this
+ * to add further constructs (bus channel, etc.).
  */
 export abstract class AgentConfigStack extends cdk.Stack {
   /** The AgentIdentity outputs — always available after construction. */
   readonly identity: AgentIdentityOutputs;
 
-  /** The inference profile ARN (CloudFormation token at synth time). */
-  readonly profileArn: string;
+  /** All inference profile ARNs (one per model binding). */
+  readonly profileArns: string[];
 
-  /** The inference profile entity ID (CloudFormation token at synth time). */
-  readonly profileEntityId: string;
+  /** Detailed profile outputs for each model binding (arn, entityId, label, modelId). */
+  readonly profileOutputs: Array<{ arn: string; entityId: string; label: string; modelId: string }>;
 
   /** The AgentPolicyModulator outputs — alarms exposed for cross-stack references. */
   readonly modulator: AgentPolicyModulatorOutputs;
@@ -74,7 +85,7 @@ export abstract class AgentConfigStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: AgentConfigStackProps) {
     super(scope, id, props);
 
-    const { stage, configName, agentType, modelId, sharedInfra, externalPrincipalArn } = props;
+    const { stage, configName, agentType, sharedInfra, externalPrincipalArn } = props;
 
     // --- 1. Validate configName against ConfigNamePattern ---
     if (!ConfigNamePattern.test(configName)) {
@@ -85,30 +96,50 @@ export abstract class AgentConfigStack extends cdk.Stack {
       );
     }
 
-    // --- 2. Validate modelId is non-empty ---
-    if (!modelId || modelId.trim().length === 0) {
+    // --- 2. Validate modelBindings array is non-empty ---
+    if (!props.modelBindings || props.modelBindings.length === 0) {
       throw new Error(
-        `AgentConfigStack: modelId must be a non-empty string (configName: ${configName}).`,
+        `AgentConfigStack: at least one model binding is required (configName: ${configName}).`,
       );
     }
 
     const naming = new NamingGenerator(stage);
 
-    // --- 3. Create inference profile (CfnApplicationInferenceProfile) ---
-    const inferenceProfile = new bedrock.CfnApplicationInferenceProfile(
-      this,
-      'InferenceProfile',
-      {
-        inferenceProfileName: naming.profileName(configName),
-        modelSource: {
-          copyFrom: modelId,
-        },
-        tags: naming.tagsToCfn(configName, { phase: '1' }),
-      },
-    );
+    // --- 3. Create one inference profile per model binding ---
+    const profileOutputs: Array<{
+      arn: string;
+      entityId: string;
+      label: string;
+      modelId: string;
+    }> = [];
 
-    const profileArn = inferenceProfile.attrInferenceProfileArn;
-    this.profileArn = profileArn;
+    for (const binding of props.modelBindings) {
+      if (!binding.modelId || binding.modelId.trim().length === 0) {
+        throw new Error(
+          `AgentConfigStack: modelId must be a non-empty string for binding "${binding.label}" (configName: ${configName}).`,
+        );
+      }
+
+      const profile = new bedrock.CfnApplicationInferenceProfile(
+        this,
+        `InferenceProfile-${binding.label}`,
+        {
+          inferenceProfileName: naming.multiProfileName(configName, binding.label),
+          modelSource: { copyFrom: binding.modelId },
+          tags: naming.tagsToCfn(configName, { phase: '1' }),
+        },
+      );
+
+      profileOutputs.push({
+        arn: profile.attrInferenceProfileArn,
+        entityId: profile.attrInferenceProfileId,
+        label: binding.label,
+        modelId: binding.modelId,
+      });
+    }
+
+    this.profileOutputs = profileOutputs;
+    this.profileArns = profileOutputs.map((p) => p.arn);
 
     // --- 4. Create Bedrock guardrail (merge defaultGuardrailConfig + overrides) ---
     const mergedConfig = this.mergeGuardrailConfig(
@@ -145,11 +176,11 @@ export abstract class AgentConfigStack extends cdk.Stack {
 
     const guardrailId = guardrail.attrGuardrailId;
 
-    // --- 5. Instantiate AgentIdentity with resolved profileArn and guardrailId ---
+    // --- 5. Instantiate AgentIdentity with resolved profileArns and guardrailId ---
     const agentIdentity = new AgentIdentity(this, 'AgentIdentity', {
       configName,
       agentType,
-      profileArn,
+      profileArns: this.profileArns,
       guardrailId,
       externalPrincipalArn,
       stage,
@@ -158,16 +189,16 @@ export abstract class AgentConfigStack extends cdk.Stack {
 
     this.identity = agentIdentity.outputs;
 
-    // --- 6. Expose profileEntityId ---
-    const profileEntityId = inferenceProfile.attrInferenceProfileId;
-    this.profileEntityId = profileEntityId;
-
-    // --- 7. Instantiate AgentPolicyModulator (alarms + registry seed) ---
+    // --- 6. Instantiate AgentPolicyModulator (per-profile alarms + composite + registry seed) ---
     const modulator = new AgentPolicyModulator(this, 'PolicyModulator', {
       configName,
-      profileEntityId,
-      profileArn,
-      modelId,
+      profileBindings: profileOutputs.map((p, i) => ({
+        profileEntityId: p.entityId,
+        profileArn: p.arn,
+        modelId: p.modelId,
+        label: p.label,
+        thresholds: props.modelBindings[i].thresholds,
+      })),
       agentRole: agentIdentity.outputs.role,
       agentType,
       guardrailId,
@@ -179,13 +210,15 @@ export abstract class AgentConfigStack extends cdk.Stack {
 
     this.modulator = modulator.outputs;
 
-    // --- 8. CfnOutput for profileEntityId ---
-    new cdk.CfnOutput(this, 'ProfileEntityId', {
-      value: profileEntityId,
-      exportName: `${id}-profileEntityId`,
-    });
+    // --- 7. CfnOutputs for profile entity IDs ---
+    for (const profile of profileOutputs) {
+      new cdk.CfnOutput(this, `ProfileEntityId-${profile.label}`, {
+        value: profile.entityId,
+        exportName: `${id}-profileEntityId-${profile.label}`,
+      });
+    }
 
-    // --- 9. AppConfig runtime tunables profile ---
+    // --- 8. AppConfig runtime tunables profile ---
     const appConfigProfile = new appconfig.CfnConfigurationProfile(this, 'AppConfigProfile', {
       applicationId: sharedInfra.appConfigAppId,
       name: naming.appConfigProfileName(configName),
@@ -247,7 +280,7 @@ export abstract class AgentConfigStack extends cdk.Stack {
       tags: naming.tagsToCfn(configName, { phase: '1' }),
     });
 
-    // --- 10. Apply standard tags ---
+    // --- 9. Apply standard tags ---
     cdk.Tags.of(this).add(`${naming.projectFullName}:managed`, 'true');
     cdk.Tags.of(this).add(`${naming.projectFullName}:config`, configName);
     cdk.Tags.of(this).add(`${naming.projectFullName}:stage`, stage);

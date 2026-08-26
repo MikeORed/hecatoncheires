@@ -23,9 +23,11 @@ function createMockDeps(overrides?: Partial<Dependencies>): Dependencies {
     },
     agentRegistry: {
       getByAgentId: vi.fn().mockResolvedValue(null),
+      getByProfileArn: vi.fn().mockResolvedValue(null),
       getByProfileEntityId: vi.fn().mockResolvedValue(null),
       getByConfigName: vi.fn().mockResolvedValue(null),
       updateBreakerState: vi.fn().mockResolvedValue(undefined),
+      registerAgent: vi.fn().mockResolvedValue(undefined),
       listAll: vi.fn().mockResolvedValue([]),
     },
     ...overrides,
@@ -37,10 +39,15 @@ function makeAgent(overrides: Partial<AgentRegistryRecord> = {}): AgentRegistryR
     agentId: '01912345-6789-7abc-8def-0123456789aa',
     configName: 'agent-a',
     roleName: 'hecaton-dev-agent-a-agent-role',
-    profileEntityId: 'profile-a',
-    profileArn: 'arn:profile-a',
+    profiles: [
+      {
+        profileArn: 'arn:profile-a',
+        profileEntityId: 'profile-entity-a',
+        modelId: 'anthropic.claude-3',
+        label: 'primary',
+      },
+    ],
     agentType: 'AgentCore Managed',
-    modelId: 'anthropic.claude-3',
     guardrailId: 'gid-a',
     status: 'active',
     breakerState: 'armed',
@@ -69,7 +76,19 @@ describe('queryFleetState', () => {
 
   it('returns agents with their grants matched by configName', async () => {
     const agentA = makeAgent({ agentId: 'id-a', configName: 'agent-a' });
-    const agentB = makeAgent({ agentId: 'id-b', configName: 'agent-b', agentType: 'OpenClaw' });
+    const agentB = makeAgent({
+      agentId: 'id-b',
+      configName: 'agent-b',
+      agentType: 'OpenClaw',
+      profiles: [
+        {
+          profileArn: 'arn:profile-b',
+          profileEntityId: 'profile-entity-b',
+          modelId: 'anthropic.claude-3-haiku',
+          label: 'primary',
+        },
+      ],
+    });
 
     const grantA = makeGrant({ configName: 'agent-a', grantId: 'grant-1' });
     const grantB = makeGrant({
@@ -81,9 +100,11 @@ describe('queryFleetState', () => {
     const deps = createMockDeps({
       agentRegistry: {
         getByAgentId: vi.fn().mockResolvedValue(null),
+        getByProfileArn: vi.fn().mockResolvedValue(null),
         getByProfileEntityId: vi.fn().mockResolvedValue(null),
         getByConfigName: vi.fn().mockResolvedValue(null),
         updateBreakerState: vi.fn().mockResolvedValue(undefined),
+        registerAgent: vi.fn().mockResolvedValue(undefined),
         listAll: vi.fn().mockResolvedValue([agentA, agentB]),
       },
       grantLedger: {
@@ -101,7 +122,7 @@ describe('queryFleetState', () => {
       agentId: 'id-a',
       configName: 'agent-a',
       agentType: 'AgentCore Managed',
-      modelId: 'anthropic.claude-3',
+      modelIds: ['anthropic.claude-3'],
       status: 'active',
       breakerState: 'armed',
       grants: [grantA],
@@ -110,7 +131,7 @@ describe('queryFleetState', () => {
       agentId: 'id-b',
       configName: 'agent-b',
       agentType: 'OpenClaw',
-      modelId: 'anthropic.claude-3',
+      modelIds: ['anthropic.claude-3-haiku'],
       status: 'active',
       breakerState: 'armed',
       grants: [grantB],
@@ -123,9 +144,11 @@ describe('queryFleetState', () => {
     const deps = createMockDeps({
       agentRegistry: {
         getByAgentId: vi.fn().mockResolvedValue(null),
+        getByProfileArn: vi.fn().mockResolvedValue(null),
         getByProfileEntityId: vi.fn().mockResolvedValue(null),
         getByConfigName: vi.fn().mockResolvedValue(null),
         updateBreakerState: vi.fn().mockResolvedValue(undefined),
+        registerAgent: vi.fn().mockResolvedValue(undefined),
         listAll: vi.fn().mockResolvedValue([agent]),
       },
     });
@@ -144,9 +167,11 @@ describe('queryFleetState', () => {
     const deps = createMockDeps({
       agentRegistry: {
         getByAgentId: vi.fn().mockResolvedValue(null),
+        getByProfileArn: vi.fn().mockResolvedValue(null),
         getByProfileEntityId: vi.fn().mockResolvedValue(null),
         getByConfigName: vi.fn().mockResolvedValue(null),
         updateBreakerState: vi.fn().mockResolvedValue(undefined),
+        registerAgent: vi.fn().mockResolvedValue(undefined),
         listAll: vi.fn().mockResolvedValue([agent]),
       },
       grantLedger: {
@@ -170,9 +195,11 @@ describe('queryFleetState', () => {
     const deps = createMockDeps({
       agentRegistry: {
         getByAgentId: vi.fn().mockResolvedValue(null),
+        getByProfileArn: vi.fn().mockResolvedValue(null),
         getByProfileEntityId: vi.fn().mockResolvedValue(null),
         getByConfigName: vi.fn().mockResolvedValue(null),
         updateBreakerState: vi.fn().mockResolvedValue(undefined),
+        registerAgent: vi.fn().mockResolvedValue(undefined),
         listAll: vi.fn().mockResolvedValue([agent]),
       },
       grantLedger: {
