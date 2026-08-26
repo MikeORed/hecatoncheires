@@ -3,8 +3,6 @@ import type { IamPolicyDocument } from '@hecaton/core';
 import type { Dependencies } from '../shared/dependencies.js';
 import { toCapabilityChangedEvent } from '../adapters/eventbridge/dto/event.mapper.js';
 
-const DEFAULT_POLICY_NAME = 'hecaton-operating-policy';
-
 export interface OnboardAgentInput {
   configName: string;
   roleName: string;
@@ -30,7 +28,11 @@ export async function onboardAgent(
   deps: Dependencies,
 ): Promise<OnboardAgentResult> {
   // 1. Write deny-all policy
-  await deps.operatingPolicy.writePolicy(input.roleName, DEFAULT_POLICY_NAME, DENY_ALL_POLICY);
+  await deps.operatingPolicy.writePolicy(
+    input.roleName,
+    deps.operatingPolicy.getDefaultPolicyName(),
+    DENY_ALL_POLICY,
+  );
 
   // 2. Emit capability-changed event (CRITICAL — throws on failure)
   const event = toCapabilityChangedEvent({

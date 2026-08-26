@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { App } from 'aws-cdk-lib';
 import { Template, Match } from 'aws-cdk-lib/assertions';
+import { NamingGenerator, EnvVar } from '@hecaton/core';
 import { SharedInfraStack } from '../../lib/stacks/shared-infra.stack.js';
 import { DEFAULT_GUARDRAIL_CONFIG } from '../../lib/stacks/shared-infra.stack.js';
 
@@ -8,6 +9,7 @@ import { DEFAULT_GUARDRAIL_CONFIG } from '../../lib/stacks/shared-infra.stack.js
 const app = new App();
 const stack = new SharedInfraStack(app, 'TestStack', { stage: 'test' });
 const template = Template.fromStack(stack);
+const naming = new NamingGenerator('test');
 
 describe('SharedInfraStack', () => {
   describe('Resource counts', () => {
@@ -128,7 +130,7 @@ describe('SharedInfraStack', () => {
     it('applies hecatoncheires:managed tag to EventBridge bus', () => {
       template.hasResourceProperties('AWS::Events::EventBus', {
         Tags: Match.arrayWith([
-          { Key: 'hecatoncheires:managed', Value: 'true' },
+          { Key: `${naming.projectFullName}:managed`, Value: 'true' },
         ]),
       });
     });
@@ -136,7 +138,7 @@ describe('SharedInfraStack', () => {
     it('applies hecatoncheires:stage tag to SNS topic', () => {
       template.hasResourceProperties('AWS::SNS::Topic', {
         Tags: Match.arrayWith([
-          { Key: 'hecatoncheires:stage', Value: 'test' },
+          { Key: `${naming.projectFullName}:stage`, Value: 'test' },
         ]),
       });
     });
@@ -144,16 +146,16 @@ describe('SharedInfraStack', () => {
     it('applies hecatoncheires:phase tag to DynamoDB table', () => {
       template.hasResourceProperties('AWS::DynamoDB::Table', {
         Tags: Match.arrayWith([
-          { Key: 'hecatoncheires:phase', Value: '1' },
+          { Key: `${naming.projectFullName}:phase`, Value: '1' },
         ]),
       });
     });
 
     it('applies all standard tags to SNS topic', () => {
       const expectedTags = [
-        { Key: 'hecatoncheires:managed', Value: 'true' },
-        { Key: 'hecatoncheires:phase', Value: '1' },
-        { Key: 'hecatoncheires:stage', Value: 'test' },
+        { Key: `${naming.projectFullName}:managed`, Value: 'true' },
+        { Key: `${naming.projectFullName}:phase`, Value: '1' },
+        { Key: `${naming.projectFullName}:stage`, Value: 'test' },
       ];
 
       template.hasResourceProperties('AWS::SNS::Topic', {
@@ -163,9 +165,9 @@ describe('SharedInfraStack', () => {
 
     it('applies all standard tags to DynamoDB table', () => {
       const expectedTags = [
-        { Key: 'hecatoncheires:managed', Value: 'true' },
-        { Key: 'hecatoncheires:phase', Value: '1' },
-        { Key: 'hecatoncheires:stage', Value: 'test' },
+        { Key: `${naming.projectFullName}:managed`, Value: 'true' },
+        { Key: `${naming.projectFullName}:phase`, Value: '1' },
+        { Key: `${naming.projectFullName}:stage`, Value: 'test' },
       ];
 
       template.hasResourceProperties('AWS::DynamoDB::Table', {
@@ -176,9 +178,9 @@ describe('SharedInfraStack', () => {
     it('applies managed and stage tags to EventBridge bus', () => {
       template.hasResourceProperties('AWS::Events::EventBus', {
         Tags: Match.arrayWith([
-          { Key: 'hecatoncheires:managed', Value: 'true' },
-          { Key: 'hecatoncheires:phase', Value: '1' },
-          { Key: 'hecatoncheires:stage', Value: 'test' },
+          { Key: `${naming.projectFullName}:managed`, Value: 'true' },
+          { Key: `${naming.projectFullName}:phase`, Value: '1' },
+          { Key: `${naming.projectFullName}:stage`, Value: 'test' },
         ]),
       });
     });
@@ -291,7 +293,7 @@ describe('SharedInfraStack', () => {
         FunctionName: 'hecaton-test-breaker-trip',
         Environment: {
           Variables: Match.objectLike({
-            AGENT_REGISTRY_TABLE_NAME: Match.anyValue(),
+            [EnvVar.AGENT_REGISTRY_TABLE_NAME]: Match.anyValue(),
           }),
         },
       });
@@ -302,7 +304,7 @@ describe('SharedInfraStack', () => {
         FunctionName: 'hecaton-test-breaker-trip',
         Environment: {
           Variables: Match.objectLike({
-            OPS_BUS_ARN: Match.anyValue(),
+            [EnvVar.OPS_BUS_ARN]: Match.anyValue(),
           }),
         },
       });
@@ -313,7 +315,7 @@ describe('SharedInfraStack', () => {
         FunctionName: 'hecaton-test-breaker-trip',
         Environment: {
           Variables: Match.objectLike({
-            SNS_TOPIC_ARN: Match.anyValue(),
+            [EnvVar.SNS_TOPIC_ARN]: Match.anyValue(),
           }),
         },
       });
@@ -324,7 +326,7 @@ describe('SharedInfraStack', () => {
         FunctionName: 'hecaton-test-breaker-trip',
         Environment: {
           Variables: Match.objectLike({
-            OPERATING_POLICY_NAME: 'hecaton-operating-policy',
+            [EnvVar.OPERATING_POLICY_NAME]: naming.operatingPolicyName(),
           }),
         },
       });
@@ -445,10 +447,10 @@ describe('SharedInfraStack', () => {
         FunctionName: 'hecaton-test-grant-shape',
         Environment: {
           Variables: Match.objectLike({
-            GRANT_LEDGER_TABLE_NAME: Match.anyValue(),
-            AGENT_REGISTRY_TABLE_NAME: Match.anyValue(),
-            OPS_BUS_ARN: Match.anyValue(),
-            OPERATING_POLICY_NAME: 'hecaton-operating-policy',
+            [EnvVar.GRANT_LEDGER_TABLE_NAME]: Match.anyValue(),
+            [EnvVar.AGENT_REGISTRY_TABLE_NAME]: Match.anyValue(),
+            [EnvVar.OPS_BUS_ARN]: Match.anyValue(),
+            [EnvVar.OPERATING_POLICY_NAME]: naming.operatingPolicyName(),
           }),
         },
       });
@@ -459,10 +461,10 @@ describe('SharedInfraStack', () => {
         FunctionName: 'hecaton-test-revoke-shape',
         Environment: {
           Variables: Match.objectLike({
-            GRANT_LEDGER_TABLE_NAME: Match.anyValue(),
-            AGENT_REGISTRY_TABLE_NAME: Match.anyValue(),
-            OPS_BUS_ARN: Match.anyValue(),
-            OPERATING_POLICY_NAME: 'hecaton-operating-policy',
+            [EnvVar.GRANT_LEDGER_TABLE_NAME]: Match.anyValue(),
+            [EnvVar.AGENT_REGISTRY_TABLE_NAME]: Match.anyValue(),
+            [EnvVar.OPS_BUS_ARN]: Match.anyValue(),
+            [EnvVar.OPERATING_POLICY_NAME]: naming.operatingPolicyName(),
           }),
         },
       });
@@ -473,10 +475,10 @@ describe('SharedInfraStack', () => {
         FunctionName: 'hecaton-test-query-fleet-state',
         Environment: {
           Variables: Match.objectLike({
-            GRANT_LEDGER_TABLE_NAME: Match.anyValue(),
-            AGENT_REGISTRY_TABLE_NAME: Match.anyValue(),
-            OPS_BUS_ARN: Match.anyValue(),
-            OPERATING_POLICY_NAME: 'hecaton-operating-policy',
+            [EnvVar.GRANT_LEDGER_TABLE_NAME]: Match.anyValue(),
+            [EnvVar.AGENT_REGISTRY_TABLE_NAME]: Match.anyValue(),
+            [EnvVar.OPS_BUS_ARN]: Match.anyValue(),
+            [EnvVar.OPERATING_POLICY_NAME]: naming.operatingPolicyName(),
           }),
         },
       });
@@ -507,8 +509,8 @@ describe('SharedInfraStack', () => {
     it('applies standard tags to AppConfig Application', () => {
       template.hasResourceProperties('AWS::AppConfig::Application', {
         Tags: Match.arrayWith([
-          { Key: 'hecatoncheires:managed', Value: 'true' },
-          { Key: 'hecatoncheires:stage', Value: 'test' },
+          { Key: `${naming.projectFullName}:managed`, Value: 'true' },
+          { Key: `${naming.projectFullName}:stage`, Value: 'test' },
         ]),
       });
     });
@@ -578,7 +580,7 @@ describe('SharedInfraStack', () => {
         FunctionName: 'hecaton-test-drift-detection',
         Environment: {
           Variables: Match.objectLike({
-            OPS_BUS_ARN: Match.anyValue(),
+            [EnvVar.OPS_BUS_ARN]: Match.anyValue(),
           }),
         },
       });
@@ -589,7 +591,7 @@ describe('SharedInfraStack', () => {
         FunctionName: 'hecaton-test-drift-detection',
         Environment: {
           Variables: Match.objectLike({
-            SNS_TOPIC_ARN: Match.anyValue(),
+            [EnvVar.SNS_TOPIC_ARN]: Match.anyValue(),
           }),
         },
       });
@@ -600,7 +602,7 @@ describe('SharedInfraStack', () => {
         FunctionName: 'hecaton-test-drift-detection',
         Environment: {
           Variables: Match.objectLike({
-            KNOWN_PRINCIPALS: Match.anyValue(),
+            [EnvVar.KNOWN_PRINCIPALS]: Match.anyValue(),
           }),
         },
       });

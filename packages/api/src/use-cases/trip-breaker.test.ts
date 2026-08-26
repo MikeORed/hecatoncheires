@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
+import { EVENT_SOURCE, EVENT_DETAIL_TYPE } from '@hecaton/core';
 
 import { tripBreaker } from './trip-breaker.js';
 import type { BreakerDependencies } from '../shared/dependencies.js';
@@ -14,6 +15,7 @@ function createMockDeps(overrides?: Partial<BreakerDependencies>): BreakerDepend
     operatingPolicy: {
       writePolicy: vi.fn().mockResolvedValue(undefined),
       deletePolicy: vi.fn().mockResolvedValue(undefined),
+      getDefaultPolicyName: vi.fn().mockReturnValue('hecaton-operating-policy'),
     },
     busEmitter: {
       emit: vi.fn().mockResolvedValue(undefined),
@@ -76,8 +78,8 @@ describe('trip-breaker use-case', () => {
 
       expect(deps.busEmitter.emit).toHaveBeenCalledWith(
         expect.objectContaining({
-          source: 'hecatoncheires.api',
-          detailType: 'BreakerTripped',
+          source: EVENT_SOURCE.API,
+          detailType: EVENT_DETAIL_TYPE.BREAKER_TRIPPED,
           detail: expect.objectContaining({
             configName: 'test-agent',
             roleName: 'test-role',
@@ -174,6 +176,7 @@ describe('trip-breaker use-case', () => {
         operatingPolicy: {
           writePolicy: vi.fn().mockRejectedValue(new Error('IAM write failed')),
           deletePolicy: vi.fn().mockResolvedValue(undefined),
+          getDefaultPolicyName: vi.fn().mockReturnValue('hecaton-operating-policy'),
         },
       });
 

@@ -3,6 +3,7 @@ import * as cdk from 'aws-cdk-lib';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as events from 'aws-cdk-lib/aws-events';
 import { Template, Match } from 'aws-cdk-lib/assertions';
+import { NamingGenerator } from '@hecaton/core';
 import { AgentBusChannel } from '../../lib/constructs/agent-bus-channel.construct.js';
 
 // ---------------------------------------------------------------------------
@@ -14,6 +15,7 @@ const TEST_CONFIG_NAME = 'sre-ops';
 const TEST_SIGNALS_BUS_ARN =
   'arn:aws:events:us-east-1:123456789012:event-bus/test-signals-bus';
 const TEST_SOURCE_NAMESPACE = 'hecatoncheires.signals';
+const naming = new NamingGenerator(TEST_STAGE);
 
 function createTemplate(overrides?: {
   configName?: string;
@@ -232,7 +234,7 @@ describe('AgentBusChannel construct', () => {
       template.hasResourceProperties('AWS::SQS::Queue', {
         QueueName: 'hecaton-test-sre-ops-signals.fifo',
         Tags: Match.arrayWith([
-          { Key: 'hecatoncheires:managed', Value: 'true' },
+          { Key: `${naming.projectFullName}:managed`, Value: 'true' },
         ]),
       });
     });
@@ -242,7 +244,7 @@ describe('AgentBusChannel construct', () => {
       template.hasResourceProperties('AWS::SQS::Queue', {
         QueueName: 'hecaton-test-sre-ops-signals.fifo',
         Tags: Match.arrayWith([
-          { Key: 'hecatoncheires:config', Value: 'sre-ops' },
+          { Key: `${naming.projectFullName}:config`, Value: 'sre-ops' },
         ]),
       });
     });
@@ -252,7 +254,7 @@ describe('AgentBusChannel construct', () => {
       template.hasResourceProperties('AWS::SQS::Queue', {
         QueueName: 'hecaton-test-sre-ops-signals.fifo',
         Tags: Match.arrayWith([
-          { Key: 'hecatoncheires:stage', Value: 'test' },
+          { Key: `${naming.projectFullName}:stage`, Value: 'test' },
         ]),
       });
     });
@@ -262,7 +264,7 @@ describe('AgentBusChannel construct', () => {
       template.hasResourceProperties('AWS::SQS::Queue', {
         QueueName: 'hecaton-test-sre-ops-signals.fifo',
         Tags: Match.arrayWith([
-          { Key: 'hecatoncheires:phase', Value: '1' },
+          { Key: `${naming.projectFullName}:phase`, Value: '1' },
         ]),
       });
     });

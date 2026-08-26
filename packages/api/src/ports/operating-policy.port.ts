@@ -7,4 +7,5 @@ export interface OperatingPolicyPort {
     policyDocument: IamPolicyDocument,
   ): Promise<void>;
   deletePolicy(roleName: string, policyName: string): Promise<void>;
+  getDefaultPolicyName(): string;
 }

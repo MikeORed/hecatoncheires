@@ -3,8 +3,6 @@ import type { IamPolicyDocument } from '@hecaton/core';
 import type { BreakerDependencies } from '../shared/dependencies.js';
 import { toBreakerTrippedEvent } from '../adapters/eventbridge/dto/event.mapper.js';
 
-const DEFAULT_POLICY_NAME = 'hecaton-operating-policy';
-
 export interface TripBreakerInput {
   configName: string;
   roleName: string;
@@ -39,7 +37,11 @@ export async function tripBreaker(
   const trippedAt = new Date().toISOString();
 
   // 1. Write deny-all policy (MUST succeed — propagate error for retry)
-  await deps.operatingPolicy.writePolicy(input.roleName, DEFAULT_POLICY_NAME, DENY_ALL_POLICY);
+  await deps.operatingPolicy.writePolicy(
+    input.roleName,
+    deps.operatingPolicy.getDefaultPolicyName(),
+    DENY_ALL_POLICY,
+  );
 
   // 2. Update registry breaker state (best-effort)
   try {

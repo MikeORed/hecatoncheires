@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
+import { EVENT_SOURCE, EVENT_DETAIL_TYPE } from '@hecaton/core';
 
 import {
   toGrantChangedEvent,
@@ -62,8 +63,8 @@ describe('Feature: phase-1-api-package-setup', () => {
       fc.assert(
         fc.property(arbGrantChangedDetail, (detail) => {
           const event = toGrantChangedEvent(detail);
-          expect(event.source).toBe('hecatoncheires.api');
-          expect(event.detailType).toBe('GrantChanged');
+          expect(event.source).toBe(EVENT_SOURCE.API);
+          expect(event.detailType).toBe(EVENT_DETAIL_TYPE.GRANT_CHANGED);
           expect(event.detail).toEqual({ ...detail });
         }),
         { numRuns: 100 },
@@ -74,8 +75,8 @@ describe('Feature: phase-1-api-package-setup', () => {
       fc.assert(
         fc.property(arbCapabilityChangedDetail, (detail) => {
           const event = toCapabilityChangedEvent(detail);
-          expect(event.source).toBe('hecatoncheires.api');
-          expect(event.detailType).toBe('CapabilityChanged');
+          expect(event.source).toBe(EVENT_SOURCE.API);
+          expect(event.detailType).toBe(EVENT_DETAIL_TYPE.CAPABILITY_CHANGED);
           expect(event.detail).toEqual({ ...detail });
         }),
         { numRuns: 100 },
@@ -86,8 +87,8 @@ describe('Feature: phase-1-api-package-setup', () => {
       fc.assert(
         fc.property(arbBreakerTrippedDetail, (detail) => {
           const event = toBreakerTrippedEvent(detail);
-          expect(event.source).toBe('hecatoncheires.api');
-          expect(event.detailType).toBe('BreakerTripped');
+          expect(event.source).toBe(EVENT_SOURCE.API);
+          expect(event.detailType).toBe(EVENT_DETAIL_TYPE.BREAKER_TRIPPED);
           expect(event.detail).toEqual({ ...detail });
         }),
         { numRuns: 100 },

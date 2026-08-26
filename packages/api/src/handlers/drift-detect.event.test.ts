@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { EnvVar, EVENT_SOURCE, EVENT_DETAIL_TYPE } from '@hecaton/core';
 
 import { handler, isKnownPrincipal } from './drift-detect.event.js';
 import type { DriftDetectEvent } from './drift-detect.event.js';
@@ -56,7 +57,7 @@ describe('drift-detect.event handler', () => {
     it('takes no action when modifier is a known platform principal (role ARN)', async () => {
       const mockDeps = createMockDeps();
       vi.mocked(getDriftDependencies).mockReturnValue(mockDeps);
-      process.env['KNOWN_PRINCIPALS'] = JSON.stringify([
+      process.env[EnvVar.KNOWN_PRINCIPALS] = JSON.stringify([
         'arn:aws:iam::123456789012:role/hecaton-dev-breaker-role',
       ]);
 
@@ -76,7 +77,7 @@ describe('drift-detect.event handler', () => {
     it('takes no action when modifier matches via assumed-role ARN', async () => {
       const mockDeps = createMockDeps();
       vi.mocked(getDriftDependencies).mockReturnValue(mockDeps);
-      process.env['KNOWN_PRINCIPALS'] = JSON.stringify([
+      process.env[EnvVar.KNOWN_PRINCIPALS] = JSON.stringify([
         'arn:aws:iam::123456789012:role/hecaton-dev-grant-role',
       ]);
 
@@ -96,7 +97,7 @@ describe('drift-detect.event handler', () => {
     it('takes no action when known principals use assumed-role format and modifier uses role format', async () => {
       const mockDeps = createMockDeps();
       vi.mocked(getDriftDependencies).mockReturnValue(mockDeps);
-      process.env['KNOWN_PRINCIPALS'] = JSON.stringify([
+      process.env[EnvVar.KNOWN_PRINCIPALS] = JSON.stringify([
         'arn:aws:sts::123456789012:assumed-role/hecaton-dev-revoke-role/session-abc',
       ]);
 
@@ -118,7 +119,7 @@ describe('drift-detect.event handler', () => {
     it('emits drift.detected event and publishes SNS alert for unknown principal', async () => {
       const mockDeps = createMockDeps();
       vi.mocked(getDriftDependencies).mockReturnValue(mockDeps);
-      process.env['KNOWN_PRINCIPALS'] = JSON.stringify([
+      process.env[EnvVar.KNOWN_PRINCIPALS] = JSON.stringify([
         'arn:aws:iam::123456789012:role/hecaton-dev-breaker-role',
       ]);
 
@@ -126,8 +127,8 @@ describe('drift-detect.event handler', () => {
       await handler(event);
 
       expect(mockDeps.busEmitter.emit).toHaveBeenCalledWith({
-        source: 'hecatoncheires.drift',
-        detailType: 'drift.detected',
+        source: EVENT_SOURCE.DRIFT,
+        detailType: EVENT_DETAIL_TYPE.DRIFT_DETECTED,
         detail: {
           roleName: 'hecaton-dev-sre-ops-agent-role',
           modifyingPrincipalArn: 'arn:aws:iam::123456789012:role/unknown-external-role',
@@ -146,7 +147,7 @@ describe('drift-detect.event handler', () => {
     it('includes policyArn in drift event when present', async () => {
       const mockDeps = createMockDeps();
       vi.mocked(getDriftDependencies).mockReturnValue(mockDeps);
-      process.env['KNOWN_PRINCIPALS'] = '[]';
+      process.env[EnvVar.KNOWN_PRINCIPALS] = '[]';
 
       const event = makeDriftEvent({
         eventName: 'AttachRolePolicy',
@@ -170,7 +171,7 @@ describe('drift-detect.event handler', () => {
     it('omits policyName and policyArn from detail when not present', async () => {
       const mockDeps = createMockDeps();
       vi.mocked(getDriftDependencies).mockReturnValue(mockDeps);
-      process.env['KNOWN_PRINCIPALS'] = '[]';
+      process.env[EnvVar.KNOWN_PRINCIPALS] = '[]';
 
       const event = makeDriftEvent({
         requestParameters: {
@@ -218,7 +219,7 @@ describe('drift-detect.event handler', () => {
     it('treats missing KNOWN_PRINCIPALS as empty list — alerts on everything', async () => {
       const mockDeps = createMockDeps();
       vi.mocked(getDriftDependencies).mockReturnValue(mockDeps);
-      delete process.env['KNOWN_PRINCIPALS'];
+      delete process.env[EnvVar.KNOWN_PRINCIPALS];
 
       await handler(makeDriftEvent());
 
@@ -230,7 +231,7 @@ describe('drift-detect.event handler', () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       const mockDeps = createMockDeps();
       vi.mocked(getDriftDependencies).mockReturnValue(mockDeps);
-      process.env['KNOWN_PRINCIPALS'] = 'not-valid-json';
+      process.env[EnvVar.KNOWN_PRINCIPALS] = 'not-valid-json';
 
       await handler(makeDriftEvent());
 
@@ -244,7 +245,7 @@ describe('drift-detect.event handler', () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       const mockDeps = createMockDeps();
       vi.mocked(getDriftDependencies).mockReturnValue(mockDeps);
-      process.env['KNOWN_PRINCIPALS'] = '{"not": "an-array"}';
+      process.env[EnvVar.KNOWN_PRINCIPALS] = '{"not": "an-array"}';
 
       await handler(makeDriftEvent());
 
@@ -260,7 +261,7 @@ describe('drift-detect.event handler', () => {
       const mockDeps = createMockDeps();
       mockDeps.busEmitter.emit.mockRejectedValue(new Error('EventBridge failure'));
       vi.mocked(getDriftDependencies).mockReturnValue(mockDeps);
-      process.env['KNOWN_PRINCIPALS'] = '[]';
+      process.env[EnvVar.KNOWN_PRINCIPALS] = '[]';
 
       await expect(handler(makeDriftEvent())).rejects.toThrow('EventBridge failure');
     });
@@ -269,7 +270,7 @@ describe('drift-detect.event handler', () => {
       const mockDeps = createMockDeps();
       mockDeps.snsNotifier.publish.mockRejectedValue(new Error('SNS failure'));
       vi.mocked(getDriftDependencies).mockReturnValue(mockDeps);
-      process.env['KNOWN_PRINCIPALS'] = '[]';
+      process.env[EnvVar.KNOWN_PRINCIPALS] = '[]';
 
       await expect(handler(makeDriftEvent())).rejects.toThrow('SNS failure');
     });

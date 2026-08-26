@@ -107,6 +107,9 @@ const guardrailOverrideTemplate = guardrailOverrideStacks.template;
 const devStacks = createTestStacks({ stage: 'dev' });
 const devTemplate = devStacks.template;
 
+// NamingGenerator instance for test stage tag assertions
+const naming = new NamingGenerator('test');
+
 // ---------------------------------------------------------------------------
 // Task 7.2: AgentConfigStack assertion tests
 // Validates: Requirements 2.1.1, 2.1.2, 2.2.1, 2.2.2, 2.2.3, 2.2.4, 2.3.1,
@@ -118,22 +121,22 @@ describe('AgentConfigStack (via TestAgentConfigStack)', () => {
     it('creates an inference profile tagged with hecatoncheires:config={configName}', () => {
       defaultTemplate.hasResourceProperties('AWS::Bedrock::ApplicationInferenceProfile', {
         Tags: Match.arrayWith([
-          { Key: 'hecatoncheires:config', Value: 'sre-ops' },
+          { Key: `${naming.projectFullName}:config`, Value: 'sre-ops' },
         ]),
       });
     });
 
     it('names the inference profile using NamingGenerator pattern', () => {
-      const naming = new NamingGenerator('test');
+      const namingTest = new NamingGenerator('test');
       defaultTemplate.hasResourceProperties('AWS::Bedrock::ApplicationInferenceProfile', {
-        InferenceProfileName: naming.profileName('sre-ops'),
+        InferenceProfileName: namingTest.profileName('sre-ops'),
       });
     });
 
     it('tags the inference profile with hecatoncheires:managed=true', () => {
       defaultTemplate.hasResourceProperties('AWS::Bedrock::ApplicationInferenceProfile', {
         Tags: Match.arrayWith([
-          { Key: 'hecatoncheires:managed', Value: 'true' },
+          { Key: `${naming.projectFullName}:managed`, Value: 'true' },
         ]),
       });
     });
@@ -230,13 +233,13 @@ describe('AgentConfigStack (via TestAgentConfigStack)', () => {
     it('applies hecatoncheires:managed=true to all resources', () => {
       defaultTemplate.hasResourceProperties('AWS::Bedrock::ApplicationInferenceProfile', {
         Tags: Match.arrayWith([
-          { Key: 'hecatoncheires:managed', Value: 'true' },
+          { Key: `${naming.projectFullName}:managed`, Value: 'true' },
         ]),
       });
 
       defaultTemplate.hasResourceProperties('AWS::Bedrock::Guardrail', {
         Tags: Match.arrayWith([
-          { Key: 'hecatoncheires:managed', Value: 'true' },
+          { Key: `${naming.projectFullName}:managed`, Value: 'true' },
         ]),
       });
     });
@@ -244,24 +247,24 @@ describe('AgentConfigStack (via TestAgentConfigStack)', () => {
     it('applies hecatoncheires:stage tag to resources', () => {
       defaultTemplate.hasResourceProperties('AWS::Bedrock::ApplicationInferenceProfile', {
         Tags: Match.arrayWith([
-          { Key: 'hecatoncheires:stage', Value: 'test' },
+          { Key: `${naming.projectFullName}:stage`, Value: 'test' },
         ]),
       });
 
       defaultTemplate.hasResourceProperties('AWS::Bedrock::Guardrail', {
         Tags: Match.arrayWith([
-          { Key: 'hecatoncheires:stage', Value: 'test' },
+          { Key: `${naming.projectFullName}:stage`, Value: 'test' },
         ]),
       });
     });
 
     it('applies hecatoncheires:phase=1 tag to resources', () => {
       defaultTemplate.hasResourceProperties('AWS::Bedrock::ApplicationInferenceProfile', {
-        Tags: Match.arrayWith([{ Key: 'hecatoncheires:phase', Value: '1' }]),
+        Tags: Match.arrayWith([{ Key: `${naming.projectFullName}:phase`, Value: '1' }]),
       });
 
       defaultTemplate.hasResourceProperties('AWS::Bedrock::Guardrail', {
-        Tags: Match.arrayWith([{ Key: 'hecatoncheires:phase', Value: '1' }]),
+        Tags: Match.arrayWith([{ Key: `${naming.projectFullName}:phase`, Value: '1' }]),
       });
     });
 
@@ -277,7 +280,7 @@ describe('AgentConfigStack (via TestAgentConfigStack)', () => {
           Value: string;
         }>;
         return tags?.some(
-          (t) => t.Key === 'hecatoncheires:config' && t.Value === 'sre-ops',
+          (t) => t.Key === `${naming.projectFullName}:config` && t.Value === 'sre-ops',
         );
       });
       expect(hasManagedTag).toBe(true);
@@ -519,7 +522,7 @@ describe('AgentIdentity (via TestAgentConfigStack)', () => {
       expect(condition).toBeDefined();
       expect(condition.StringEquals).toBeDefined();
       expect(
-        condition.StringEquals['aws:ResourceTag/hecatoncheires:managed'],
+        condition.StringEquals[`aws:ResourceTag/${naming.projectFullName}:managed`],
       ).toBe('true');
     });
 
@@ -692,8 +695,8 @@ describe('AppConfig Runtime Tunables (via TestAgentConfigStack)', () => {
     it('applies standard tags to the profile', () => {
       defaultTemplate.hasResourceProperties('AWS::AppConfig::ConfigurationProfile', {
         Tags: Match.arrayWith([
-          Match.objectLike({ Key: 'hecatoncheires:managed', Value: 'true' }),
-          Match.objectLike({ Key: 'hecatoncheires:stage', Value: 'test' }),
+          Match.objectLike({ Key: `${naming.projectFullName}:managed`, Value: 'true' }),
+          Match.objectLike({ Key: `${naming.projectFullName}:stage`, Value: 'test' }),
         ]),
       });
     });

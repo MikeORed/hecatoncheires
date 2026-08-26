@@ -2,7 +2,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { IAMClient } from '@aws-sdk/client-iam';
 import { EventBridgeClient } from '@aws-sdk/client-eventbridge';
 import { SNSClient } from '@aws-sdk/client-sns';
-import { InternalError } from '@hecaton/core';
+import { EnvVar, InternalError, NamingGenerator } from '@hecaton/core';
 
 import { GrantLedgerAdapter } from '../adapters/dynamo/grant-ledger.adapter.js';
 import { AgentRegistryAdapter } from '../adapters/dynamo/agent-registry.adapter.js';
@@ -31,10 +31,11 @@ let cached: Dependencies | undefined;
 export function getDependencies(): Dependencies {
   if (cached) return cached;
 
-  const tableName = requireEnv('GRANT_LEDGER_TABLE_NAME');
-  const registryTableName = requireEnv('AGENT_REGISTRY_TABLE_NAME');
-  const busArn = requireEnv('OPS_BUS_ARN');
-  const policyName = process.env['OPERATING_POLICY_NAME'] ?? 'hecaton-operating-policy';
+  const naming = new NamingGenerator('_');
+  const tableName = requireEnv(EnvVar.GRANT_LEDGER_TABLE_NAME);
+  const registryTableName = requireEnv(EnvVar.AGENT_REGISTRY_TABLE_NAME);
+  const busArn = requireEnv(EnvVar.OPS_BUS_ARN);
+  const policyName = process.env[EnvVar.OPERATING_POLICY_NAME] ?? naming.operatingPolicyName();
 
   const dynamo = new DynamoDBClient({});
   const iam = new IAMClient({});
@@ -79,7 +80,7 @@ export function getBreakerDependencies(): BreakerDependencies {
   if (cachedBreaker) return cachedBreaker;
 
   const base = getDependencies();
-  const topicArn = requireEnv('SNS_TOPIC_ARN');
+  const topicArn = requireEnv(EnvVar.SNS_TOPIC_ARN);
 
   const sns = new SNSClient({});
 
@@ -106,8 +107,8 @@ let cachedDrift: DriftDependencies | undefined;
 export function getDriftDependencies(): DriftDependencies {
   if (cachedDrift) return cachedDrift;
 
-  const busArn = requireEnv('OPS_BUS_ARN');
-  const topicArn = requireEnv('SNS_TOPIC_ARN');
+  const busArn = requireEnv(EnvVar.OPS_BUS_ARN);
+  const topicArn = requireEnv(EnvVar.SNS_TOPIC_ARN);
 
   const eventbridge = new EventBridgeClient({});
   const sns = new SNSClient({});

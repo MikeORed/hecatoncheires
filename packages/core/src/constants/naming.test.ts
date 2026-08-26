@@ -210,6 +210,96 @@ describe('NamingGenerator', () => {
     });
   });
 
+  describe('projectPrefix and projectFullName properties', () => {
+    const naming = new NamingGenerator('dev');
+
+    it('projectPrefix is "hecaton"', () => {
+      expect(naming.projectPrefix).toBe('hecaton');
+    });
+
+    it('projectFullName is "hecatoncheires"', () => {
+      expect(naming.projectFullName).toBe('hecatoncheires');
+    });
+
+    it('properties are consistent across instances with different stages', () => {
+      const prod = new NamingGenerator('prod');
+      const staging = new NamingGenerator('staging');
+      expect(prod.projectPrefix).toBe(naming.projectPrefix);
+      expect(prod.projectFullName).toBe(naming.projectFullName);
+      expect(staging.projectPrefix).toBe(naming.projectPrefix);
+      expect(staging.projectFullName).toBe(naming.projectFullName);
+    });
+  });
+
+  describe('operatingPolicyName', () => {
+    it('returns "hecaton-operating-policy"', () => {
+      const naming = new NamingGenerator('dev');
+      expect(naming.operatingPolicyName()).toBe('hecaton-operating-policy');
+    });
+
+    it('returns same value regardless of stage', () => {
+      const dev = new NamingGenerator('dev');
+      const prod = new NamingGenerator('prod');
+      const staging = new NamingGenerator('staging');
+      expect(dev.operatingPolicyName()).toBe('hecaton-operating-policy');
+      expect(prod.operatingPolicyName()).toBe('hecaton-operating-policy');
+      expect(staging.operatingPolicyName()).toBe('hecaton-operating-policy');
+    });
+  });
+
+  describe('tagsToCfn', () => {
+    const naming = new NamingGenerator('sit');
+
+    it('produces base tags as { key, value } array', () => {
+      const result = naming.tagsToCfn('my-agent');
+      expect(result).toEqual([
+        { key: 'hecatoncheires:managed', value: 'true' },
+        { key: 'hecatoncheires:config', value: 'my-agent' },
+        { key: 'hecatoncheires:stage', value: 'sit' },
+      ]);
+    });
+
+    it('includes phase when provided', () => {
+      const result = naming.tagsToCfn('my-agent', { phase: 'onboarding' });
+      expect(result).toContainEqual({ key: 'hecatoncheires:phase', value: 'onboarding' });
+    });
+
+    it('includes harnessType when provided', () => {
+      const result = naming.tagsToCfn('my-agent', { harnessType: 'AgentCore Managed' });
+      expect(result).toContainEqual({
+        key: 'hecatoncheires:harness-type',
+        value: 'AgentCore Managed',
+      });
+    });
+
+    it('includes both phase and harnessType when provided', () => {
+      const result = naming.tagsToCfn('my-agent', {
+        phase: 'active',
+        harnessType: 'OpenClaw',
+      });
+      expect(result).toEqual([
+        { key: 'hecatoncheires:managed', value: 'true' },
+        { key: 'hecatoncheires:config', value: 'my-agent' },
+        { key: 'hecatoncheires:stage', value: 'sit' },
+        { key: 'hecatoncheires:phase', value: 'active' },
+        { key: 'hecatoncheires:harness-type', value: 'OpenClaw' },
+      ]);
+    });
+
+    it('produces same key-value pairs as tags() method', () => {
+      const options = { phase: '1', harnessType: 'AgentCore Managed' };
+      const cfnResult = naming.tagsToCfn('sre-ops', options);
+      const tagsResult = naming.tags('sre-ops', options);
+
+      // Convert cfn array back to record for comparison
+      const cfnAsRecord: Record<string, string> = {};
+      for (const { key, value } of cfnResult) {
+        cfnAsRecord[key] = value;
+      }
+      expect(cfnAsRecord).toEqual(tagsResult);
+    });
+  });
+
   describe('tags', () => {
     const naming = new NamingGenerator('sit');
 

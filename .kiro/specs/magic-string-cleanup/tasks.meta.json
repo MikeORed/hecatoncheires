@@ -1,0 +1,423 @@
+{
+  "pbtResults": {
+    "1.5 Write property test: name methods embed projectPrefix (Property 1)": {
+      "status": "passed",
+      "lastRunTimestamp": 1787695509983
+    },
+    "1.6 Write property test: tagsToCfn equivalence with tags (Property 2)": {
+      "status": "passed",
+      "lastRunTimestamp": 1787695519824
+    }
+  },
+  "executionHistory": {
+    "1.1 Add `projectPrefix` and `projectFullName` readonly properties to NamingGenerator and refactor all existing methods to use them instead of inline `'hecaton'` / `'hecatoncheires'` literals": [
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695129132
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695138201
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695321868
+      }
+    ],
+    "1.2 Add `operatingPolicyName()` method to NamingGenerator": [
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695129180
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695325649
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695414684
+      }
+    ],
+    "1.3 Add `tagsToCfn()` method to NamingGenerator": [
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695129227
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695326476
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695415513
+      }
+    ],
+    "1.4 Write unit tests for new NamingGenerator methods": [
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695129273
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695419570
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695534035
+      }
+    ],
+    "1.5 Write property test: name methods embed projectPrefix (Property 1)": [
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695129318
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695420360
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695535038
+      }
+    ],
+    "1.6 Write property test: tagsToCfn equivalence with tags (Property 2)": [
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695129374
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695421196
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695535925
+      }
+    ],
+    "2.1 Create `packages/core/src/constants/events.ts` with EVENT_SOURCE and EVENT_DETAIL_TYPE constants": [
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695129408
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695422124
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695537039
+      }
+    ],
+    "2.2 Create `packages/core/src/constants/env-vars.ts` with EnvVar enum": [
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695129447
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695423003
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695537944
+      }
+    ],
+    "2.3 Update `packages/core/src/constants/index.ts` barrel to re-export `events.ts` and `env-vars.ts`": [
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695129484
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695542050
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695632551
+      }
+    ],
+    "3. Checkpoint — core package builds and tests pass": [
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695129522
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695662680
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695837069
+      }
+    ],
+    "4.1 Migrate `shared-infra.stack.ts` to use `EnvVar` enum and `naming.operatingPolicyName()`": [
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695129557
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695663605
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695838292
+      }
+    ],
+    "4.2 Migrate `agent-config.stack.ts` to use `naming.tagsToCfn()` for all inline tag arrays": [
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695129597
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695664615
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695839507
+      }
+    ],
+    "4.3 Migrate `agentcore-managed.stack.ts` to use `naming.tagsToCfn()`": [
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695129647
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695665505
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695840458
+      }
+    ],
+    "4.4 Migrate `agent-policy-modulator.construct.ts` to use `EnvVar` enum": [
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695129682
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695666463
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695841432
+      }
+    ],
+    "5.1 Migrate `event.mapper.ts` to use `EVENT_SOURCE` and `EVENT_DETAIL_TYPE`": [
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695129720
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695846228
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695961038
+      }
+    ],
+    "5.2 Migrate `dependencies.ts` to use `EnvVar` enum": [
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695129756
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695847014
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695961787
+      }
+    ],
+    "5.3 Remove `DEFAULT_POLICY_NAME` from all use-cases (`grant-shape.ts`, `revoke-shape.ts`, `trip-breaker.ts`, `onboard-agent.ts`)": [
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695129795
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695967613
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787696121881
+      }
+    ],
+    "5.4 Migrate `drift-detect.event.ts` handler to use `EnvVar.KNOWN_PRINCIPALS`": [
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695129837
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695847926
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695962969
+      }
+    ],
+    "6. Checkpoint — CDK synth and API tests pass": [
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695129904
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787696136831
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787696493306
+      }
+    ],
+    "7.1 Migrate CDK test files to use NamingGenerator and `EnvVar` for assertions": [
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695129956
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787696135069
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787696494424
+      }
+    ],
+    "7.2 Migrate API test files to use `EVENT_SOURCE`, `EVENT_DETAIL_TYPE`, and `EnvVar`": [
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695129996
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787696136017
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787696495505
+      }
+    ],
+    "8. Final verification — full test suite and CDK synth unchanged": [
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695130050
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787696500630
+      },
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787696982531
+      }
+    ],
+    "1. Extend NamingGenerator with project prefix properties and new methods": [
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695535962
+      }
+    ],
+    "2. Create EventBridge and EnvVar constants modules in core": [
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695632579
+      }
+    ],
+    "4. Migrate CDK stacks and constructs to centralized constants": [
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787695841473
+      }
+    ],
+    "5. Migrate API use-cases, adapters, and handlers to centralized constants": [
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787696121910
+      }
+    ],
+    "7. Migrate test files to use centralized constants": [
+      {
+        "executionId": "27c07d8a-808a-479f-9018-401f159fde0d",
+        "chatSessionId": "sess_29b1d6ad-7ca5-47f4-a6c9-9315a9b56f7a",
+        "timestamp": 1787696495545
+      }
+    ]
+  }
+}

@@ -103,12 +103,7 @@ export abstract class AgentConfigStack extends cdk.Stack {
         modelSource: {
           copyFrom: modelId,
         },
-        tags: [
-          { key: 'hecatoncheires:managed', value: 'true' },
-          { key: 'hecatoncheires:config', value: configName },
-          { key: 'hecatoncheires:stage', value: stage },
-          { key: 'hecatoncheires:phase', value: '1' },
-        ],
+        tags: naming.tagsToCfn(configName, { phase: '1' }),
       },
     );
 
@@ -145,12 +140,7 @@ export abstract class AgentConfigStack extends cdk.Stack {
               })),
             }
           : undefined,
-      tags: [
-        { key: 'hecatoncheires:managed', value: 'true' },
-        { key: 'hecatoncheires:config', value: configName },
-        { key: 'hecatoncheires:stage', value: stage },
-        { key: 'hecatoncheires:phase', value: '1' },
-      ],
+      tags: naming.tagsToCfn(configName, { phase: '1' }),
     });
 
     const guardrailId = guardrail.attrGuardrailId;
@@ -163,12 +153,7 @@ export abstract class AgentConfigStack extends cdk.Stack {
       guardrailId,
       externalPrincipalArn,
       stage,
-      tags: {
-        'hecatoncheires:managed': 'true',
-        'hecatoncheires:config': configName,
-        'hecatoncheires:stage': stage,
-        'hecatoncheires:phase': '1',
-      },
+      tags: naming.tags(configName, { phase: '1' }),
     });
 
     this.identity = agentIdentity.outputs;
@@ -205,12 +190,7 @@ export abstract class AgentConfigStack extends cdk.Stack {
       applicationId: sharedInfra.appConfigAppId,
       name: naming.appConfigProfileName(configName),
       locationUri: 'hosted',
-      tags: [
-        { key: 'hecatoncheires:managed', value: 'true' },
-        { key: 'hecatoncheires:config', value: configName },
-        { key: 'hecatoncheires:stage', value: stage },
-        { key: 'hecatoncheires:phase', value: '1' },
-      ],
+      tags: naming.tagsToCfn(configName, { phase: '1' }),
     });
 
     const tunablesContent = JSON.stringify({
@@ -249,17 +229,12 @@ export abstract class AgentConfigStack extends cdk.Stack {
       this,
       'AppConfigDeploymentStrategy',
       {
-        name: `hecaton-${stage}-${configName}-strategy`,
+        name: `${naming.projectPrefix}-${stage}-${configName}-strategy`,
         deploymentDurationInMinutes: strategyConfig.deploymentDurationInMinutes,
         growthFactor: strategyConfig.growthFactor,
         finalBakeTimeInMinutes: strategyConfig.finalBakeTimeInMinutes,
         replicateTo: 'NONE',
-        tags: [
-          { key: 'hecatoncheires:managed', value: 'true' },
-          { key: 'hecatoncheires:config', value: configName },
-          { key: 'hecatoncheires:stage', value: stage },
-          { key: 'hecatoncheires:phase', value: '1' },
-        ],
+        tags: naming.tagsToCfn(configName, { phase: '1' }),
       },
     );
 
@@ -269,19 +244,14 @@ export abstract class AgentConfigStack extends cdk.Stack {
       configurationProfileId: appConfigProfile.ref,
       configurationVersion: hostedConfigVersion.ref,
       deploymentStrategyId: deploymentStrategy.ref,
-      tags: [
-        { key: 'hecatoncheires:managed', value: 'true' },
-        { key: 'hecatoncheires:config', value: configName },
-        { key: 'hecatoncheires:stage', value: stage },
-        { key: 'hecatoncheires:phase', value: '1' },
-      ],
+      tags: naming.tagsToCfn(configName, { phase: '1' }),
     });
 
     // --- 10. Apply standard tags ---
-    cdk.Tags.of(this).add('hecatoncheires:managed', 'true');
-    cdk.Tags.of(this).add('hecatoncheires:config', configName);
-    cdk.Tags.of(this).add('hecatoncheires:stage', stage);
-    cdk.Tags.of(this).add('hecatoncheires:phase', '1');
+    cdk.Tags.of(this).add(`${naming.projectFullName}:managed`, 'true');
+    cdk.Tags.of(this).add(`${naming.projectFullName}:config`, configName);
+    cdk.Tags.of(this).add(`${naming.projectFullName}:stage`, stage);
+    cdk.Tags.of(this).add(`${naming.projectFullName}:phase`, '1');
   }
 
   /**
