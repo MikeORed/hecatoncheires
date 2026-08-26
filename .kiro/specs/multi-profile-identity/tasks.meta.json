@@ -15,6 +15,14 @@
     "2.3 Write property test for policy assembly core-invocation resolution": {
       "status": "passed",
       "lastRunTimestamp": 1787777056746
+    },
+    "9.4 Write property test for registry profile ordering": {
+      "status": "passed",
+      "lastRunTimestamp": 1787780341573
+    },
+    "9.3 Write property test for profile exclusivity enforcement": {
+      "status": "passed",
+      "lastRunTimestamp": 1787780492246
     }
   },
   "executionHistory": {
@@ -368,6 +376,11 @@
         "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
         "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
         "timestamp": 1787778033058
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787779824492
       }
     ],
     "9.2 Implement profile exclusivity check with transactional write": [
@@ -375,6 +388,16 @@
         "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
         "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
         "timestamp": 1787775593621
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787779828663
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787780173779
       }
     ],
     "9.3 Write property test for profile exclusivity enforcement": [
@@ -382,6 +405,16 @@
         "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
         "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
         "timestamp": 1787775593669
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787780179116
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787780523126
       }
     ],
     "9.4 Write property test for registry profile ordering": [
@@ -389,6 +422,16 @@
         "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
         "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
         "timestamp": 1787775593718
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787780179913
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787780523965
       }
     ],
     "9.5 Update existing registry adapter tests": [
@@ -396,6 +439,16 @@
         "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
         "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
         "timestamp": 1787775593757
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787779829501
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787780174667
       }
     ],
     "10.1 Update grant use-case to pass `PolicyAssemblyContext`": [
@@ -403,6 +456,16 @@
         "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
         "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
         "timestamp": 1787775593794
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787780180731
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787780524992
       }
     ],
     "11. Final checkpoint": [
@@ -410,6 +473,16 @@
         "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
         "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
         "timestamp": 1787775593833
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787780531420
+      },
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787780681821
       }
     ],
     "1. Core schema and types": [
@@ -452,6 +525,20 @@
         "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
         "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
         "timestamp": 1787778020867
+      }
+    ],
+    "9. API agent registry adapter": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787780524017
+      }
+    ],
+    "10. API use-case layer wiring": [
+      {
+        "executionId": "97ed4f14-9584-4d27-aaa5-3fba8a76a646",
+        "chatSessionId": "sess_36c926fb-ec56-4cd5-b63f-b0eee3de8abf",
+        "timestamp": 1787780525049
       }
     ]
   }

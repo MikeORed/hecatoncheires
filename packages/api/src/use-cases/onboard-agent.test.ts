@@ -22,9 +22,11 @@ function createMockDeps(overrides?: Partial<Dependencies>): Dependencies {
     },
     agentRegistry: {
       getByAgentId: vi.fn().mockResolvedValue(null),
+      getByProfileArn: vi.fn().mockResolvedValue(null),
       getByProfileEntityId: vi.fn().mockResolvedValue(null),
       getByConfigName: vi.fn().mockResolvedValue(null),
       updateBreakerState: vi.fn().mockResolvedValue(undefined),
+      registerAgent: vi.fn().mockResolvedValue(undefined),
       listAll: vi.fn().mockResolvedValue([]),
     },
     ...overrides,

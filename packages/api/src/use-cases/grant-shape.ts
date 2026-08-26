@@ -29,8 +29,9 @@ export async function grantShape(
   const allGrants = await deps.grantLedger.queryGrantsByConfig(grant.configName);
 
   // 4. Assemble the operating policy
-  // TODO(task-10.1): Fetch profile ARNs from registry adapter
-  const context: PolicyAssemblyContext = { profileArns: [] };
+  const agentRecord = await deps.agentRegistry.getByConfigName(grant.configName);
+  const profileArns = agentRecord?.profiles.map((p) => p.profileArn) ?? [];
+  const context: PolicyAssemblyContext = { profileArns };
   const policyDocument = assemblePolicy(allGrants, SHAPE_CATALOG, context);
 
   // 5. Validate the policy size

@@ -21,6 +21,7 @@ export interface AgentRegistryPort {
   getByProfileArn(profileArn: string): Promise<AgentRegistryRecord | null>;
   getByProfileEntityId(profileEntityId: string): Promise<AgentRegistryRecord | null>;
   getByConfigName(configName: string): Promise<AgentRegistryRecord | null>;
+  registerAgent(record: AgentRegistryRecord): Promise<void>;
   updateBreakerState(agentId: string, breakerState: string, status: string): Promise<void>;
   listAll(): Promise<AgentRegistryRecord[]>;
 }

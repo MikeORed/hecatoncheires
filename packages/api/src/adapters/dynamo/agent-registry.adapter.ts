@@ -2,10 +2,11 @@ import {
   DynamoDBClient,
   GetItemCommand,
   QueryCommand,
+  TransactWriteItemsCommand,
   UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
-import type { AttributeValue } from '@aws-sdk/client-dynamodb';
-import { InternalError } from '@hecaton/core';
+import type { AttributeValue, TransactWriteItem } from '@aws-sdk/client-dynamodb';
+import { InternalError, ProfileExclusivityError } from '@hecaton/core';
 
 import type {
   AgentRegistryPort,
@@ -157,6 +158,122 @@ export class AgentRegistryAdapter implements AgentRegistryPort {
         originalError: err instanceof Error ? err.message : String(err),
       });
     }
+  }
+
+  async registerAgent(record: AgentRegistryRecord): Promise<void> {
+    const transactItems: TransactWriteItem[] = [];
+
+    // Profile ARN lock items — one per profile for exclusivity enforcement
+    for (const profile of record.profiles) {
+      transactItems.push({
+        Put: {
+          TableName: this.tableName,
+          Item: {
+            pk: { S: `PROFILE_ARN#${profile.profileArn}` },
+            sk: { S: '#LOCK' },
+            agentId: { S: record.agentId },
+            profileArn: { S: profile.profileArn },
+          },
+          ConditionExpression: 'attribute_not_exists(pk) OR agentId = :aid',
+          ExpressionAttributeValues: { ':aid': { S: record.agentId } },
+        },
+      });
+    }
+
+    // Agent record
+    transactItems.push({
+      Put: {
+        TableName: this.tableName,
+        Item: this.marshalRecord(record),
+      },
+    });
+
+    try {
+      await this.client.send(new TransactWriteItemsCommand({ TransactItems: transactItems }));
+    } catch (err) {
+      if (this.isTransactionCancelledWithConditionFail(err)) {
+        const conflicting = await this.findConflictingProfile(record.profiles, record.agentId);
+        throw new ProfileExclusivityError(
+          conflicting?.ownerAgentId ?? 'unknown',
+          conflicting?.profileArn ?? record.profiles[0]?.profileArn ?? 'unknown',
+        );
+      }
+      throw new InternalError('Failed to register agent', {
+        originalError: err instanceof Error ? err.message : String(err),
+      });
+    }
+  }
+
+  private marshalRecord(record: AgentRegistryRecord): Record<string, AttributeValue> {
+    const now = new Date().toISOString();
+    return {
+      pk: { S: `AGENT#${record.agentId}` },
+      sk: { S: '#META' },
+      agentId: { S: record.agentId },
+      configName: { S: record.configName },
+      roleName: { S: record.roleName },
+      agentType: { S: record.agentType },
+      guardrailId: { S: record.guardrailId },
+      status: { S: record.status },
+      breakerState: { S: record.breakerState },
+      profiles: {
+        L: record.profiles.map((p) => ({
+          M: {
+            profileArn: { S: p.profileArn },
+            profileEntityId: { S: p.profileEntityId },
+            modelId: { S: p.modelId },
+            label: { S: p.label },
+          },
+        })),
+      },
+      createdAt: { S: now },
+      updatedAt: { S: now },
+    };
+  }
+
+  private isTransactionCancelledWithConditionFail(err: unknown): boolean {
+    if (
+      err !== null &&
+      typeof err === 'object' &&
+      'name' in err &&
+      (err as { name: string }).name === 'TransactionCanceledException'
+    ) {
+      const reasons = (err as { CancellationReasons?: Array<{ Code?: string }> })
+        .CancellationReasons;
+      if (reasons) {
+        return reasons.some((r) => r.Code === 'ConditionalCheckFailed');
+      }
+      return true;
+    }
+    return false;
+  }
+
+  private async findConflictingProfile(
+    profiles: RegistryProfileRecord[],
+    currentAgentId: string,
+  ): Promise<{ ownerAgentId: string; profileArn: string } | null> {
+    for (const profile of profiles) {
+      try {
+        const result = await this.client.send(
+          new GetItemCommand({
+            TableName: this.tableName,
+            Key: {
+              pk: { S: `PROFILE_ARN#${profile.profileArn}` },
+              sk: { S: '#LOCK' },
+            },
+          }),
+        );
+        if (result.Item) {
+          const ownerAgentId = result.Item['agentId']?.S ?? 'unknown';
+          if (ownerAgentId !== currentAgentId) {
+            return { ownerAgentId, profileArn: profile.profileArn };
+          }
+        }
+      } catch {
+        // Best effort — if we can't determine the conflict, continue
+      }
+    }
+    return null;
   }
 
   private mapToRecord(item: Record<string, AttributeValue>): AgentRegistryRecord {

@@ -27,6 +27,7 @@ function createMockDeps(overrides?: Partial<Dependencies>): Dependencies {
       getByProfileEntityId: vi.fn().mockResolvedValue(null),
       getByConfigName: vi.fn().mockResolvedValue(null),
       updateBreakerState: vi.fn().mockResolvedValue(undefined),
+      registerAgent: vi.fn().mockResolvedValue(undefined),
       listAll: vi.fn().mockResolvedValue([]),
     },
     ...overrides,
@@ -103,6 +104,7 @@ describe('queryFleetState', () => {
         getByProfileEntityId: vi.fn().mockResolvedValue(null),
         getByConfigName: vi.fn().mockResolvedValue(null),
         updateBreakerState: vi.fn().mockResolvedValue(undefined),
+        registerAgent: vi.fn().mockResolvedValue(undefined),
         listAll: vi.fn().mockResolvedValue([agentA, agentB]),
       },
       grantLedger: {
@@ -146,6 +148,7 @@ describe('queryFleetState', () => {
         getByProfileEntityId: vi.fn().mockResolvedValue(null),
         getByConfigName: vi.fn().mockResolvedValue(null),
         updateBreakerState: vi.fn().mockResolvedValue(undefined),
+        registerAgent: vi.fn().mockResolvedValue(undefined),
         listAll: vi.fn().mockResolvedValue([agent]),
       },
     });
@@ -168,6 +171,7 @@ describe('queryFleetState', () => {
         getByProfileEntityId: vi.fn().mockResolvedValue(null),
         getByConfigName: vi.fn().mockResolvedValue(null),
         updateBreakerState: vi.fn().mockResolvedValue(undefined),
+        registerAgent: vi.fn().mockResolvedValue(undefined),
         listAll: vi.fn().mockResolvedValue([agent]),
       },
       grantLedger: {
@@ -195,6 +199,7 @@ describe('queryFleetState', () => {
         getByProfileEntityId: vi.fn().mockResolvedValue(null),
         getByConfigName: vi.fn().mockResolvedValue(null),
         updateBreakerState: vi.fn().mockResolvedValue(undefined),
+        registerAgent: vi.fn().mockResolvedValue(undefined),
         listAll: vi.fn().mockResolvedValue([agent]),
       },
       grantLedger: {

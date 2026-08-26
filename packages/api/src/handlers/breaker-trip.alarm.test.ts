@@ -28,9 +28,11 @@ function createMockDeps() {
     },
     agentRegistry: {
       getByAgentId: vi.fn().mockResolvedValue(null),
+      getByProfileArn: vi.fn().mockResolvedValue(null),
       getByProfileEntityId: vi.fn().mockResolvedValue(null),
       getByConfigName: vi.fn().mockResolvedValue(null),
       updateBreakerState: vi.fn().mockResolvedValue(undefined),
+      registerAgent: vi.fn().mockResolvedValue(undefined),
       listAll: vi.fn().mockResolvedValue([]),
     },
     snsNotifier: {
@@ -43,10 +45,15 @@ const MOCK_AGENT_RECORD = {
   agentId: 'agent-uuid-123',
   configName: 'test-agent',
   roleName: 'test-role',
-  profileEntityId: 'profile-entity-abc',
-  profileArn: 'arn:aws:bedrock:us-east-1:123456789012:inference-profile/test',
+  profiles: [
+    {
+      profileArn: 'arn:aws:bedrock:us-east-1:123456789012:inference-profile/test',
+      profileEntityId: 'profile-entity-abc',
+      modelId: 'anthropic.claude-3-5-sonnet-20241022-v2:0',
+      label: 'primary',
+    },
+  ],
   agentType: 'AgentCore Managed',
-  modelId: 'anthropic.claude-3-5-sonnet-20241022-v2:0',
   guardrailId: 'guardrail-123',
   status: 'active',
   breakerState: 'armed',

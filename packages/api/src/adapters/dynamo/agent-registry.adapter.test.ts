@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { InternalError } from '@hecaton/core';
+import { InternalError, ProfileExclusivityError } from '@hecaton/core';
 
 import { AgentRegistryAdapter } from './agent-registry.adapter.js';
 
@@ -392,6 +392,161 @@ describe('AgentRegistryAdapter', () => {
       expect(result?.profiles[0].label).toBe('alpha');
       expect(result?.profiles[1].label).toBe('beta');
       expect(result?.profiles[2].label).toBe('gamma');
+    });
+  });
+
+  describe('registerAgent', () => {
+    const testRecord = {
+      agentId: 'agent-new',
+      configName: 'new-agent',
+      roleName: 'hecaton-dev-new-agent-agent-role',
+      agentType: 'agentcore-managed',
+      guardrailId: 'guardrail-xyz',
+      status: 'active',
+      breakerState: 'armed',
+      profiles: [
+        {
+          profileArn: 'arn:aws:bedrock:us-east-1:123:inference-profile/new-primary',
+          profileEntityId: 'profile-entity-new-1',
+          modelId: 'anthropic.claude-3-sonnet',
+          label: 'primary',
+        },
+        {
+          profileArn: 'arn:aws:bedrock:us-east-1:123:inference-profile/new-secondary',
+          profileEntityId: 'profile-entity-new-2',
+          modelId: 'anthropic.claude-3-haiku',
+          label: 'secondary',
+        },
+      ],
+    };
+
+    it('sends TransactWriteItemsCommand with lock items per profile and agent record', async () => {
+      mockClient.send.mockResolvedValue({});
+
+      await adapter.registerAgent(testRecord);
+
+      expect(mockClient.send).toHaveBeenCalledOnce();
+      const command = mockClient.send.mock.calls[0][0];
+      const transactItems = command.input.TransactItems;
+
+      // 2 profile locks + 1 agent record = 3 items
+      expect(transactItems).toHaveLength(3);
+
+      // First profile lock
+      expect(transactItems[0].Put.TableName).toBe('test-table');
+      expect(transactItems[0].Put.Item.pk).toEqual({
+        S: `PROFILE_ARN#${testRecord.profiles[0].profileArn}`,
+      });
+      expect(transactItems[0].Put.Item.sk).toEqual({ S: '#LOCK' });
+      expect(transactItems[0].Put.Item.agentId).toEqual({ S: 'agent-new' });
+      expect(transactItems[0].Put.ConditionExpression).toBe(
+        'attribute_not_exists(pk) OR agentId = :aid',
+      );
+      expect(transactItems[0].Put.ExpressionAttributeValues[':aid']).toEqual({ S: 'agent-new' });
+
+      // Second profile lock
+      expect(transactItems[1].Put.Item.pk).toEqual({
+        S: `PROFILE_ARN#${testRecord.profiles[1].profileArn}`,
+      });
+
+      // Agent record (last item)
+      const agentPut = transactItems[2].Put;
+      expect(agentPut.Item.pk).toEqual({ S: 'AGENT#agent-new' });
+      expect(agentPut.Item.sk).toEqual({ S: '#META' });
+      expect(agentPut.Item.agentId).toEqual({ S: 'agent-new' });
+      expect(agentPut.Item.configName).toEqual({ S: 'new-agent' });
+      expect(agentPut.Item.profiles.L).toHaveLength(2);
+    });
+
+    it('throws ProfileExclusivityError when transaction cancelled with condition failure', async () => {
+      const transactionError = Object.assign(
+        new Error('Transaction cancelled'),
+        {
+          name: 'TransactionCanceledException',
+          CancellationReasons: [
+            { Code: 'ConditionalCheckFailed' },
+            { Code: 'None' },
+            { Code: 'None' },
+          ],
+        },
+      );
+
+      // First call: TransactWriteItems fails
+      // Second call: GetItem to find conflicting profile lock
+      mockClient.send
+        .mockRejectedValueOnce(transactionError)
+        .mockResolvedValueOnce({
+          Item: {
+            pk: { S: `PROFILE_ARN#${testRecord.profiles[0].profileArn}` },
+            sk: { S: '#LOCK' },
+            agentId: { S: 'agent-existing' },
+            profileArn: { S: testRecord.profiles[0].profileArn },
+          },
+        });
+
+      await expect(adapter.registerAgent(testRecord)).rejects.toThrow(ProfileExclusivityError);
+
+      try {
+        await adapter.registerAgent(testRecord);
+      } catch (err) {
+        // Reset mock to re-test
+      }
+
+      // Verify the error properties
+      mockClient.send
+        .mockRejectedValueOnce(transactionError)
+        .mockResolvedValueOnce({
+          Item: {
+            pk: { S: `PROFILE_ARN#${testRecord.profiles[0].profileArn}` },
+            sk: { S: '#LOCK' },
+            agentId: { S: 'agent-existing' },
+            profileArn: { S: testRecord.profiles[0].profileArn },
+          },
+        });
+
+      try {
+        await adapter.registerAgent(testRecord);
+      } catch (err) {
+        expect(err).toBeInstanceOf(ProfileExclusivityError);
+        expect((err as ProfileExclusivityError).conflictingAgent).toBe('agent-existing');
+        expect((err as ProfileExclusivityError).conflictingProfileArn).toBe(
+          testRecord.profiles[0].profileArn,
+        );
+      }
+    });
+
+    it('throws InternalError for non-transaction errors', async () => {
+      mockClient.send.mockRejectedValue(new Error('Network timeout'));
+
+      await expect(adapter.registerAgent(testRecord)).rejects.toThrow(InternalError);
+    });
+
+    it('marshals profiles in correct order in the agent record', async () => {
+      mockClient.send.mockResolvedValue({});
+
+      await adapter.registerAgent(testRecord);
+
+      const command = mockClient.send.mock.calls[0][0];
+      const agentItem = command.input.TransactItems[2].Put.Item;
+      const profiles = agentItem.profiles.L;
+
+      expect(profiles[0].M.label.S).toBe('primary');
+      expect(profiles[0].M.modelId.S).toBe('anthropic.claude-3-sonnet');
+      expect(profiles[1].M.label.S).toBe('secondary');
+      expect(profiles[1].M.modelId.S).toBe('anthropic.claude-3-haiku');
+    });
+
+    it('allows re-registration of the same agent (idempotent)', async () => {
+      mockClient.send.mockResolvedValue({});
+
+      // The condition 'attribute_not_exists(pk) OR agentId = :aid' allows the same agent
+      // to re-register its own profiles
+      await adapter.registerAgent(testRecord);
+
+      const command = mockClient.send.mock.calls[0][0];
+      const firstLock = command.input.TransactItems[0].Put;
+      expect(firstLock.ConditionExpression).toBe('attribute_not_exists(pk) OR agentId = :aid');
+      expect(firstLock.ExpressionAttributeValues[':aid']).toEqual({ S: testRecord.agentId });
     });
   });
 });

@@ -121,8 +121,8 @@ Evolve the agent identity model from a single `modelId`/`profileArn` to an order
 - [x] 8. Checkpoint - CDK package
   - Ensure all CDK tests pass (`pnpm --filter @hecaton/cdk test`), ask the user if questions arise.
 
-- [ ] 9. API agent registry adapter
-  - [-] 9.1 Update agent registry adapter for multi-profile storage
+- [x] 9. API agent registry adapter
+  - [x] 9.1 Update agent registry adapter for multi-profile storage
     - In `packages/api/src/adapters/dynamo/agent-registry.adapter.ts`:
       - Update the registry record type to include `profiles: RegistryProfileRecord[]` array
       - Ensure profile ordering matches `modelBindings` ordering on write
@@ -130,31 +130,31 @@ Evolve the agent identity model from a single `modelId`/`profileArn` to an order
     - Update DTOs in `packages/api/src/adapters/dynamo/dto/` if applicable
     - _Requirements: 7.1, 7.2, 7.4_
 
-  - [~] 9.2 Implement profile exclusivity check with transactional write
+  - [x] 9.2 Implement profile exclusivity check with transactional write
     - In the registry adapter, use `TransactWriteItems`:
       - `ConditionCheck` per profile ARN to verify no other agent owns it
       - `Put` for the agent record
     - Throw `ProfileExclusivityError` (from `@hecaton/core`) on condition failure
     - _Requirements: 2.1, 2.2, 2.3_
 
-  - [~] 9.3 Write property test for profile exclusivity enforcement
+  - [x] 9.3 Write property test for profile exclusivity enforcement
     - **Property 3: Profile exclusivity enforcement**
     - **Validates: Requirements 2.1, 2.2**
 
-  - [~] 9.4 Write property test for registry profile ordering
+  - [x] 9.4 Write property test for registry profile ordering
     - **Property 6: Registry profile ordering is preserved**
     - **Validates: Requirements 7.1, 7.4**
 
-  - [~] 9.5 Update existing registry adapter tests
+  - [x] 9.5 Update existing registry adapter tests
     - Fix `packages/api/src/adapters/dynamo/agent-registry.adapter.test.ts` to use `profiles` array instead of single profile fields
     - _Requirements: 7.1_
 
-- [ ] 10. API use-case layer wiring
-  - [~] 10.1 Update grant use-case to pass `PolicyAssemblyContext`
+- [x] 10. API use-case layer wiring
+  - [x] 10.1 Update grant use-case to pass `PolicyAssemblyContext`
     - In the relevant use-case file under `packages/api/src/use-cases/`, fetch profile ARNs from the registry adapter and pass as `PolicyAssemblyContext` to `assemblePolicy`
     - _Requirements: 6.2_
 
-- [~] 11. Final checkpoint
+- [x] 11. Final checkpoint
   - Ensure all tests pass across all packages (`pnpm test`), ask the user if questions arise.
 
 ## Notes

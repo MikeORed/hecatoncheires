@@ -46,9 +46,11 @@ function createMockDeps() {
     },
     agentRegistry: {
       getByAgentId: vi.fn().mockResolvedValue(null),
+      getByProfileArn: vi.fn().mockResolvedValue(null),
       getByProfileEntityId: vi.fn().mockResolvedValue(null),
       getByConfigName: vi.fn().mockResolvedValue(null),
       updateBreakerState: vi.fn().mockResolvedValue(undefined),
+      registerAgent: vi.fn().mockResolvedValue(undefined),
       listAll: vi.fn().mockResolvedValue([]),
     },
   };
@@ -79,10 +81,15 @@ describe('query-fleet-state.http handler', () => {
           agentId: '01912345-6789-7abc-8def-0123456789aa',
           configName: 'agent-a',
           roleName: 'hecaton-dev-agent-a-agent-role',
-          profileEntityId: 'profile-a',
-          profileArn: 'arn:profile-a',
+          profiles: [
+            {
+              profileArn: 'arn:profile-a',
+              profileEntityId: 'profile-a',
+              modelId: 'anthropic.claude-3',
+              label: 'primary',
+            },
+          ],
           agentType: 'AgentCore Managed',
-          modelId: 'anthropic.claude-3',
           guardrailId: 'gid-a',
           status: 'active',
           breakerState: 'armed',
@@ -91,10 +98,15 @@ describe('query-fleet-state.http handler', () => {
           agentId: '01912345-6789-7abc-8def-0123456789bb',
           configName: 'agent-b',
           roleName: 'hecaton-dev-agent-b-agent-role',
-          profileEntityId: 'profile-b',
-          profileArn: 'arn:profile-b',
+          profiles: [
+            {
+              profileArn: 'arn:profile-b',
+              profileEntityId: 'profile-b',
+              modelId: 'anthropic.claude-3',
+              label: 'primary',
+            },
+          ],
           agentType: 'OpenClaw',
-          modelId: 'anthropic.claude-3',
           guardrailId: 'gid-b',
           status: 'active',
           breakerState: 'armed',
@@ -128,13 +140,13 @@ describe('query-fleet-state.http handler', () => {
       expect(parsed.data[0].agentId).toBe('01912345-6789-7abc-8def-0123456789aa');
       expect(parsed.data[0].configName).toBe('agent-a');
       expect(parsed.data[0].agentType).toBe('AgentCore Managed');
-      expect(parsed.data[0].modelId).toBe('anthropic.claude-3');
+      expect(parsed.data[0].modelIds).toEqual(['anthropic.claude-3']);
       expect(parsed.data[0].status).toBe('active');
       expect(parsed.data[0].breakerState).toBe('armed');
       expect(parsed.data[0].grants).toHaveLength(1);
       expect(parsed.data[1].agentId).toBe('01912345-6789-7abc-8def-0123456789bb');
       expect(parsed.data[1].configName).toBe('agent-b');
-      expect(parsed.data[1].modelId).toBe('anthropic.claude-3');
+      expect(parsed.data[1].modelIds).toEqual(['anthropic.claude-3']);
       expect(parsed.data[1].grants).toHaveLength(1);
     });
 
@@ -145,10 +157,15 @@ describe('query-fleet-state.http handler', () => {
           agentId: '01912345-6789-7abc-8def-0123456789aa',
           configName: 'agent-a',
           roleName: 'hecaton-dev-agent-a-agent-role',
-          profileEntityId: 'profile-a',
-          profileArn: 'arn:profile-a',
+          profiles: [
+            {
+              profileArn: 'arn:profile-a',
+              profileEntityId: 'profile-a',
+              modelId: 'anthropic.claude-3',
+              label: 'primary',
+            },
+          ],
           agentType: 'AgentCore Managed',
-          modelId: 'anthropic.claude-3',
           guardrailId: 'gid-a',
           status: 'active',
           breakerState: 'armed',

@@ -33,8 +33,9 @@ export async function revokeShape(
   const remainingGrants = await deps.grantLedger.queryGrantsByConfig(input.configName);
 
   // 3. Assemble the operating policy from remaining grants
-  // TODO(task-10.1): Fetch profile ARNs from registry adapter
-  const context: PolicyAssemblyContext = { profileArns: [] };
+  const agentRecord = await deps.agentRegistry.getByConfigName(input.configName);
+  const profileArns = agentRecord?.profiles.map((p) => p.profileArn) ?? [];
+  const context: PolicyAssemblyContext = { profileArns };
   const policyDocument = assemblePolicy(remainingGrants, SHAPE_CATALOG, context);
 
   // 4. Write the assembled policy to IAM
