@@ -2,6 +2,10 @@
 
 # Hecatoncheires
 
+<p align="center">
+   <img src="assets/hecatoncheires-icon.svg" alt="Hecatoncheires" width="128" height="128">
+</p>
+
 > *The Hundred-Handed Ones: primordial giants who guarded the gates of Tartarus.*
 
 A CDK-deployed AWS governance and observability platform for autonomous AI agent fleets. Hecatoncheires enforces identity, cost, and capability boundaries on agents that use Amazon Bedrock, ensuring they cannot operate outside their granted permissions.
