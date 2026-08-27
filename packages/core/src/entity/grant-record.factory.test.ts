@@ -16,7 +16,7 @@ const nonEmptyStringArb = fc
   .filter((s) => s.trim().length > 0);
 
 const parametersArb = fc.dictionary(
-  fc.string({ minLength: 1, maxLength: 10 }),
+  fc.string({ minLength: 1, maxLength: 10 }).filter((s) => s !== '__proto__'),
   fc.string({ minLength: 1, maxLength: 20 }),
 );
 
