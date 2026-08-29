@@ -1,0 +1,103 @@
+---
+title: 'Why agent ops is a different problem'
+description: 'Agents carry choice, and choice is what conventional ops can not see. The first piece in a series on operating and observing agent fleets on AWS.'
+pubDate: 2026-08-29
+---
+
+The agent space is new and old at once. New in that the tools underneath us turn over weekly, so
+last month's right answer isn't right by today. Old in that everything we know about running
+production systems still applies, and those lessons, out of vogue as they are, are still plenty
+valuable.
+
+Adoption is all over the map. Some teams keep agents at arm's length. Others already run whole
+crews of them against their own codebases and systems. If you're somewhere in between, the space can look
+insurmountable, even though it's more the opposite. Getting started is nearly too easy. You can be three frameworks deep before you've decided what any of them are allowed to do, or push an agent to prod without knowing how to keep track of what it does. You've entered a triathlon because you can run, but you've not yet learned to swim.
+
+This series will hopefully help folk start swimming, operating and observing agents once
+they're loose in your account. I'll walk through a handful of the basics, using my own AWS project,
+[Hecatoncheires](/hecatoncheires/), as the running example. It's where the theory got worked out, and where the real lessons will keep coming as I build and run it.
+I'll follow each proofing pass by breaking things out into 'stealable' constructs, so before long there'll be pieces worth taking.
+
+## This looks like a monitoring problem
+
+Hand someone "govern our agents" and the reflex will be standard ops attached to the compute they
+run on, or the often-late feeds of your infra provider of choice. Those pieces make a mature
+platform, and they'll help when the system breaks or your usual bugs slide in. But agents have
+something these other systems don't: "choice."
+
+Agents run on a looser workflow contract. Even a tight, strongly
+opinionated agent with a small "choice" space carries far more latitude than a conventional system
+doing the same job, and you can't read it front to back to learn what it will decide, what it will
+decide with, or the order it will decide in.
+
+So the things you most need to see are those choices: what the inputs were, what it chose to do,
+what sequence it sat inside. Skip that and you're reading an old map, the kind
+marked "here be dragons" past the edge of what anyone charted. You find out what your agents did by
+the mess they left. Some data created or changed, and not a peep else.
+
+## What that changes about observability
+
+For an agent, the question worth answering is which path it picked, and whether that pick held up
+against what it knew at the time. That's where you aim the instruments. Its vocabulary of available
+actions is bounded and mostly tame; the open ground is how it strings those actions together and
+what it feeds them, so that's the ground to watch.
+
+In a tool-using agent that comes down to a handful of concrete things per step. What the agent took
+in. Which tools it had on the table. Which one it reached for, and with what input. What that tool
+handed back. Capture those and a run stops being a shrug and starts being a story you can read.
+
+Cost rides along on the same track. Token spend moves per invocation with the inputs and the route
+the agent takes, swinging far wider than a fixed workload doing the same job, so you read it live
+alongside everything else rather than tallying it at month end.
+
+Beyond what, "when" matters too, specifically the order those steps come
+in. Each choice can be sound on its own and the run can still go somewhere you'd never have signed
+off. This is the blind spot your per-call controls share. A guardrail evaluates the content of a
+call, IAM authorizes a single call, and both work one call at a time with no memory of the calls
+around them. A run of clean, permitted calls that adds up to a mess is exactly what neither can see.
+
+Picture an agent placing purchase orders. It places one after being asked to make sure the person has two wooden clogs on order. Then it reads its order list back and
+spots those clogs already sit on an earlier order, still pending release. To clear the
+double-up it cancels the order it just made and files a fresh one for only the products that were
+genuinely missing.
+
+Run that sequence past any per-call check and it sails through. Every action was permitted. No
+guardrail had harmful content to catch. The end state is correct. Yet a real order was placed and
+then cancelled along the way, and its side effects are already out in the world: inventory moved,
+a supplier notified, perhaps a charge raised and reversed. The cost lives in the path, not the
+final state, and a check that only reads the final state never sees it.
+
+The obvious fix is to make the agent read its order list first, and you should! But you still need
+something that watches across invocations, because that's the only altitude this class of problem
+is visible from.
+
+Thankfully, the payoff runs past safety. The same records and trail that catch a bad run tell you
+why the agent meandered down that wrong road, which is how the thing can iterate and improve
+instead of just getting fenced.
+
+## What you therefore have to capture
+
+If watching across invocations is the requirement, it pays to say concretely what that entails.
+Every later piece in this series answers to one of these.
+
+Which agent acted, resolved to a specific identity rather than a model or an account. What it
+chose, including what it passed over when it had alternatives. What input it carried. What sequence
+the choice sat inside. And whether the sequence itself, not any single call, crossed a line.
+
+One constraint threads through all of them. Each has to be answerable without knowing which kind of
+agent produced the call. Tie a requirement to one harness and you've tied your hands the day a
+second kind of agent shows up, and fleets always end up mixed. That property turns out to be
+load-bearing, and I'll come back to it.
+
+## The chain, and where it lands in AWS
+
+Capturing all that is one link in a longer chain, and the chain runs in order: identity, then
+visibility, then evaluation, then control. Break an early link and the later ones have nothing to stand on.
+
+AWS already ships most of what the chain needs. Application inference profiles give an agent an
+identity. Model invocation logging keeps the record of what it did. IAM via roles decides what it's allowed to
+do in your AWS estate. Each is useful on its own, and the interesting work, the part I've spent most of my time on, is
+in the wiring that turns three separate services into this chain.
+
+Next time I'll take these three apart one at a time, and show how the wiring between them is what
+turns three ordinary services into a way to keep your agents honest.
