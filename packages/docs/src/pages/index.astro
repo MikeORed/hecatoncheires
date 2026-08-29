@@ -4,15 +4,62 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 <BaseLayout title="Hecatoncheires">
   <h1>Hecatoncheires</h1>
-  <p>
-    Governance and observability for autonomous AI agent fleets on AWS.
+
+  <p class="lede">
+    A governance and observability plane for autonomous AI agent fleets on AWS. It gives agents
+    that call Amazon Bedrock an identity, watches what they do with it, and can pull their
+    permissions when they misbehave.
   </p>
+
+  <h2>The problem</h2>
+
   <p>
-    This site documents the design, reasoning, and implementation behind a platform that
-    enforces identity, cost, and capability boundaries on agents using Amazon Bedrock &mdash;
-    ensuring they cannot operate outside their granted permissions.
+    An autonomous agent, with no obstructive human in the loop, acts faster than a person can
+    review and decides its own next step. Conventional systems don't. You can read the code and
+    enumerate what a service will do; you cannot read an agent and enumerate what it will choose,
+    with what input, in what sequence, and that is where the cost overruns and the security
+    incidents live. An agent fleet needs a governance plane that runs at the agent's speed rather
+    than a human's.
   </p>
+
+  <h2>How it works, roughly</h2>
+
   <p>
-    Head over to the <a href="/hecatoncheires/blog/">blog</a> for the series.
+    The approach rests on three AWS primitives: inference profiles give each agent an identity,
+    invocation logging gives you a record of what it did, and IAM enforces what it's allowed to
+    do. A standardized framework shapes, grants, and revokes those permissions, and a circuit
+    breaker can revoke them wholesale when an agent runs away.
+  </p>
+
+  <h2>Any agent, as long as it's Bedrock</h2>
+
+  <p>
+    The core design commitment is agnostic agent ops. An agent's internals are its own business,
+    and I'm not about to track every popular framework's RSS feed just to keep this thing running.
+    The moment an agent reaches outside itself into your AWS estate, there's a common control
+    point, and it's IAM, which along with the other two primitives has no deeper concept of what
+    kind of agent it's governing, so the same machinery is built to govern an AWS-hosted agent
+    loop, an external agent assuming a role, or a container running custom code, without needing to
+    know the difference. We'll still label it for our own purposes, of course.
+  </p>
+
+  <h2>The name</h2>
+
+  <p>
+    The Hecatoncheires were three giants, each with a hundred hands, the Greek gods called on to
+    put down the Titans and then guard them, chained, in Tartarus. The platform is named for those
+    hundred hands, built to cradle and watch over a fleet of these modern Titans, our agents, and
+    to halt them when it has to. The name is deliberately a bit wacky. This isn't meant to be a
+    brand.
+  </p>
+
+  <h2>Status and the series</h2>
+
+  <p>
+    The basic constructs and structure are broadly code-complete; I'm now deploying, testing, and
+    verifying the theory, getting close to calling the core shareable before I either go deeper into
+    the build or make it easier for folks to sample the pieces they need. For more, look at the
+    <a href="/hecatoncheires/blog/">series</a> to the left or dig through the
+    <a href="https://github.com/MikeORed/hecatoncheires" target="_blank" rel="noopener noreferrer">repository</a>.
   </p>
 </BaseLayout>

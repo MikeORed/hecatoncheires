@@ -165,4 +165,8 @@ No business logic in handlers: handlers parse, delegate to use-cases, and format
 
 ## License
 
-Private.
+Private. All rights reserved for now.
+
+> Read along and follow the series, but please hold off on sampling the code for now. I expect
+> to open it up around mid-September 2026. I'll swap this notice out when it's ready, and then
+> it's yours.

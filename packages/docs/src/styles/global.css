@@ -149,6 +149,19 @@ body {
   margin-top: var(--spacing-sm);
 }
 
+/* Sampling notice (temporary, removed when the license opens) */
+.sidebar-notice {
+  margin: var(--spacing-md) 0 0 0;
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  background-color: var(--color-content-bg);
+  border-left: 3px solid var(--color-rope);
+  border-radius: 4px;
+}
+
 /* Content area */
 .content-area {
   flex: 1;
