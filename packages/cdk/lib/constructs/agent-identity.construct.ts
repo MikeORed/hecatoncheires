@@ -1,4 +1,3 @@
-import * as cdk from 'aws-cdk-lib';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 import { NamingGenerator } from '@hecaton/core';
@@ -15,8 +14,6 @@ export interface AgentIdentityProps {
   guardrailId: string;
   /** Required when agentType === 'openclaw'. The IAM principal ARN trusted to assume this role. */
   externalPrincipalArn?: string;
-  /** Standard tags to apply to resources. */
-  tags: Record<string, string>;
   /** Deployment stage — needed by NamingGenerator for role naming. */
   stage: string;
 }
@@ -200,11 +197,6 @@ export class AgentIdentity extends Construct {
         ],
       }),
     );
-
-    // --- Apply tags ---
-    for (const [key, value] of Object.entries(props.tags)) {
-      cdk.Tags.of(this).add(key, value);
-    }
 
     // --- Expose outputs ---
     this.outputs = {

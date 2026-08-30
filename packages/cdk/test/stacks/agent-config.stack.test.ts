@@ -266,13 +266,12 @@ describe('AgentConfigStack (via TestAgentConfigStack)', () => {
       });
     });
 
-    it('applies hecatoncheires:phase=1 tag to resources', () => {
+    it('applies hecatoncheires:agent-type to the Bedrock inference profile (value = test stack agentType)', () => {
+      // The default TestAgentConfigStack is created with agentType 'agentcore-managed'.
       defaultTemplate.hasResourceProperties('AWS::Bedrock::ApplicationInferenceProfile', {
-        Tags: Match.arrayWith([{ Key: `${naming.projectFullName}:phase`, Value: '1' }]),
-      });
-
-      defaultTemplate.hasResourceProperties('AWS::Bedrock::Guardrail', {
-        Tags: Match.arrayWith([{ Key: `${naming.projectFullName}:phase`, Value: '1' }]),
+        Tags: Match.arrayWith([
+          { Key: `${naming.projectFullName}:agent-type`, Value: 'agentcore-managed' },
+        ]),
       });
     });
 

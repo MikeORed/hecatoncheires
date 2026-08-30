@@ -12,6 +12,7 @@ import {
 } from '../schemas/index.js';
 
 export type AgentConfiguration = z.infer<typeof AgentConfigurationSchema>;
+export type AgentType = AgentConfiguration['agentType'];
 export type ModelBinding = z.infer<typeof ModelBindingSchema>;
 export type ModelBindingThresholds = z.infer<typeof ModelBindingThresholdsSchema>;
 export type RuntimeTunables = z.infer<typeof RuntimeTunablesSchema>;

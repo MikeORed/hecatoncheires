@@ -323,11 +323,7 @@ export class SharedInfraStack extends cdk.Stack {
     // --- AppConfig Application and Environment ---
     const appConfigApp = new appconfig.CfnApplication(this, 'AppConfigApplication', {
       name: naming.appConfigApplicationName(),
-      tags: [
-        { key: `${naming.projectFullName}:managed`, value: 'true' },
-        { key: `${naming.projectFullName}:stage`, value: stage },
-        { key: `${naming.projectFullName}:phase`, value: '1' },
-      ],
+      tags: naming.sharedTagsToCfn(),
     });
 
     const appConfigEnv = new appconfig.CfnEnvironment(this, 'AppConfigEnvironment', {
@@ -464,10 +460,11 @@ export class SharedInfraStack extends cdk.Stack {
     // --- Default guardrail config (typed data, not an AWS resource) ---
     this.defaultGuardrailConfig = DEFAULT_GUARDRAIL_CONFIG;
 
-    // --- Standard tags ---
-    cdk.Tags.of(this).add(`${naming.projectFullName}:managed`, 'true');
-    cdk.Tags.of(this).add(`${naming.projectFullName}:stage`, stage);
-    cdk.Tags.of(this).add(`${naming.projectFullName}:phase`, '1');
+    // --- Standard tags (shared set; propagates to nested resources) ---
+    const sharedTags = naming.sharedTags();
+    for (const [key, value] of Object.entries(sharedTags)) {
+      cdk.Tags.of(this).add(key, value);
+    }
 
     // --- CfnOutputs for cross-stack consumption ---
     new cdk.CfnOutput(this, 'OpsBusArn', {

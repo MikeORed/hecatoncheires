@@ -99,12 +99,6 @@ export class AgentBusChannel extends Construct {
       'sqs:GetQueueAttributes',
     );
 
-    // 8. Apply tags
-    const tags = naming.tags(props.configName, { phase: '1' });
-    for (const [key, value] of Object.entries(tags)) {
-      cdk.Tags.of(this).add(key, value);
-    }
-
     // Expose outputs
     this.outputs = { signalsQueue, deadLetterQueue: dlq, rule };
   }

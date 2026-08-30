@@ -1,0 +1,402 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1.1 Add `AgentType` type alias in core": [
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107681284
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107689013
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107844484
+      }
+    ],
+    "1.2 Refactor `NamingGenerator` tag helpers in `packages/core/src/constants/naming.ts`": [
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107681325
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107847760
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107937412
+      }
+    ],
+    "1.3 Update `naming.test.ts` unit assertions": [
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107681367
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107942734
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108060374
+      }
+    ],
+    "1.4 Write property test: Agent tag set content": [
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107681405
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107943685
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108061329
+      }
+    ],
+    "1.5 Write property test: Shared tag set content and exclusions": [
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107681459
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107945080
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108062728
+      }
+    ],
+    "1.6 Write property test: No phase key emitted": [
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107681493
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107946073
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108063714
+      }
+    ],
+    "1.7 Write property test: Agent CFN round-trip": [
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107681521
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107947485
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108065080
+      }
+    ],
+    "1.8 Write property test: Shared CFN round-trip": [
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107681553
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107948231
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108065822
+      }
+    ],
+    "2. Checkpoint - Core builds and tests pass": [
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107681591
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108075216
+      }
+    ],
+    "3.1 Refactor `AgentConfigStack` (`packages/cdk/lib/stacks/agent-config.stack.ts`)": [
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107681637
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108082237
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108388258
+      }
+    ],
+    "3.2 Refactor `SharedInfraStack` (`packages/cdk/lib/stacks/shared-infra.stack.ts`)": [
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107681674
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108083683
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108389661
+      }
+    ],
+    "3.3 Refactor `AgentcoreManagedStack` (`packages/cdk/lib/stacks/agentcore-managed.stack.ts`)": [
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107681721
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108085085
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108391060
+      }
+    ],
+    "4.1 Refactor `AgentIdentity` (`packages/cdk/lib/constructs/agent-identity.construct.ts`)": [
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107681757
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108181997
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108386858
+      }
+    ],
+    "4.2 Refactor `AgentPolicyModulator` (`packages/cdk/lib/constructs/agent-policy-modulator.construct.ts`)": [
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107681792
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108086487
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108392572
+      }
+    ],
+    "4.3 Refactor `AgentBusChannel` (`packages/cdk/lib/constructs/agent-bus-channel.construct.ts`)": [
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107681830
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108087735
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108393583
+      }
+    ],
+    "5.1 Update `shared-infra.stack.test.ts` (`packages/cdk/test/stacks/shared-infra.stack.test.ts`)": [
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107681867
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108398764
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108505454
+      }
+    ],
+    "5.2 Update `agent-config.stack.test.ts` (`packages/cdk/test/stacks/agent-config.stack.test.ts`)": [
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107681903
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108400162
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108502589
+      }
+    ],
+    "5.3 Update `agentcore-managed.stack.test.ts` (`packages/cdk/test/stacks/agentcore-managed.stack.test.ts`)": [
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107681937
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108401619
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108506594
+      }
+    ],
+    "5.4 Update `agent-bus-channel.construct.test.ts` (`packages/cdk/test/constructs/agent-bus-channel.construct.test.ts`)": [
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107681971
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108403159
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108501143
+      }
+    ],
+    "5.5 Update `agent-identity.property.test.ts` (`packages/cdk/test/constructs/agent-identity.property.test.ts`)": [
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107682007
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108404110
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108505018
+      }
+    ],
+    "6. Update steering/structure doc (`.kiro/steering/structure.md`)": [
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107682042
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108510380
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108545162
+      }
+    ],
+    "7. Final checkpoint - Workspace verification gate": [
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788107682091
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108548946
+      },
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108839453
+      }
+    ],
+    "1. Refactor core tag vocabulary": [
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108065860
+      }
+    ],
+    "3. Refactor CDK stacks to apply consolidated tag sets": [
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108391110
+      }
+    ],
+    "4. Remove redundant construct-level tag loops": [
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108393634
+      }
+    ],
+    "5. Update CDK tests to match new tag vocabulary": [
+      {
+        "executionId": "54e9ef23-1d23-419e-8c3a-f95ad7864a72",
+        "chatSessionId": "sess_d8704977-6b8d-4edc-a929-1f430c7ad63a",
+        "timestamp": 1788108506634
+      }
+    ]
+  }
+}

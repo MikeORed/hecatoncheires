@@ -2,11 +2,17 @@
 // Feature: core-foundation, Property 11: Naming generator rejects empty or whitespace-only stage
 // Feature: phase1-infra-completion, Property 1: NamingGenerator methods produce stage-embedded, pattern-conforming names
 // Feature: phase1-infra-completion, Property 2: NamingGenerator methods produce unique names across different methods
+// Feature: tag-consolidation, Property 1: Agent tag set content
+// Feature: tag-consolidation, Property 2: Shared tag set content and exclusions
+// Feature: tag-consolidation, Property 3: No phase key emitted
+// Feature: tag-consolidation, Property 4: Agent CFN round-trip
+// Feature: tag-consolidation, Property 5: Shared CFN round-trip
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { NamingGenerator } from './naming.js';
 import { ValidationError } from '../errors/index.js';
+import type { AgentType } from '../types/index.js';
 
 /**
  * Generator for valid configNames matching ^[a-z][a-z0-9-]*[a-z0-9]$, 2–40 chars.
@@ -31,6 +37,15 @@ const validHandlerName = fc
  * Generator for purpose strings (non-empty).
  */
 const validPurpose = fc.string({ minLength: 1 }).filter((s) => s.trim().length > 0);
+
+/**
+ * Generator for valid AgentType enum values.
+ */
+const validAgentType = fc.constantFrom<AgentType>(
+  'agentcore-managed',
+  'openclaw',
+  'agentcore-runtime',
+);
 
 describe('NamingGenerator property tests', () => {
   // **Validates: Requirements 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.8, 7.9, 7.10, 7.11, 7.12, 7.13, 7.14, 7.15**
@@ -188,18 +203,6 @@ describe('NamingGenerator property tests', () => {
       );
     });
 
-    it('tags includes required keys', () => {
-      fc.assert(
-        fc.property(validStage, validConfigName, (stage, configName) => {
-          const naming = new NamingGenerator(stage);
-          const result = naming.tags(configName);
-          expect(result['hecatoncheires:managed']).toBe('true');
-          expect(result['hecatoncheires:config']).toBe(configName);
-          expect(result['hecatoncheires:stage']).toBe(stage);
-        }),
-        { numRuns: 100 },
-      );
-    });
   });
 
   describe('Property 11: Naming generator rejects empty or whitespace-only stage', () => {
@@ -441,11 +444,11 @@ describe('Magic String Cleanup Properties', () => {
       );
     });
 
-    it('all tag keys contain projectFullName as substring', () => {
+    it('all agent tag keys contain projectFullName as substring', () => {
       fc.assert(
-        fc.property(validStage, validConfigName, (stage, configName) => {
+        fc.property(validStage, validConfigName, validAgentType, (stage, configName, agentType) => {
           const naming = new NamingGenerator(stage);
-          const tagsRecord = naming.tags(configName, { phase: '1', harnessType: 'test' });
+          const tagsRecord = naming.agentTags(configName, { agentType });
 
           for (const key of Object.keys(tagsRecord)) {
             expect(key).toContain(naming.projectFullName);
@@ -458,64 +461,116 @@ describe('Magic String Cleanup Properties', () => {
 });
 
 
-describe('Magic String Cleanup Properties', () => {
-  // **Validates: Requirements 1.3, 2.2, 2.3, 2.4**
+describe('Tag Consolidation Properties', () => {
+  const projectFullName = 'hecatoncheires';
 
-  describe('Property 2: tagsToCfn equivalence with tags', () => {
-    const optionalPhase = fc.option(
-      fc.string({ minLength: 1 }).filter((s) => s.trim().length > 0),
-      { nil: undefined },
-    );
-    const optionalHarnessType = fc.option(
-      fc.string({ minLength: 1 }).filter((s) => s.trim().length > 0),
-      { nil: undefined },
-    );
-
-    it('converting tagsToCfn array back to Record equals tags() output', () => {
+  describe('Feature: tag-consolidation, Property 1: Agent tag set content', () => {
+    // **Validates: Requirements 1.1, 1.9, 6.4, 6.5**
+    it('agentTags returns exactly the four agent keys with correct values', () => {
       fc.assert(
-        fc.property(
-          validStage,
-          validConfigName,
-          optionalPhase,
-          optionalHarnessType,
-          (stage, configName, phase, harnessType) => {
-            const naming = new NamingGenerator(stage);
-            const options = { phase, harnessType };
+        fc.property(validStage, validConfigName, validAgentType, (stage, configName, agentType) => {
+          const naming = new NamingGenerator(stage);
+          const result = naming.agentTags(configName, { agentType });
 
-            const tagsRecord = naming.tags(configName, options);
-            const cfnArray = naming.tagsToCfn(configName, options);
+          const keys = Object.keys(result).sort();
+          expect(keys).toEqual(
+            [
+              `${projectFullName}:managed`,
+              `${projectFullName}:stage`,
+              `${projectFullName}:config`,
+              `${projectFullName}:agent-type`,
+            ].sort(),
+          );
 
-            // Convert cfnArray back to Record
-            const reconstructed: Record<string, string> = {};
-            for (const { key, value } of cfnArray) {
-              reconstructed[key] = value;
-            }
-
-            expect(reconstructed).toEqual(tagsRecord);
-          },
-        ),
-        { numRuns: 200 },
+          expect(result[`${projectFullName}:managed`]).toBe('true');
+          expect(result[`${projectFullName}:stage`]).toBe(stage);
+          expect(result[`${projectFullName}:config`]).toBe(configName);
+          expect(result[`${projectFullName}:agent-type`]).toBe(agentType);
+        }),
+        { numRuns: 100 },
       );
     });
+  });
 
-    it('tagsToCfn produces one element per tag entry', () => {
+  describe('Feature: tag-consolidation, Property 2: Shared tag set content and exclusions', () => {
+    // **Validates: Requirements 1.2, 1.5, 6.1, 6.2, 6.4, 6.5**
+    it('sharedTags returns exactly managed and stage, never config or agent-type', () => {
       fc.assert(
-        fc.property(
-          validStage,
-          validConfigName,
-          optionalPhase,
-          optionalHarnessType,
-          (stage, configName, phase, harnessType) => {
-            const naming = new NamingGenerator(stage);
-            const options = { phase, harnessType };
+        fc.property(validStage, (stage) => {
+          const naming = new NamingGenerator(stage);
+          const result = naming.sharedTags();
 
-            const tagsRecord = naming.tags(configName, options);
-            const cfnArray = naming.tagsToCfn(configName, options);
+          const keys = Object.keys(result).sort();
+          expect(keys).toEqual(
+            [`${projectFullName}:managed`, `${projectFullName}:stage`].sort(),
+          );
 
-            expect(cfnArray.length).toBe(Object.keys(tagsRecord).length);
-          },
-        ),
-        { numRuns: 200 },
+          expect(result[`${projectFullName}:managed`]).toBe('true');
+          expect(result[`${projectFullName}:stage`]).toBe(stage);
+
+          expect(result).not.toHaveProperty(`${projectFullName}:config`);
+          expect(result).not.toHaveProperty(`${projectFullName}:agent-type`);
+        }),
+        { numRuns: 100 },
+      );
+    });
+  });
+
+  describe('Feature: tag-consolidation, Property 3: No phase key emitted', () => {
+    // **Validates: Requirements 1.6**
+    it('no tag method emits a hecatoncheires:phase key', () => {
+      fc.assert(
+        fc.property(validStage, validConfigName, validAgentType, (stage, configName, agentType) => {
+          const naming = new NamingGenerator(stage);
+          const phaseKey = `${projectFullName}:phase`;
+
+          const agentKeys = Object.keys(naming.agentTags(configName, { agentType }));
+          const sharedKeys = Object.keys(naming.sharedTags());
+          const agentCfnKeys = naming.agentTagsToCfn(configName, { agentType }).map((t) => t.key);
+          const sharedCfnKeys = naming.sharedTagsToCfn().map((t) => t.key);
+
+          expect(agentKeys).not.toContain(phaseKey);
+          expect(sharedKeys).not.toContain(phaseKey);
+          expect(agentCfnKeys).not.toContain(phaseKey);
+          expect(sharedCfnKeys).not.toContain(phaseKey);
+        }),
+        { numRuns: 100 },
+      );
+    });
+  });
+
+  describe('Feature: tag-consolidation, Property 4: Agent CFN round-trip', () => {
+    // **Validates: Requirements 1.3**
+    it('Object.fromEntries of agentTagsToCfn equals agentTags, with matching length', () => {
+      fc.assert(
+        fc.property(validStage, validConfigName, validAgentType, (stage, configName, agentType) => {
+          const naming = new NamingGenerator(stage);
+          const record = naming.agentTags(configName, { agentType });
+          const cfnArray = naming.agentTagsToCfn(configName, { agentType });
+
+          const reconstructed = Object.fromEntries(cfnArray.map(({ key, value }) => [key, value]));
+          expect(reconstructed).toEqual(record);
+          expect(cfnArray.length).toBe(Object.keys(record).length);
+        }),
+        { numRuns: 100 },
+      );
+    });
+  });
+
+  describe('Feature: tag-consolidation, Property 5: Shared CFN round-trip', () => {
+    // **Validates: Requirements 1.4**
+    it('Object.fromEntries of sharedTagsToCfn equals sharedTags, with matching length', () => {
+      fc.assert(
+        fc.property(validStage, (stage) => {
+          const naming = new NamingGenerator(stage);
+          const record = naming.sharedTags();
+          const cfnArray = naming.sharedTagsToCfn();
+
+          const reconstructed = Object.fromEntries(cfnArray.map(({ key, value }) => [key, value]));
+          expect(reconstructed).toEqual(record);
+          expect(cfnArray.length).toBe(Object.keys(record).length);
+        }),
+        { numRuns: 100 },
       );
     });
   });

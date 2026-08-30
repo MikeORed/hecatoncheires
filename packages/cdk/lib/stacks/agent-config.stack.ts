@@ -126,7 +126,7 @@ export abstract class AgentConfigStack extends cdk.Stack {
         {
           inferenceProfileName: naming.multiProfileName(configName, binding.label),
           modelSource: { copyFrom: binding.modelId },
-          tags: naming.tagsToCfn(configName, { phase: '1' }),
+          tags: naming.agentTagsToCfn(configName, { agentType }),
         },
       );
 
@@ -171,7 +171,7 @@ export abstract class AgentConfigStack extends cdk.Stack {
               })),
             }
           : undefined,
-      tags: naming.tagsToCfn(configName, { phase: '1' }),
+      tags: naming.agentTagsToCfn(configName, { agentType }),
     });
 
     const guardrailId = guardrail.attrGuardrailId;
@@ -184,7 +184,6 @@ export abstract class AgentConfigStack extends cdk.Stack {
       guardrailId,
       externalPrincipalArn,
       stage,
-      tags: naming.tags(configName, { phase: '1' }),
     });
 
     this.identity = agentIdentity.outputs;
@@ -223,7 +222,7 @@ export abstract class AgentConfigStack extends cdk.Stack {
       applicationId: sharedInfra.appConfigAppId,
       name: naming.appConfigProfileName(configName),
       locationUri: 'hosted',
-      tags: naming.tagsToCfn(configName, { phase: '1' }),
+      tags: naming.agentTagsToCfn(configName, { agentType }),
     });
 
     const tunablesContent = JSON.stringify({
@@ -267,7 +266,7 @@ export abstract class AgentConfigStack extends cdk.Stack {
         growthFactor: strategyConfig.growthFactor,
         finalBakeTimeInMinutes: strategyConfig.finalBakeTimeInMinutes,
         replicateTo: 'NONE',
-        tags: naming.tagsToCfn(configName, { phase: '1' }),
+        tags: naming.agentTagsToCfn(configName, { agentType }),
       },
     );
 
@@ -277,14 +276,14 @@ export abstract class AgentConfigStack extends cdk.Stack {
       configurationProfileId: appConfigProfile.ref,
       configurationVersion: hostedConfigVersion.ref,
       deploymentStrategyId: deploymentStrategy.ref,
-      tags: naming.tagsToCfn(configName, { phase: '1' }),
+      tags: naming.agentTagsToCfn(configName, { agentType }),
     });
 
-    // --- 9. Apply standard tags ---
-    cdk.Tags.of(this).add(`${naming.projectFullName}:managed`, 'true');
-    cdk.Tags.of(this).add(`${naming.projectFullName}:config`, configName);
-    cdk.Tags.of(this).add(`${naming.projectFullName}:stage`, stage);
-    cdk.Tags.of(this).add(`${naming.projectFullName}:phase`, '1');
+    // --- 9. Apply standard tags (stack scope; propagates to nested resources) ---
+    const agentTags = naming.agentTags(configName, { agentType });
+    for (const [key, value] of Object.entries(agentTags)) {
+      cdk.Tags.of(this).add(key, value);
+    }
   }
 
   /**

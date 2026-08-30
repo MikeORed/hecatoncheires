@@ -143,18 +143,9 @@ describe('SharedInfraStack', () => {
       });
     });
 
-    it('applies hecatoncheires:phase tag to DynamoDB table', () => {
-      template.hasResourceProperties('AWS::DynamoDB::Table', {
-        Tags: Match.arrayWith([
-          { Key: `${naming.projectFullName}:phase`, Value: '1' },
-        ]),
-      });
-    });
-
-    it('applies all standard tags to SNS topic', () => {
+    it('applies all shared tags to SNS topic', () => {
       const expectedTags = [
         { Key: `${naming.projectFullName}:managed`, Value: 'true' },
-        { Key: `${naming.projectFullName}:phase`, Value: '1' },
         { Key: `${naming.projectFullName}:stage`, Value: 'test' },
       ];
 
@@ -163,10 +154,9 @@ describe('SharedInfraStack', () => {
       });
     });
 
-    it('applies all standard tags to DynamoDB table', () => {
+    it('applies all shared tags to DynamoDB table', () => {
       const expectedTags = [
         { Key: `${naming.projectFullName}:managed`, Value: 'true' },
-        { Key: `${naming.projectFullName}:phase`, Value: '1' },
         { Key: `${naming.projectFullName}:stage`, Value: 'test' },
       ];
 
@@ -179,9 +169,42 @@ describe('SharedInfraStack', () => {
       template.hasResourceProperties('AWS::Events::EventBus', {
         Tags: Match.arrayWith([
           { Key: `${naming.projectFullName}:managed`, Value: 'true' },
-          { Key: `${naming.projectFullName}:phase`, Value: '1' },
           { Key: `${naming.projectFullName}:stage`, Value: 'test' },
         ]),
+      });
+    });
+
+    it('does not apply hecatoncheires:config or hecatoncheires:agent-type to EventBridge bus', () => {
+      template.hasResourceProperties('AWS::Events::EventBus', {
+        Tags: Match.not(
+          Match.arrayWith([
+            Match.objectLike({ Key: `${naming.projectFullName}:config` }),
+          ]),
+        ),
+      });
+      template.hasResourceProperties('AWS::Events::EventBus', {
+        Tags: Match.not(
+          Match.arrayWith([
+            Match.objectLike({ Key: `${naming.projectFullName}:agent-type` }),
+          ]),
+        ),
+      });
+    });
+
+    it('does not apply hecatoncheires:config or hecatoncheires:agent-type to DynamoDB tables', () => {
+      template.hasResourceProperties('AWS::DynamoDB::Table', {
+        Tags: Match.not(
+          Match.arrayWith([
+            Match.objectLike({ Key: `${naming.projectFullName}:config` }),
+          ]),
+        ),
+      });
+      template.hasResourceProperties('AWS::DynamoDB::Table', {
+        Tags: Match.not(
+          Match.arrayWith([
+            Match.objectLike({ Key: `${naming.projectFullName}:agent-type` }),
+          ]),
+        ),
       });
     });
   });
@@ -506,12 +529,29 @@ describe('SharedInfraStack', () => {
       });
     });
 
-    it('applies standard tags to AppConfig Application', () => {
+    it('applies shared tags to AppConfig Application', () => {
       template.hasResourceProperties('AWS::AppConfig::Application', {
         Tags: Match.arrayWith([
           { Key: `${naming.projectFullName}:managed`, Value: 'true' },
           { Key: `${naming.projectFullName}:stage`, Value: 'test' },
         ]),
+      });
+    });
+
+    it('does not apply hecatoncheires:config or hecatoncheires:agent-type to AppConfig Application', () => {
+      template.hasResourceProperties('AWS::AppConfig::Application', {
+        Tags: Match.not(
+          Match.arrayWith([
+            Match.objectLike({ Key: `${naming.projectFullName}:config` }),
+          ]),
+        ),
+      });
+      template.hasResourceProperties('AWS::AppConfig::Application', {
+        Tags: Match.not(
+          Match.arrayWith([
+            Match.objectLike({ Key: `${naming.projectFullName}:agent-type` }),
+          ]),
+        ),
       });
     });
 

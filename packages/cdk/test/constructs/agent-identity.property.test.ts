@@ -2,10 +2,7 @@ import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import * as cdk from 'aws-cdk-lib';
 import { Template } from 'aws-cdk-lib/assertions';
-import { NamingGenerator } from '@hecaton/core';
 import { AgentIdentity } from '../../lib/constructs/agent-identity.construct.js';
-
-const naming = new NamingGenerator('test');
 
 /** Arbitrary for valid configName values matching ConfigNamePattern: ^[a-z][a-z0-9-]*[a-z0-9]$ */
 const arbConfigName = fc
@@ -43,7 +40,6 @@ describe('Property 2: Trust policy correctness per agent type', () => {
       profileArns: ['arn:aws:bedrock:us-east-1:123456789012:inference-profile/test-profile'],
       guardrailId: 'test-guardrail-id',
       stage: 'test',
-      tags: { [`${naming.projectFullName}:managed`]: 'true' },
       externalPrincipalArn: props.externalPrincipalArn,
     });
     return Template.fromStack(stack);
@@ -146,7 +142,6 @@ describe('Property 6: Condition key enforcement on Bedrock actions', () => {
       profileArns: [props.profileArn],
       guardrailId: props.guardrailId,
       stage: 'test',
-      tags: { [`${naming.projectFullName}:managed`]: 'true' },
       externalPrincipalArn: props.externalPrincipalArn,
     });
     return Template.fromStack(stack);
@@ -267,7 +262,6 @@ describe('Property 5: Deny-by-default operating policy', () => {
       profileArns: ['arn:aws:bedrock:us-east-1:123456789012:inference-profile/test-profile'],
       guardrailId: 'test-guardrail-id',
       stage: 'test',
-      tags: { [`${naming.projectFullName}:managed`]: 'true' },
       externalPrincipalArn: props.externalPrincipalArn,
     });
     return Template.fromStack(stack);
@@ -352,7 +346,6 @@ describe('Property 8: S3 resource scoping', () => {
       profileArns: ['arn:aws:bedrock:us-east-1:123456789012:inference-profile/test-profile'],
       guardrailId: 'test-guardrail-id',
       stage: 'test',
-      tags: { [`${naming.projectFullName}:managed`]: 'true' },
       externalPrincipalArn: props.externalPrincipalArn,
     });
     return Template.fromStack(stack);

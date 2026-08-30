@@ -3,7 +3,6 @@ import * as cdk from 'aws-cdk-lib';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as events from 'aws-cdk-lib/aws-events';
 import { Template, Match } from 'aws-cdk-lib/assertions';
-import { NamingGenerator } from '@hecaton/core';
 import { AgentBusChannel } from '../../lib/constructs/agent-bus-channel.construct.js';
 
 // ---------------------------------------------------------------------------
@@ -15,7 +14,6 @@ const TEST_CONFIG_NAME = 'sre-ops';
 const TEST_SIGNALS_BUS_ARN =
   'arn:aws:events:us-east-1:123456789012:event-bus/test-signals-bus';
 const TEST_SOURCE_NAMESPACE = 'hecatoncheires.signals';
-const naming = new NamingGenerator(TEST_STAGE);
 
 function createTemplate(overrides?: {
   configName?: string;
@@ -224,48 +222,6 @@ describe('AgentBusChannel construct', () => {
             }),
           ]),
         },
-      });
-    });
-  });
-
-  describe('Tags', () => {
-    it('applies hecatoncheires:managed tag', () => {
-      const template = createTemplate();
-      template.hasResourceProperties('AWS::SQS::Queue', {
-        QueueName: 'hecaton-test-sre-ops-signals.fifo',
-        Tags: Match.arrayWith([
-          { Key: `${naming.projectFullName}:managed`, Value: 'true' },
-        ]),
-      });
-    });
-
-    it('applies hecatoncheires:config tag with configName', () => {
-      const template = createTemplate();
-      template.hasResourceProperties('AWS::SQS::Queue', {
-        QueueName: 'hecaton-test-sre-ops-signals.fifo',
-        Tags: Match.arrayWith([
-          { Key: `${naming.projectFullName}:config`, Value: 'sre-ops' },
-        ]),
-      });
-    });
-
-    it('applies hecatoncheires:stage tag', () => {
-      const template = createTemplate();
-      template.hasResourceProperties('AWS::SQS::Queue', {
-        QueueName: 'hecaton-test-sre-ops-signals.fifo',
-        Tags: Match.arrayWith([
-          { Key: `${naming.projectFullName}:stage`, Value: 'test' },
-        ]),
-      });
-    });
-
-    it('applies hecatoncheires:phase tag', () => {
-      const template = createTemplate();
-      template.hasResourceProperties('AWS::SQS::Queue', {
-        QueueName: 'hecaton-test-sre-ops-signals.fifo',
-        Tags: Match.arrayWith([
-          { Key: `${naming.projectFullName}:phase`, Value: '1' },
-        ]),
       });
     });
   });

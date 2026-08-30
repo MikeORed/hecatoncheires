@@ -121,14 +121,13 @@ describe('AgentCoreManagedStack — CfnHarness resource creation', () => {
     });
   });
 
-  it('applies all five standard Hecatoncheires tags', () => {
+  it('applies all four standard Hecatoncheires agent tags', () => {
     const naming = new NamingGenerator('test');
     const expectedTags = [
       { Key: `${naming.projectFullName}:managed`, Value: 'true' },
       { Key: `${naming.projectFullName}:config`, Value: 'test-managed' },
       { Key: `${naming.projectFullName}:stage`, Value: 'test' },
-      { Key: `${naming.projectFullName}:phase`, Value: '1' },
-      { Key: `${naming.projectFullName}:harness-type`, Value: 'agentcore-managed' },
+      { Key: `${naming.projectFullName}:agent-type`, Value: 'agentcore-managed' },
     ];
 
     for (const tag of expectedTags) {

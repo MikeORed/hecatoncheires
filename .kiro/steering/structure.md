@@ -95,7 +95,7 @@ test/
 | Stack | `Hecaton-{Stage}-{Purpose}` |
 | DynamoDB table | `hecaton-{stage}-grant-ledger` |
 
-All resources tagged: `hecatoncheires:managed`, `hecatoncheires:config`, `hecatoncheires:phase`, `hecatoncheires:harness-type`.
+All resources tagged: `hecatoncheires:managed`, `hecatoncheires:stage`, `hecatoncheires:config`, `hecatoncheires:agent-type` (shared infrastructure omits `config` and `agent-type`).
 
 ## Key Architecture Patterns
 

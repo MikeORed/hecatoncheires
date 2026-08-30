@@ -1,4 +1,10 @@
 import { ValidationError } from '../errors/index.js';
+import type { AgentType } from '../types/index.js';
+
+/** Options for agent-scoped tag helpers. */
+export interface AgentTagOptions {
+  agentType: AgentType;
+}
 
 /**
  * Deterministic resource name generator for all Hecatoncheires AWS resources.
@@ -153,37 +159,35 @@ export class NamingGenerator {
     return `/aws/bedrock/invocations/${this.stage}`;
   }
 
-  /**
-   * Converts tags() output into CloudFormation-compatible format.
-   * Returns { key, value }[] suitable for L1 construct `tags` props.
-   */
-  tagsToCfn(
-    configName: string,
-    options?: { phase?: string; harnessType?: string },
-  ): { key: string; value: string }[] {
-    const record = this.tags(configName, options);
-    return Object.entries(record).map(([key, value]) => ({ key, value }));
+  /** Full tag set for per-agent resources. */
+  agentTags(configName: string, opts: AgentTagOptions): Record<string, string> {
+    return {
+      ...this.sharedTags(),
+      [`${this.projectFullName}:config`]: configName,
+      [`${this.projectFullName}:agent-type`]: opts.agentType,
+    };
   }
 
-  /** Resource tags for Hecatoncheires-managed resources. */
-  tags(
-    configName: string,
-    options?: { phase?: string; harnessType?: string },
-  ): Record<string, string> {
-    const result: Record<string, string> = {
+  /** Reduced tag set for shared infrastructure resources. */
+  sharedTags(): Record<string, string> {
+    return {
       [`${this.projectFullName}:managed`]: 'true',
-      [`${this.projectFullName}:config`]: configName,
       [`${this.projectFullName}:stage`]: this.stage,
     };
+  }
 
-    if (options?.phase) {
-      result[`${this.projectFullName}:phase`] = options.phase;
-    }
+  /** Agent tag set as CloudFormation { key, value }[] for L1 `tags` props. */
+  agentTagsToCfn(configName: string, opts: AgentTagOptions): { key: string; value: string }[] {
+    return this.toCfn(this.agentTags(configName, opts));
+  }
 
-    if (options?.harnessType) {
-      result[`${this.projectFullName}:harness-type`] = options.harnessType;
-    }
+  /** Shared tag set as CloudFormation { key, value }[] for L1 `tags` props. */
+  sharedTagsToCfn(): { key: string; value: string }[] {
+    return this.toCfn(this.sharedTags());
+  }
 
-    return result;
+  /** Shared record → { key, value }[] mapper (private, avoids duplication). */
+  private toCfn(record: Record<string, string>): { key: string; value: string }[] {
+    return Object.entries(record).map(([key, value]) => ({ key, value }));
   }
 }

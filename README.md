@@ -163,6 +163,10 @@ Adapters own their DTOs: each I/O boundary has its own DTO folder with shapes an
 
 No business logic in handlers: handlers parse, delegate to use-cases, and format responses. AWS SDK calls live in adapters only.
 
+## Known TODOs
+
+Larger issues I notice mid-development but that aren't part of current work get captured in [TODO.md](TODO.md) so they can be picked up later. 
+
 ## License
 
 Private. All rights reserved for now.

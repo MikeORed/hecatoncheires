@@ -261,92 +261,96 @@ describe('NamingGenerator', () => {
     });
   });
 
-  describe('tagsToCfn', () => {
+  describe('agentTags', () => {
     const naming = new NamingGenerator('sit');
 
-    it('produces base tags as { key, value } array', () => {
-      const result = naming.tagsToCfn('my-agent');
-      expect(result).toEqual([
-        { key: 'hecatoncheires:managed', value: 'true' },
-        { key: 'hecatoncheires:config', value: 'my-agent' },
-        { key: 'hecatoncheires:stage', value: 'sit' },
-      ]);
-    });
-
-    it('includes phase when provided', () => {
-      const result = naming.tagsToCfn('my-agent', { phase: 'onboarding' });
-      expect(result).toContainEqual({ key: 'hecatoncheires:phase', value: 'onboarding' });
-    });
-
-    it('includes harnessType when provided', () => {
-      const result = naming.tagsToCfn('my-agent', { harnessType: 'AgentCore Managed' });
-      expect(result).toContainEqual({
-        key: 'hecatoncheires:harness-type',
-        value: 'AgentCore Managed',
+    it('produces the full agent tag set with exact keys and values', () => {
+      expect(naming.agentTags('my-agent', { agentType: 'agentcore-managed' })).toEqual({
+        'hecatoncheires:managed': 'true',
+        'hecatoncheires:stage': 'sit',
+        'hecatoncheires:config': 'my-agent',
+        'hecatoncheires:agent-type': 'agentcore-managed',
       });
     });
 
-    it('includes both phase and harnessType when provided', () => {
-      const result = naming.tagsToCfn('my-agent', {
-        phase: 'active',
-        harnessType: 'OpenClaw',
-      });
-      expect(result).toEqual([
-        { key: 'hecatoncheires:managed', value: 'true' },
-        { key: 'hecatoncheires:config', value: 'my-agent' },
-        { key: 'hecatoncheires:stage', value: 'sit' },
-        { key: 'hecatoncheires:phase', value: 'active' },
-        { key: 'hecatoncheires:harness-type', value: 'OpenClaw' },
-      ]);
-    });
-
-    it('produces same key-value pairs as tags() method', () => {
-      const options = { phase: '1', harnessType: 'AgentCore Managed' };
-      const cfnResult = naming.tagsToCfn('sre-ops', options);
-      const tagsResult = naming.tags('sre-ops', options);
-
-      // Convert cfn array back to record for comparison
-      const cfnAsRecord: Record<string, string> = {};
-      for (const { key, value } of cfnResult) {
-        cfnAsRecord[key] = value;
+    it('carries the raw agentType value unchanged for each enum value', () => {
+      for (const agentType of ['agentcore-managed', 'openclaw', 'agentcore-runtime'] as const) {
+        const result = naming.agentTags('sre-ops', { agentType });
+        expect(result['hecatoncheires:agent-type']).toBe(agentType);
       }
-      expect(cfnAsRecord).toEqual(tagsResult);
+    });
+
+    it('sets config to the provided configName and stage to the generator stage', () => {
+      const result = naming.agentTags('billing', { agentType: 'openclaw' });
+      expect(result['hecatoncheires:config']).toBe('billing');
+      expect(result['hecatoncheires:stage']).toBe('sit');
+      expect(result['hecatoncheires:managed']).toBe('true');
+    });
+
+    it('never emits a phase key', () => {
+      const result = naming.agentTags('my-agent', { agentType: 'agentcore-runtime' });
+      expect(result).not.toHaveProperty('hecatoncheires:phase');
     });
   });
 
-  describe('tags', () => {
+  describe('sharedTags', () => {
     const naming = new NamingGenerator('sit');
 
-    it('produces base tags without options', () => {
-      expect(naming.tags('my-agent')).toEqual({
+    it('produces only managed and stage keys', () => {
+      expect(naming.sharedTags()).toEqual({
         'hecatoncheires:managed': 'true',
-        'hecatoncheires:config': 'my-agent',
         'hecatoncheires:stage': 'sit',
       });
     });
 
-    it('includes phase when provided', () => {
-      const result = naming.tags('my-agent', { phase: 'onboarding' });
-      expect(result['hecatoncheires:phase']).toBe('onboarding');
+    it('omits config and agent-type keys', () => {
+      const result = naming.sharedTags();
+      expect(result).not.toHaveProperty('hecatoncheires:config');
+      expect(result).not.toHaveProperty('hecatoncheires:agent-type');
     });
 
-    it('includes harnessType when provided', () => {
-      const result = naming.tags('my-agent', { harnessType: 'AgentCore Managed' });
-      expect(result['hecatoncheires:harness-type']).toBe('AgentCore Managed');
+    it('never emits a phase key', () => {
+      expect(naming.sharedTags()).not.toHaveProperty('hecatoncheires:phase');
+    });
+  });
+
+  describe('agentTagsToCfn', () => {
+    const naming = new NamingGenerator('sit');
+
+    it('produces the agent tag set as a { key, value }[] array', () => {
+      const result = naming.agentTagsToCfn('my-agent', { agentType: 'agentcore-managed' });
+      expect(result).toEqual([
+        { key: 'hecatoncheires:managed', value: 'true' },
+        { key: 'hecatoncheires:stage', value: 'sit' },
+        { key: 'hecatoncheires:config', value: 'my-agent' },
+        { key: 'hecatoncheires:agent-type', value: 'agentcore-managed' },
+      ]);
     });
 
-    it('includes both phase and harnessType when provided', () => {
-      const result = naming.tags('my-agent', {
-        phase: 'active',
-        harnessType: 'OpenClaw',
-      });
-      expect(result).toEqual({
-        'hecatoncheires:managed': 'true',
-        'hecatoncheires:config': 'my-agent',
-        'hecatoncheires:stage': 'sit',
-        'hecatoncheires:phase': 'active',
-        'hecatoncheires:harness-type': 'OpenClaw',
-      });
+    it('round-trips to the agentTags record form', () => {
+      const opts = { agentType: 'openclaw' } as const;
+      const cfn = naming.agentTagsToCfn('sre-ops', opts);
+      const record = naming.agentTags('sre-ops', opts);
+      expect(Object.fromEntries(cfn.map(({ key, value }) => [key, value]))).toEqual(record);
+      expect(cfn).toHaveLength(Object.keys(record).length);
+    });
+  });
+
+  describe('sharedTagsToCfn', () => {
+    const naming = new NamingGenerator('sit');
+
+    it('produces the shared tag set as a { key, value }[] array', () => {
+      expect(naming.sharedTagsToCfn()).toEqual([
+        { key: 'hecatoncheires:managed', value: 'true' },
+        { key: 'hecatoncheires:stage', value: 'sit' },
+      ]);
+    });
+
+    it('round-trips to the sharedTags record form', () => {
+      const cfn = naming.sharedTagsToCfn();
+      const record = naming.sharedTags();
+      expect(Object.fromEntries(cfn.map(({ key, value }) => [key, value]))).toEqual(record);
+      expect(cfn).toHaveLength(Object.keys(record).length);
     });
   });
 });

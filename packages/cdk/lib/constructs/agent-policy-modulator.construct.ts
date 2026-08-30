@@ -198,12 +198,6 @@ export class AgentPolicyModulator extends Construct {
       exportName: `${cdk.Stack.of(this).stackName}-agentId`,
     });
 
-    // --- Tags ---
-    const tags = naming.tags(props.configName, { phase: '1' });
-    for (const [key, value] of Object.entries(tags)) {
-      cdk.Tags.of(this).add(key, value);
-    }
-
     // --- Outputs ---
     this.outputs = { perProfileAlarms, compositeAlarm };
   }

@@ -215,7 +215,7 @@ export class AgentCoreManagedStack extends AgentConfigStack {
       ...(tools && { tools }),
       ...(allowedTools && { allowedTools }),
       ...(skills && { skills }),
-      tags: naming.tagsToCfn(configName, { phase: '1', harnessType: 'agentcore-managed' }),
+      tags: naming.agentTagsToCfn(configName, { agentType: props.agentType }),
     });
 
     // Add DependsOn to the AgentIdentity role (ensures role is fully created before harness)
