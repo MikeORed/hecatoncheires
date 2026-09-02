@@ -7,6 +7,10 @@ const blog = defineCollection({
     description: z.string(),
     pubDate: z.coerce.date(),
     updatedDate: z.coerce.date().optional(),
+    // Short label for the sidebar/nav; falls back to `title` when absent.
+    navTitle: z.string().optional(),
+    // Explicit reading-order position; falls back to pubDate ordering when absent.
+    order: z.number().optional(),
   }),
 });
 

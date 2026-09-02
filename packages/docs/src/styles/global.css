@@ -138,6 +138,12 @@ body {
   cursor: default;
 }
 
+.sidebar-nav .nav-num {
+  font-family: var(--font-mono);
+  color: var(--color-text-muted);
+  margin-right: 0.15rem;
+}
+
 .sidebar-section-label {
   font-family: var(--font-heading);
   font-size: 0.75rem;

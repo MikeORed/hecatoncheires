@@ -7,9 +7,10 @@ interface Props {
 
 const { currentSlug } = Astro.props;
 
-const posts = (await getCollection('blog')).sort(
-  (a, b) => a.data.pubDate.valueOf() - b.data.pubDate.valueOf()
-);
+// Reading order: explicit `order` when set, otherwise publication date.
+const orderKey = (p: { data: { order?: number; pubDate: Date } }) =>
+  p.data.order ?? p.data.pubDate.valueOf();
+const posts = (await getCollection('blog')).sort((a, b) => orderKey(a) - orderKey(b));
 ---
 
 <aside class="sidebar">
@@ -24,12 +25,16 @@ const posts = (await getCollection('blog')).sort(
     <li>
       <span class="sidebar-section-label">Posts</span>
     </li>
-    {posts.map((post) => (
+    {posts.map((post, i) => (
       <li>
         {post.id === currentSlug ? (
-          <span class="nav-current">{post.data.title}</span>
+          <span class="nav-current">
+            <span class="nav-num">{i + 1}.</span> {post.data.navTitle ?? post.data.title}
+          </span>
         ) : (
-          <a href={`/hecatoncheires/blog/${post.id.replace(/\.\w+$/, '')}/`}>{post.data.title}</a>
+          <a href={`/hecatoncheires/blog/${post.id.replace(/\.\w+$/, '')}/`}>
+            <span class="nav-num">{i + 1}.</span> {post.data.navTitle ?? post.data.title}
+          </a>
         )}
       </li>
     ))}

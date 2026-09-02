@@ -13,10 +13,11 @@ export async function getStaticPaths() {
 const post = Astro.props;
 const { Content } = await render(post);
 
-// Ordered by publication date so prev/next follow reading order.
-const posts = (await getCollection('blog')).sort(
-  (a, b) => a.data.pubDate.valueOf() - b.data.pubDate.valueOf()
-);
+// Reading order: explicit `order` when set, otherwise publication date.
+// Kept in sync with Sidebar.astro so prev/next matches the sidebar sequence.
+const orderKey = (p: { data: { order?: number; pubDate: Date } }) =>
+  p.data.order ?? p.data.pubDate.valueOf();
+const posts = (await getCollection('blog')).sort((a, b) => orderKey(a) - orderKey(b));
 const currentIndex = posts.findIndex((p) => p.id === post.id);
 const prevPost = currentIndex > 0 ? posts[currentIndex - 1] : undefined;
 const nextPost =
