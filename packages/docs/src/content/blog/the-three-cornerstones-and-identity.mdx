@@ -1,0 +1,195 @@
+---
+title: 'The three cornerstones, and the first one: identity'
+description: 'Three AWS services none of which know what an agent is, and how the first of them, the application inference profile, becomes an agent identity once you keep it exclusive.'
+pubDate: 2026-09-01
+---
+
+Welcome to the first part of the real theory. To get us on the same page: today's date is
+September 1, 2026. I'll be sharing documents and references throughout, all the actual theory and
+eventually the code walkthroughs. But especially where the theory leans on AWS services, the
+Bedrock collection moves quick. I'll keep this current as much as makes sense, though I may slip.
+When you can, check the reference links at the foot and see whether the date above is a little too
+far down the road for your liking.
+
+Last time closed on a chain: identity, then visibility, then evaluation, then control, each link
+worthless without the next. This piece starts filling it in. There are three services that do the
+filling, none of them built with agents in mind, and the surprise is how little it takes to clip
+them together.
+
+## Three cornerstones
+
+From my poking around, three things carry the weight for a home-grown agent ops setup.
+
+The first, and the one we spend the rest of today on, is the application inference profile. That's
+our handle for identity. The second is model invocation logging, the telemetry substrate, which
+gets its own entry. The third is IAM, standing in as enforcement, a way to settle and hold
+behaviour by shaping roles and the policies inside them.
+
+Each does something useful on its own. IAM you already can't live without. But the reason to reach
+for all three is the chain. These three sit in exactly the shape it described. Identity is the
+profile, visibility is the logging, control is the IAM. Wire them and you have something; leave
+them apart and each one dead-ends. Identity with nothing watching is a cost tag. Watching with
+nothing judging is a dashboard nobody opens. Judging with nothing to act on is an alert nobody
+answers. The linking is what makes any one of them worth keeping, and the linking is cheap.
+
+One thing to file away as we go: none of these three has the faintest idea what an agent is. That
+turns out to be a feature, and a whole later piece, but plant it now.
+
+## What an application inference profile actually is
+
+If you've spent time in Bedrock you've met the system inference profiles already, the regional and
+global ones for the various models. The US profile for Sonnet 5, for instance, is
+`us.anthropic.claude-sonnet-5`. Think of them as routing in front of a real foundation model.
+A system profile lets the platform spread your calls across a region to balance load.
+
+An application inference profile is the one you make. You point it at a foundation model, or at
+one of those system profiles, and it wraps the thing. Now every call through your profile is
+attributed to it, which is what gives you cost by application, team, or workload. Tags are how you
+slice that: `agentName`, `department`, whatever dimension you care to report on.
+
+What these are for, first, is cost. That's the job AWS built them for, it's the default use, and
+it's a fine reason to reach for one on its own. But I noticed they do a second thing. The profile
+identifier doesn't only sit on your bill; it also lands in the operational record. One handle,
+showing up in two places, and that's most of what makes a good identity. Where it lands, and what
+that buys us, is next time's story.
+
+A note that catches everyone once: the tags do nothing until you activate them as cost allocation
+tags in the Billing console. That's manual, per account, outside your infrastructure code, and it
+doesn't backfill. Turn them on the day you start tagging.
+
+## It's not only profiles
+
+Am I saying only ever use application inference profiles? No. IAM principal attribution is right
+there too, and it gives you solid per-identity mapping across a tenant with no code at all, since
+the caller's identity is captured on every request. But for us it misses a step. At the Bedrock
+level, without a profile, there's no identity signal to attach to the call in the first place. And
+if you're over on the bedrock-mantle side there are Projects and Workspaces, which I won't get
+into here.
+
+Dig around AWS's own guidance and you'll see them nudge you toward Projects for cost tracking over
+application inference profiles. Fair advice, for a different endpoint than the one we live on.
+Projects and Workspaces are bedrock-mantle things. The agents we care about run on the
+bedrock-runtime methods, and on that endpoint the application inference profile is the resource
+that does this job. The harnesses in play here, agentcore managed, agentcore runtime, and the
+bespoke agents, all land on bedrock-runtime. So this isn't me declining the recommended path; the
+recommended path doesn't run through our neighbourhood. And since the same boundary shows up again
+when we get to logging, it's cleaner to say it once: this is a bedrock-runtime story, start to
+finish.
+
+## The rule: many-to-one, and exclusive
+
+Here's the recommendation, and I'd hold it as policy: keep the mapping of profiles to agents
+many-to-one. An agent can hold several profiles, but a profile answers to exactly one agent.
+Without that constraint, the whole idea of a profile as identity comes apart.
+
+Worth being concrete about what "comes apart" means, because it's two separate things, and both
+bite the moment a profile covers more than one agent.
+
+The first is attribution. Two agents share a profile, something happens, and you can't say which
+one did it. The handle points at a crowd, and a name that points at a crowd isn't a name.
+
+The second is heavier. Once you're using that profile to gate or revoke, which is where all of
+this is headed, pulling it doesn't stop the one agent you meant. It stops everyone behind it. You
+reach to rein in a single misbehaving agent and take out a whole department. Exclusivity keeps a
+name meaning one thing, and keeps a revoke landing on one target. That's the promotion from cost
+tag to identity.
+
+Now the fair objection. If every agent gets its own profiles, and a profile is model-specific,
+don't you drown in profiles? Yes. Go many-to-one across a real fleet and the count climbs fast, an
+agent times its model bindings, over and over. But that number only hurts if you're minting and
+minding these things by hand. Proliferation is a problem of loose, bespoke management, not of
+quantity. The fix is that a profile is never something a human makes. It's born with the agent.
+Today that birth is infrastructure code, spinning the profile up and naming it off the config and
+the binding. Tomorrow it's an onboarding flow doing the same as it pulls an agent into the control
+plane. Either way the profile is intrinsic to how the agent came to exist, so a thousand agents is
+a thousand profiles nobody ever touched.
+
+And the money question that usually follows, whether a profile per agent explodes your cost
+report: it doesn't. The profiles stay one-to-an-agent, and the tags do the aggregating. Tag each
+one by team, by department, by whatever cut you care about, and those tags roll up in Cost Explorer
+into the views you'd want. Identity and cost come off the same object: one profile per agent for
+the handle, grouped by tag for the spend.
+
+One limit before we move on. This native attribution only ever gives you aggregated dollars, never
+the cost of a single call. That ceiling is a later entry's problem.
+
+## What this looks like in code
+
+None of this is exotic in practice, which is the point. The agent config takes a `modelBindings`
+array, and the stack walks it, standing up one `CfnApplicationInferenceProfile` per binding:
+
+```typescript
+for (const binding of props.modelBindings) {
+  const profile = new bedrock.CfnApplicationInferenceProfile(
+    this,
+    `InferenceProfile-${binding.label}`,
+    {
+      inferenceProfileName: naming.multiProfileName(configName, binding.label),
+      modelSource: { copyFrom: binding.modelId },
+      tags: naming.agentTagsToCfn(configName, { agentType }),
+    },
+  );
+  // ...collect profile.attrInferenceProfileArn
+}
+```
+
+The name comes out of the config name and the binding label,
+`hecaton-{stage}-{configName}-{label}-profile`, so a profile is welded to one config and can't
+wander. And those tags are the four we manage on every agent resource: `hecatoncheires:managed`,
+`hecatoncheires:stage`, `hecatoncheires:config`, and `hecatoncheires:agent-type`. Activate the ones
+you want in Billing and that's your rollup.
+
+The many-to-one lives in a single condition key. When the role's permission boundary allows
+inference, it does so only for the profiles in this agent's own array:
+
+```typescript
+new iam.PolicyStatement({
+  sid: 'BedrockInference',
+  effect: iam.Effect.ALLOW,
+  actions: ['bedrock:InvokeModel', 'bedrock:InvokeModelWithResponseStream'],
+  resources: ['*'],
+  conditions: {
+    'ForAnyValue:StringEquals': {
+      'bedrock:InferenceProfileArn': profileArns,
+    },
+    StringEquals: {
+      'bedrock:GuardrailIdentifier': guardrailId,
+    },
+  },
+});
+```
+
+`ForAnyValue:StringEquals` against the profile array is the whole trick: the role may call through
+any of its own profiles and none of anyone else's. Two actions cover all the ways in, which catches
+people out. There's no `bedrock:Converse` action to grant; a Converse call authorizes under
+`bedrock:InvokeModel`, and ConverseStream under `bedrock:InvokeModelWithResponseStream`. Four API
+operations, two IAM actions. And it isn't left to trust. The stack's test pulls the synthesized
+condition apart and asserts the `ForAnyValue:StringEquals` on `bedrock:InferenceProfileArn` is
+there, so the claim is machine-checked rather than promised.
+
+## A name on a glove
+
+So where does that leave us? With a good nametag stitched onto a workglove. Because the label is
+there, we know whose glove it is, so when an action happens the profile tells us who did it. But a
+name on a glove doesn't tell you what the glove's been used for, and it doesn't tell you who the
+name actually means.
+
+There's a reason the profile can play identity at all, and it isn't the tag. It's that the
+identifier turns up in more than one place. Nothing in any of this, though, knows what kind of
+agent is wearing the glove, and that's deliberate. The profile is blind to agent type, which is
+exactly what lets the same handle attach to any harness without special-casing it.
+
+We'll tackle the "what" next, with the "who" to follow after that, when we get into model
+invocation logging and how it builds on this same foundation.
+
+## Reference links
+
+- [Track usage and costs in Amazon Bedrock](https://docs.aws.amazon.com/bedrock/latest/userguide/cost-management.html)
+- [IAM principal attribution](https://docs.aws.amazon.com/bedrock/latest/userguide/cost-mgmt-iam-principal-tracking.html)
+- [Application inference profiles](https://docs.aws.amazon.com/bedrock/latest/userguide/cost-mgmt-application-inference-profiles.html)
+- [Create an application inference profile](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-create.html)
+- [Projects](https://docs.aws.amazon.com/bedrock/latest/userguide/cost-mgmt-projects.html) and [Workspaces](https://docs.aws.amazon.com/bedrock/latest/userguide/cost-mgmt-workspaces.html)
+- [Per-request metadata tagging](https://docs.aws.amazon.com/bedrock/latest/userguide/cost-mgmt-request-metadata.html)
+- [Cost attribution best practices](https://docs.aws.amazon.com/bedrock/latest/userguide/cost-mgmt-best-practices.html)
+- [Cost management FAQ](https://docs.aws.amazon.com/bedrock/latest/userguide/cost-mgmt-faq.html)
+- [Claude Sonnet 5 model card](https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-anthropic-claude-sonnet-5.html)

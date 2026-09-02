@@ -12,6 +12,17 @@ export async function getStaticPaths() {
 
 const post = Astro.props;
 const { Content } = await render(post);
+
+// Ordered by publication date so prev/next follow reading order.
+const posts = (await getCollection('blog')).sort(
+  (a, b) => a.data.pubDate.valueOf() - b.data.pubDate.valueOf()
+);
+const currentIndex = posts.findIndex((p) => p.id === post.id);
+const prevPost = currentIndex > 0 ? posts[currentIndex - 1] : undefined;
+const nextPost =
+  currentIndex >= 0 && currentIndex < posts.length - 1 ? posts[currentIndex + 1] : undefined;
+const postHref = (p: (typeof posts)[number]) =>
+  `/hecatoncheires/blog/${p.id.replace(/\.\w+$/, '')}/`;
 ---
 
 <BaseLayout title={post.data.title} currentSlug={post.id}>
@@ -30,5 +41,25 @@ const { Content } = await render(post);
       )}
     </p>
     <Content />
+    {(prevPost || nextPost) && (
+      <nav class="post-nav" aria-label="Post navigation">
+        {prevPost ? (
+          <a class="post-nav-link post-nav-prev" href={postHref(prevPost)} rel="prev">
+            <span class="post-nav-label">&larr; Previous</span>
+            <span class="post-nav-title">{prevPost.data.title}</span>
+          </a>
+        ) : (
+          <span class="post-nav-spacer"></span>
+        )}
+        {nextPost ? (
+          <a class="post-nav-link post-nav-next" href={postHref(nextPost)} rel="next">
+            <span class="post-nav-label">Next &rarr;</span>
+            <span class="post-nav-title">{nextPost.data.title}</span>
+          </a>
+        ) : (
+          <span class="post-nav-spacer"></span>
+        )}
+      </nav>
+    )}
   </article>
 </BaseLayout>
