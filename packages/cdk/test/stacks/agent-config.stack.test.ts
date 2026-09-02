@@ -472,9 +472,7 @@ describe('AgentIdentity (via TestAgentConfigStack)', () => {
         return (
           Array.isArray(actions) &&
           actions.includes('bedrock:InvokeModel') &&
-          actions.includes('bedrock:InvokeModelWithResponseStream') &&
-          actions.includes('bedrock:Converse') &&
-          actions.includes('bedrock:ConverseStream')
+          actions.includes('bedrock:InvokeModelWithResponseStream')
         );
       });
       expect(bedrockInferenceStmt).toBeDefined();

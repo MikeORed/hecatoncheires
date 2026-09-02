@@ -16,12 +16,9 @@ export const SHAPE_CATALOG: readonly ShapeTemplate[] = Object.freeze([
     statements: [
       {
         Effect: 'Allow',
-        Action: [
-          'bedrock:InvokeModel',
-          'bedrock:InvokeModelWithResponseStream',
-          'bedrock:Converse',
-          'bedrock:ConverseStream',
-        ],
+        // Converse/ConverseStream are not IAM actions — they authorize under
+        // InvokeModel and InvokeModelWithResponseStream respectively.
+        Action: ['bedrock:InvokeModel', 'bedrock:InvokeModelWithResponseStream'],
         Resource: '*',
       },
     ],

@@ -2,6 +2,8 @@
 
 Things I've noticed while building that are big enough to write down but not part of the work in front of me. Captured here so they can be picked up later without derailing current tasks. Not a full backlog, just the stuff worth not forgetting.
 
+NOTE: Items listed here should still be considered 'part' of the project, they may not have a home yet.
+
 ## Account-level setup (not yet automated)
 
 Some features Hecatoncheires relies on are account/region-level settings, not stack resources. CDK can technically manage them, but they're singletons that outlive any single stack, so tearing down a stack shouldn't reach out and flip account-wide state. These are meant to be handled as documented manual steps plus checks, not as CDK resources. None of this is wired up yet.

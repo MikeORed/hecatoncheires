@@ -79,12 +79,9 @@ export class AgentIdentity extends Construct {
         new iam.PolicyStatement({
           sid: 'BedrockInference',
           effect: iam.Effect.ALLOW,
-          actions: [
-            'bedrock:InvokeModel',
-            'bedrock:InvokeModelWithResponseStream',
-            'bedrock:Converse',
-            'bedrock:ConverseStream',
-          ],
+          // Converse/ConverseStream are not IAM actions — they authorize under
+          // InvokeModel and InvokeModelWithResponseStream respectively.
+          actions: ['bedrock:InvokeModel', 'bedrock:InvokeModelWithResponseStream'],
           resources: ['*'],
           conditions: {
             'ForAnyValue:StringEquals': {

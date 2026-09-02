@@ -176,8 +176,6 @@ describe('Property 6: Condition key enforcement on Bedrock actions', () => {
           const bedrockInferenceActions = [
             'bedrock:InvokeModel',
             'bedrock:InvokeModelWithResponseStream',
-            'bedrock:Converse',
-            'bedrock:ConverseStream',
           ];
 
           for (const logicalId of policyLogicalIds) {

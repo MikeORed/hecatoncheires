@@ -9,13 +9,11 @@ describe('SHAPE_CATALOG', () => {
       expect(shape).toBeDefined();
     });
 
-    it('includes all four Bedrock inference actions in a single statement', () => {
+    it('includes both Bedrock inference IAM actions in a single statement', () => {
       const statement = shape!.statements[0];
       expect(statement.Action).toEqual([
         'bedrock:InvokeModel',
         'bedrock:InvokeModelWithResponseStream',
-        'bedrock:Converse',
-        'bedrock:ConverseStream',
       ]);
     });
 
