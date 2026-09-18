@@ -8,6 +8,7 @@ import * as targets from 'aws-cdk-lib/aws-events-targets';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as logs from 'aws-cdk-lib/aws-logs';
+import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as sns from 'aws-cdk-lib/aws-sns';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as cr from 'aws-cdk-lib/custom-resources';
@@ -408,6 +409,31 @@ export class SharedInfraStack extends cdk.Stack {
       }),
     );
 
+    // Overflow S3 destination: Bedrock delivers payloads too large for CloudWatch
+    // Logs (large prompts/completions) here instead of dropping them.
+    const bedrockOverflowBucket = new s3.Bucket(this, 'BedrockLogOverflowBucket', {
+      bucketName: naming.bedrockOverflowBucketName(this.account, this.region),
+      encryption: s3.BucketEncryption.S3_MANAGED,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      enforceSSL: true,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+    });
+
+    const bedrockOverflowKeyPrefix = 'bedrock-invocation-logs';
+
+    // Grant the Bedrock service principal write access to the overflow bucket,
+    // scoped to this account as the source to prevent the confused-deputy problem.
+    bedrockOverflowBucket.addToResourcePolicy(
+      new iam.PolicyStatement({
+        principals: [new iam.ServicePrincipal('bedrock.amazonaws.com')],
+        actions: ['s3:PutObject'],
+        resources: [`${bedrockOverflowBucket.bucketArn}/${bedrockOverflowKeyPrefix}/*`],
+        conditions: {
+          StringEquals: { 'aws:SourceAccount': this.account },
+        },
+      }),
+    );
+
     // Custom resource to enable Bedrock model invocation logging
     new cr.AwsCustomResource(this, 'BedrockLoggingConfig', {
       onCreate: {
@@ -418,7 +444,10 @@ export class SharedInfraStack extends cdk.Stack {
             cloudWatchConfig: {
               logGroupName: bedrockLogGroup.logGroupName,
               roleArn: undefined,
-              largeDataDeliveryS3Config: undefined,
+              largeDataDeliveryS3Config: {
+                bucketName: bedrockOverflowBucket.bucketName,
+                keyPrefix: bedrockOverflowKeyPrefix,
+              },
             },
             textDataDeliveryEnabled: true,
             imageDataDeliveryEnabled: false,
@@ -435,7 +464,10 @@ export class SharedInfraStack extends cdk.Stack {
             cloudWatchConfig: {
               logGroupName: bedrockLogGroup.logGroupName,
               roleArn: undefined,
-              largeDataDeliveryS3Config: undefined,
+              largeDataDeliveryS3Config: {
+                bucketName: bedrockOverflowBucket.bucketName,
+                keyPrefix: bedrockOverflowKeyPrefix,
+              },
             },
             textDataDeliveryEnabled: true,
             imageDataDeliveryEnabled: false,

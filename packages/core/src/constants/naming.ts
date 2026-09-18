@@ -159,6 +159,21 @@ export class NamingGenerator {
     return `/aws/bedrock/invocations/${this.stage}`;
   }
 
+  /**
+   * Overflow S3 destination for Bedrock large-payload log delivery.
+   * S3 bucket names are globally unique, so account and region are folded in.
+   * Pattern: hecaton-{stage}-bedrock-logs-overflow-{account}-{region}
+   */
+  bedrockOverflowBucketName(account: string, region: string): string {
+    if (!account || account.trim().length === 0) {
+      throw new ValidationError('Account must be a non-empty string');
+    }
+    if (!region || region.trim().length === 0) {
+      throw new ValidationError('Region must be a non-empty string');
+    }
+    return `${this.projectPrefix}-${this.stage}-bedrock-logs-overflow-${account}-${region}`;
+  }
+
   /** Full tag set for per-agent resources. */
   agentTags(configName: string, opts: AgentTagOptions): Record<string, string> {
     return {
