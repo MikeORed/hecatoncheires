@@ -1,0 +1,212 @@
+---
+title: 'The record lives elsewhere, model invocation logging'
+navTitle: 'Invocation logging'
+order: 3
+description: 'The second cornerstone, model invocation logging. What Bedrock captures for you, why you can not just roll your own, its same-account-and-region delivery constraint, and what a raw log can and can not answer.'
+pubDate: 2026-09-18
+---
+
+Last time we hung a nametag on a workglove. The application inference profile told us whose glove
+it was, so when something happened we could say who did it. A name on a glove is a fine thing to
+have. It just doesn't tell you what the glove touched.
+
+That'll be covered in today's piece. Identity was the "who." This is the "what," and the good news is that AWS can easily keep
+the record for you. **Model invocation logging** funnels every call your agents (and others) make to Bedrock, the
+prompts going in and the responses coming back, down into one place you can read, no gateway to
+stand up and no middleware to thread through every surface. The one catch is that it's off until you
+turn it on. We'll get to that.
+
+## Why you can't just roll your own
+
+Fair question before we lean on an AWS feature: why not reach for metrics you already have, or write
+your own logging? Well, we got a few reasons.
+
+You could stand up a standardized middleware and capture calls yourself. That works right up until
+you meet an agent you don't fully control. A Lambda layer covers the handlers you own; it does
+nothing for a harness someone else built and dropped in your account, and mixed fleets need to be assumed as the norm for an obs/ops platform,
+not the exception. To catch everything the other way, you'd put a proxy or a gateway in front of the
+Bedrock endpoints and route all your traffic through it, intercepting and capturing and forwarding,
+and now you're minding networking paths for what turns out to be a switch AWS already ships.
+
+Metrics won't stand in either. Bedrock will happily tell you a call happened, how many, and the
+tokens in and out. What it won't hold is what any one call actually said: the prompt, the response,
+the context you need to evaluate a run, act on it, or just debug the thing.
+
+None of this replaces your operational logging, to be clear. You should still be watching for
+functional failure the way you always have. This is the contextual layer that sits alongside that to give us more complete coverage.
+
+## The resource, and the keys to it
+
+So, the check I just wrote. Model invocation logging captures the full request and response across
+the `bedrock-runtime` methods, and it fills in almost the whole record for you. Which identity made
+the call. Which model, or, the part we care about, which application inference profile. The prompt,
+the attachments, the tokens counted on the way in and out. You supply almost nothing; Bedrock writes
+the rest.
+
+It reaches a little further than you'd expect, too, some calls that don't look
+like `bedrock-runtime` on their face still land there underneath. For instance, a Bedrock Knowledge Base
+`RetrieveAndGenerate` call goes to a different endpoint, `bedrock-agent-runtime`, which logging doesn't
+cover. But the service then fans out into ordinary `InvokeModel` calls on bedrock-runtime, one to
+embed your query and one to generate the answer, and those are logged like any other. So a call you
+never made directly shows up in the record anyway.
+
+Now the keys. The setting for these logs is off by default, and it's scoped per account and per operating region.
+Not a global switch you throw once. You turn it on in each account and each region you actually run
+inference in. The account that matters and the region that matters, one at a time.
+
+Fun thing though, since this is an account+region setting this isn't actually a 'resource' as such, so for hecatoncheires here my example implementation just uses a basic CloudFormation Custom resource to set, edit, etc the config for me so I can keep the details consistent and in CDK.
+
+```typescript
+// There is no native CloudFormation resource for the enablement,
+// so we call the API at deploy time.
+new cr.AwsCustomResource(this, 'BedrockLoggingConfig', {
+  onCreate: {
+    service: 'Bedrock',
+    action: 'putModelInvocationLoggingConfiguration',
+    parameters: {
+      loggingConfig: {
+        cloudWatchConfig: {
+          logGroupName: bedrockLogGroup.logGroupName,
+          largeDataDeliveryS3Config: {
+            bucketName: bedrockOverflowBucket.bucketName,
+            keyPrefix: bedrockOverflowKeyPrefix,
+          },
+        },
+        textDataDeliveryEnabled: true,
+        imageDataDeliveryEnabled: false,
+        embeddingDataDeliveryEnabled: false,
+      },
+    },
+    physicalResourceId: cr.PhysicalResourceId.of('bedrock-logging-config'),
+  },
+  // onUpdate mirrors onCreate.
+  policy: cr.AwsCustomResourcePolicy.fromStatements([
+    new iam.PolicyStatement({
+      actions: [
+        'bedrock:PutModelInvocationLoggingConfiguration',
+        'bedrock:GetModelInvocationLoggingConfiguration',
+      ],
+      resources: ['*'],
+    }),
+  ]),
+});
+```
+
+Our config here logs text, to
+CloudWatch, at the account level (in us-east-1 for my personal profile), wired once in shared infrastructure for the whole prospective fleet.
+
+There IS a data size limit in that config worth naming, inline bodies for cloudwatch log streams cap at
+~100 KB, and anything past that drops unless you've additionally pointed logging at an S3 destination to catch the
+overflow. Agent prompts and responses can easily run rather large, so ours delivers to CloudWatch with a dedicated S3
+overflow bucket wired underneath, and large payloads land there instead of going poof.
+
+With that in place, ours or your own, every call in the account and region is now on the record.
+
+## Where the logs can land
+
+I've said this in a few spots along this page, but I just wanted to call explicit attention to it here.
+
+> **Same account, same region.** Invocation logs deliver only to a destination (CloudWatch Logs, S3,
+> or both) in the same account and the same region you turned logging on in. There's no
+> cross-account or cross-region delivery to configure at all.
+>
+> So the moment you're running across more than one account, and any real fleet ends up there,
+> account B's logs can't be seen from where you watch until you stand up some forwarding and
+> aggregation of your own.
+
+Thankfully though multi-account/multi-region log aggregation while complex at times is a pretty solved problem, so if that happens to be a challenge you need to face you'll find your way, but I won't focus on it here.
+
+## The one blind spot
+
+As folk cynically say, there's such a thing as too good to be true, and our logging does have its own gap.
+
+This logging covers the bedrock-runtime endpoint. All four operations, Converse and ConverseStream and
+the two InvokeModel calls, and that includes the OpenAI-compatible Responses and Chat Completions
+APIs when you call them there. Our blind spot is those same APIs on the bedrock-mantle endpoint.
+Mantle isn't covered (yet, as of September 18th, 2026).
+
+The gap is an **endpoint**, *not* a set of APIs. (... please trust this is a natural negative comparison)
+
+That gap doesn't touch our agents, though. They call on runtime, so they're inside the logged
+surface by default; you'd only land in the blind spot by going to mantle on purpose. Good to know
+it's there, easy enough to stay out of.
+
+## What the raw log answers, and what it doesn't
+
+Now for the ~~cache~~ cash from that check. The following is an example of what you get from an
+invocation log. The identity shows up in the operational record, per call, in the `modelId` field,
+documented as "the model ID or inference profile ID used":
+
+```jsonc
+{
+  "schemaType": "ModelInvocationLog",
+  "schemaVersion": "1.0",
+  "timestamp": "2026-09-18T00:56:09Z",
+  "accountId": "REDACTED",
+  "region": "us-east-1",
+  "operation": "ConverseStream",
+  "modelId": "arn:aws:bedrock:us-east-1:REDACTED:application-inference-profile/0fmf5ktgihbl",
+  "input":  { "inputBodyJson": { /* prompt */ },        "inputTokenCount": 27 },
+  "output": { "outputBodyJson": { /* full response */ }, "outputTokenCount": 790 },
+  "identity": {
+    "arn": "arn:aws:iam::REDACTED:user/michael"
+  },
+  "inferenceRegion": "us-east-2"
+}
+```
+
+There's the profile ARN, sitting in `modelId` on every call. That's the cost-tag-to-identity
+promotion doing its first real work in the ops plane.
+
+A few cool additional things we can pull from just this record. It's a `ConverseStream` call, emphasis on "stream"-ing, and it logged as a single whole record with the full assembled response, not a pile
+of chunks to stitch back together. And notice the
+two region fields: `region` is where the call was made and delivered to logging, us-east-1;
+`inferenceRegion` is where the model actually ran, us-east-2, because the profile routed it across a
+region, allowing us to track which regions our invocations ended up traveling to in order to be served.
+
+The record hands you a second identity for free, too: `identity.arn`, the calling principal, giving us automatically at least two solid paths to track down the identity of our caller.
+
+Which raises the obvious question. If the Principal's ARN is right there, why lean on the profile at all? The
+ARN is the IAM principal, the actor AWS itself recognizes, but for us we'll use that as our fallback if the inference profile doesn't give us the identity detail we need, and for two reasons:
+1. A role can be assumed by many agents, so an ARN is
+shareable by construction; at real scale it's worse than shareable, it's forced, because IAM caps
+roles per account and a big enough fleet folds agents onto shared roles to stay under the ceiling.
+2. The principal on the record isn't always the agent you think. A service or a subprocess can make the
+call under its own identity. The KB fan-out from earlier is one decent example: those `InvokeModel`
+calls are made by the Knowledge Base service, so the principal on the record is the service, not
+your agent reaching through its profile.
+
+The profile doesn't have either problem. Earlier we forced it exclusive, one profile resolving to
+exactly one agent, and it sits on a different resource and a different quota, so it survives the
+squeeze that flattens the ARN. So the finer handle is the Bedrock resource id, and the ARN is the
+fallback, carrying the exact imprecision we warned about when we made exclusivity the rule.
+
+One more field the caller can set: Bedrock lets you attach
+your own `requestMetadata` to a call, and it lands in the log. But it's opt-in, it's capped, and
+it's unenforced; a call that leaves it off still succeeds. Which is precisely the thing a governance
+plane can't trust an agent to do for it. That's why we lean on the two handles Bedrock writes itself,
+not the one it lets the caller write.
+
+So the raw log gives us a great deal: input, output, tokens, timing, the model or profile, the
+principal. What it doesn't give us is sequence. Each line is an island. Nothing in the raw stream
+links one call to the next, tells us what order they came in, or gives us any deeper context. Something has to reassemble these islands into
+interactions and resolve each one back to an agent, and that something is an enrichment pipeline with
+its own build and its own article ahead. For now we've just named the two handles it leans on,
+profile first and the ARN behind it.
+
+## Where this leaves us
+
+The log is where visibility starts, not where it finishes. It's the foundation we can really build from, and we must build on it, since it can't directly see across calls.
+
+Next though is enforcement: IAM as the compliance floor for interacting with our resources, and the wiring that clips all three cornerstones
+together, in that order. Identity, then telemetry, then control.
+
+And one tiny thing worth a last mention, since it's a core principle we're trying to keep to. The
+logging never once asked what kind of agent made the call, it'll function in the same way for whatever agent, workflow, script, etc fires off invocation requests, finding ourselves still within brand & style agnostic space.
+
+## Reference links
+
+- [Monitor model invocation logging (CloudWatch and S3)](https://docs.aws.amazon.com/bedrock/latest/userguide/model-invocation-logging.html)
+- [Endpoints supported by Amazon Bedrock](https://docs.aws.amazon.com/bedrock/latest/userguide/endpoints.html)
+- [The bedrock-mantle endpoint](https://docs.aws.amazon.com/bedrock/latest/userguide/bedrock-mantle.html)
+- [Per-request metadata tagging](https://docs.aws.amazon.com/bedrock/latest/userguide/cost-mgmt-request-metadata.html)
