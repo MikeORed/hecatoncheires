@@ -434,8 +434,49 @@ export class SharedInfraStack extends cdk.Stack {
       }),
     );
 
+    // Delivery role Bedrock assumes to write invocation logs. Required by
+    // PutModelInvocationLoggingConfiguration whenever a largeDataDeliveryS3Config
+    // is present — the log-group/bucket resource policies alone are not enough.
+    // Trust is scoped to this account (and this log-config ARN) to prevent the
+    // confused-deputy problem.
+    const bedrockLoggingRole = new iam.Role(this, 'BedrockLoggingRole', {
+      assumedBy: new iam.ServicePrincipal('bedrock.amazonaws.com', {
+        conditions: {
+          StringEquals: { 'aws:SourceAccount': this.account },
+          ArnLike: {
+            'aws:SourceArn': `arn:aws:bedrock:${this.region}:${this.account}:*`,
+          },
+        },
+      }),
+    });
+
+    // Grant write access to the invocation log group. Bedrock validates the role
+    // by checking it can write to the delivery log stream (fixed name
+    // `aws/bedrock/modelinvocations`), so the resource must cover both the
+    // log-group ARN and its log streams.
+    bedrockLoggingRole.addToPolicy(
+      new iam.PolicyStatement({
+        actions: ['logs:CreateLogStream', 'logs:PutLogEvents'],
+        resources: [
+          bedrockLogGroup.logGroupArn,
+          `${bedrockLogGroup.logGroupArn}:log-stream:aws/bedrock/modelinvocations`,
+          `${bedrockLogGroup.logGroupArn}:*`,
+        ],
+      }),
+    );
+
+    bedrockLoggingRole.addToPolicy(
+      new iam.PolicyStatement({
+        actions: ['s3:PutObject'],
+        resources: [`${bedrockOverflowBucket.bucketArn}/${bedrockOverflowKeyPrefix}/*`],
+        conditions: {
+          StringEquals: { 'aws:SourceAccount': this.account },
+        },
+      }),
+    );
+
     // Custom resource to enable Bedrock model invocation logging
-    new cr.AwsCustomResource(this, 'BedrockLoggingConfig', {
+    const bedrockLoggingConfig = new cr.AwsCustomResource(this, 'BedrockLoggingConfig', {
       onCreate: {
         service: 'Bedrock',
         action: 'putModelInvocationLoggingConfiguration',
@@ -443,7 +484,7 @@ export class SharedInfraStack extends cdk.Stack {
           loggingConfig: {
             cloudWatchConfig: {
               logGroupName: bedrockLogGroup.logGroupName,
-              roleArn: undefined,
+              roleArn: bedrockLoggingRole.roleArn,
               largeDataDeliveryS3Config: {
                 bucketName: bedrockOverflowBucket.bucketName,
                 keyPrefix: bedrockOverflowKeyPrefix,
@@ -463,7 +504,7 @@ export class SharedInfraStack extends cdk.Stack {
           loggingConfig: {
             cloudWatchConfig: {
               logGroupName: bedrockLogGroup.logGroupName,
-              roleArn: undefined,
+              roleArn: bedrockLoggingRole.roleArn,
               largeDataDeliveryS3Config: {
                 bucketName: bedrockOverflowBucket.bucketName,
                 keyPrefix: bedrockOverflowKeyPrefix,
@@ -484,8 +525,23 @@ export class SharedInfraStack extends cdk.Stack {
           ],
           resources: ['*'],
         }),
+        // Required so the custom resource can hand the delivery role to Bedrock
+        // when configuring invocation logging.
+        new iam.PolicyStatement({
+          actions: ['iam:PassRole'],
+          resources: [bedrockLoggingRole.roleArn],
+          conditions: {
+            StringEquals: { 'iam:PassedToService': 'bedrock.amazonaws.com' },
+          },
+        }),
       ]),
     });
+
+    // Force the delivery role and its inline policy to fully settle before
+    // Bedrock validates them. Without this, the custom resource can call
+    // PutModelInvocationLoggingConfiguration before the role's policy has
+    // propagated, producing a "Failed to validate permissions" error.
+    bedrockLoggingConfig.node.addDependency(bedrockLoggingRole);
 
     this.bedrockLogGroup = bedrockLogGroup;
 

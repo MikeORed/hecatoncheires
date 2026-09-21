@@ -9,6 +9,7 @@
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
+    "@aws-sdk/client-bedrock-agentcore": "^3",
     "@aws-sdk/client-cloudwatch": "^3",
     "@aws-sdk/client-dynamodb": "^3",
     "@aws-sdk/client-eventbridge": "^3",

@@ -483,11 +483,19 @@ describe('AgentIdentity (via TestAgentConfigStack)', () => {
         Record<string, unknown>
       >;
       expect(condition).toBeDefined();
-      // Profile ARN uses ForAnyValue:StringEquals for multi-profile support
+      // Profile ARN uses ForAnyValue:StringEquals for multi-profile support —
+      // always enforced regardless of agent type.
       expect(condition['ForAnyValue:StringEquals']).toBeDefined();
       expect(condition['ForAnyValue:StringEquals']['bedrock:InferenceProfileArn']).toBeDefined();
-      expect(condition.StringEquals).toBeDefined();
-      expect(condition.StringEquals['bedrock:GuardrailIdentifier']).toBeDefined();
+      // This is an agentcore-managed agent, so the boundary must NOT carry the
+      // bedrock:GuardrailIdentifier condition on the inference statement — the
+      // managed harness makes internal InvokeModel calls without a guardrail id,
+      // which that condition would deny. Guardrail is enforced via the harness's
+      // request-level guardrailConfig instead.
+      const hasGuardrailCond =
+        condition.StringEquals !== undefined &&
+        condition.StringEquals['bedrock:GuardrailIdentifier'] !== undefined;
+      expect(hasGuardrailCond).toBe(false);
     });
 
     it('boundary includes ApplyGuardrail action with guardrail condition key', () => {

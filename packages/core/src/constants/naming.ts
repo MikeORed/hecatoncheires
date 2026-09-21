@@ -96,9 +96,16 @@ export class NamingGenerator {
     return `${this.projectPrefix}-${this.stage}-${configName}-${purpose}`;
   }
 
-  /** Pattern: hecaton-{stage}-{configName}-harness */
+  /**
+   * Pattern: hecaton_{stage}_{configName}_harness (underscore-delimited).
+   *
+   * The AWS::BedrockAgentCore::Harness HarnessName property must match
+   * ^[a-zA-Z][a-zA-Z0-9_]{0,39}$ — it allows only letters, digits, and
+   * underscores (no hyphens), must start with a letter, and is capped at
+   * 40 characters. Hyphens from configName are normalized to underscores.
+   */
   harnessName(configName: string): string {
-    return `${this.projectPrefix}-${this.stage}-${configName}-harness`;
+    return `${this.projectPrefix}_${this.stage}_${configName}_harness`.replace(/-/g, '_');
   }
 
   /** Pattern: Hecaton-{Stage}-{Purpose} (first letter of stage capitalized) */

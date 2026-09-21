@@ -73,9 +73,33 @@ export class AgentIdentity extends Construct {
     const naming = new NamingGenerator(stage);
 
     // --- 1. Permission Boundary (per-agent managed policy) ---
+    // The AgentCore managed harness (and runtime) invoke the model on the
+    // agent's behalf and make multiple internal InvokeModel calls, some of
+    // which do not carry a guardrail identifier. AWS documents that a role used
+    // by such managed-invoke APIs must NOT carry a `bedrock:GuardrailIdentifier`
+    // IAM condition, or those internal calls get AccessDenied even when the
+    // caller specifies a guardrail. So the guardrail condition is only enforced
+    // at the IAM ceiling for agent types that make single, caller-controlled
+    // InvokeModel calls (openclaw). For managed/runtime harnesses, guardrail
+    // enforcement rides on the harness's request-level guardrailConfig instead.
+    // See: https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-permissions-id.html
+    const enforceGuardrailCondition = agentType === 'openclaw';
+
+    const inferenceConditions: Record<string, Record<string, unknown>> = {
+      'ForAnyValue:StringEquals': {
+        'bedrock:InferenceProfileArn': profileArns,
+      },
+    };
+    if (enforceGuardrailCondition) {
+      inferenceConditions.StringEquals = {
+        'bedrock:GuardrailIdentifier': guardrailId,
+      };
+    }
+
     const permissionBoundary = new iam.ManagedPolicy(this, 'PermissionBoundary', {
       statements: [
-        // Allow Bedrock inference — conditioned on profile + guardrail binding
+        // Allow Bedrock inference — always bound to the assigned profile;
+        // guardrail condition added only for caller-controlled agent types.
         new iam.PolicyStatement({
           sid: 'BedrockInference',
           effect: iam.Effect.ALLOW,
@@ -83,14 +107,7 @@ export class AgentIdentity extends Construct {
           // InvokeModel and InvokeModelWithResponseStream respectively.
           actions: ['bedrock:InvokeModel', 'bedrock:InvokeModelWithResponseStream'],
           resources: ['*'],
-          conditions: {
-            'ForAnyValue:StringEquals': {
-              'bedrock:InferenceProfileArn': profileArns,
-            },
-            StringEquals: {
-              'bedrock:GuardrailIdentifier': guardrailId,
-            },
-          },
+          conditions: inferenceConditions,
         }),
         // Allow guardrail application
         new iam.PolicyStatement({
@@ -142,6 +159,23 @@ export class AgentIdentity extends Construct {
           actions: ['s3:GetObject', 's3:PutObject', 's3:ListBucket'],
           resources: ['arn:aws:s3:::hecaton-*', 'arn:aws:s3:::hecaton-*/*'],
         }),
+        // Allow AgentCore managed-memory operations for the harness's own
+        // memory. A managed harness persists/loads conversation state in
+        // AgentCore Memory every turn, so without this the harness cannot
+        // complete an invocation (observed: AccessDenied on ListEvents).
+        // Scoped to this stage's memory resources by naming convention.
+        new iam.PolicyStatement({
+          sid: 'AgentCoreMemory',
+          effect: iam.Effect.ALLOW,
+          actions: [
+            'bedrock-agentcore:CreateEvent',
+            'bedrock-agentcore:ListEvents',
+            'bedrock-agentcore:GetEvent',
+            'bedrock-agentcore:ListSessions',
+            'bedrock-agentcore:RetrieveMemories',
+          ],
+          resources: [`arn:aws:bedrock-agentcore:*:*:memory/${naming.projectPrefix}_${stage}_*`],
+        }),
       ],
     });
 
@@ -176,6 +210,19 @@ export class AgentIdentity extends Construct {
                 'aws:ResourceTag/hecatoncheires:managed': 'true',
               },
             },
+          }),
+          // AgentCore managed-memory floor for the harness (see boundary note).
+          new iam.PolicyStatement({
+            sid: 'AgentCoreMemory',
+            effect: iam.Effect.ALLOW,
+            actions: [
+              'bedrock-agentcore:CreateEvent',
+              'bedrock-agentcore:ListEvents',
+              'bedrock-agentcore:GetEvent',
+              'bedrock-agentcore:ListSessions',
+              'bedrock-agentcore:RetrieveMemories',
+            ],
+            resources: [`arn:aws:bedrock-agentcore:*:*:memory/${naming.projectPrefix}_${stage}_*`],
           }),
         ],
       }),

@@ -199,7 +199,7 @@ describe('Property 6: Condition key enforcement on Bedrock actions', () => {
               // Must have a Condition block
               expect(stmt.Condition).toBeDefined();
 
-              // Must have ForAnyValue:StringEquals condition for profile ARNs (multi-profile)
+              // The profile-ARN binding is ALWAYS enforced (the identity guarantee).
               expect(stmt.Condition!['ForAnyValue:StringEquals']).toBeDefined();
 
               const forAnyValueEquals = stmt.Condition!['ForAnyValue:StringEquals'];
@@ -214,14 +214,23 @@ describe('Property 6: Condition key enforcement on Bedrock actions', () => {
                 expect(profileArnValue).toBe(profileArn);
               }
 
-              // Must have StringEquals for guardrail condition
-              expect(stmt.Condition!.StringEquals).toBeDefined();
-              const stringEquals = stmt.Condition!.StringEquals;
-
-              // Must include bedrock:GuardrailIdentifier condition key
-              expect(stringEquals['bedrock:GuardrailIdentifier']).toBeDefined();
-              // Value must match the guardrailId passed as props
-              expect(stringEquals['bedrock:GuardrailIdentifier']).toBe(guardrailId);
+              // The guardrail IAM condition is enforced at the boundary ONLY for
+              // openclaw (caller-controlled single InvokeModel). Managed/runtime
+              // harnesses must NOT carry it — AWS documents it as incompatible
+              // with APIs that make internal InvokeModel calls, so the harness
+              // enforces the guardrail via request-level guardrailConfig instead.
+              if (agentType === 'openclaw') {
+                expect(stmt.Condition!.StringEquals).toBeDefined();
+                expect(stmt.Condition!.StringEquals['bedrock:GuardrailIdentifier']).toBe(
+                  guardrailId,
+                );
+              } else {
+                const stringEquals = stmt.Condition!.StringEquals;
+                const hasGuardrailCond =
+                  stringEquals !== undefined &&
+                  stringEquals['bedrock:GuardrailIdentifier'] !== undefined;
+                expect(hasGuardrailCond).toBe(false);
+              }
             }
           }
         },

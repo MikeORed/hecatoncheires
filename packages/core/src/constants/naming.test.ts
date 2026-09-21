@@ -72,8 +72,11 @@ describe('NamingGenerator', () => {
       );
     });
 
-    it('harnessName produces correct pattern', () => {
-      expect(naming.harnessName(configName)).toBe('hecaton-dev-sre-ops-harness');
+    it('harnessName produces underscore-delimited pattern (BedrockAgentCore constraint)', () => {
+      // HarnessName must match ^[a-zA-Z][a-zA-Z0-9_]{0,39}$ — no hyphens.
+      const name = naming.harnessName(configName);
+      expect(name).toBe('hecaton_dev_sre_ops_harness');
+      expect(name).toMatch(/^[a-zA-Z][a-zA-Z0-9_]{0,39}$/);
     });
 
     it('stackName capitalizes first letter of stage', () => {

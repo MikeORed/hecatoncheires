@@ -188,6 +188,12 @@ export class AgentPolicyModulator extends Construct {
         })),
         agentType: props.agentType,
         guardrailId: props.guardrailId,
+        // Bump when the registry-seed handler's write logic changes so
+        // CloudFormation re-invokes onUpdate (a code-only change to the handler
+        // does not otherwise change the custom resource's properties, so the
+        // seeded record would not be refreshed). v2: #META now carries the
+        // `profiles` List attribute the AgentRegistryAdapter reads back.
+        handlerVersion: '2',
       },
     });
 
