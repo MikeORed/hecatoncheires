@@ -71,3 +71,15 @@ Decision: In the agent registry table. The `AgentTelemetry` construct existed to
 Decided: 2026-08-24
 Code: `packages/api/src/adapters/dynamo/agent-registry.adapter.ts`
 Supersedes: The `AgentTelemetry` L3 construct, which the architecture document specified props for and which no file ever implemented.
+
+### Non-managed harness types are distributed as per-phase keystones
+
+Question: When do the OpenClaw and AgentCore Runtime harness types get built and validated, given that both carry setup cost outside this project (OpenClaw needs a running instance; Runtime needs a container, ECR, and an agent framework)?
+Decision: Distribute them across the phase timeline as keystones rather than clumping them at the end of Phase 1. Each phase closes by bringing one more agent type into whatever functionality the platform has reached: the AgentCore Managed harness closes Phase 1 (IAM governance), OpenClaw closes Phase 2 (telemetry), and AgentCore Runtime closes Phase 3 (hardening). A keystone proves the phase's general function and, at the same time, proves agnostic governance over a fleet more heterogeneous than the phase before it. The ordering runs cheapest external setup first, which lines up with increasing platform maturity.
+
+The keystone is the live deploy-and-verify against external infra, and that is the part gated by external setup and spread across phases. It is separate from the harness code. Each harness's stack subclass and seed config are cheap, in-project, and independent of that setup, so they can be written ahead of the keystone. The OpenClaw subclass is worth writing early on its own merit: its trust policy trusts a per-config external principal rather than `bedrock-agentcore.amazonaws.com`, which makes it the case that tells us whether the abstract `AgentConfigStack` base actually generalizes past the managed harness.
+
+This is not gated on enrichment. Enrichment is its own Phase 2 workstream (ops-bus consumers, dashboard); a harness type is not a prerequisite for it, and it is not a prerequisite for adding a harness type.
+Decided: 2026-09-21
+Code: `packages/cdk/lib/stacks/agent-config.stack.ts`, `packages/cdk/bin/app.ts` (skips any seed whose `agentType` is not `agentcore-managed`)
+Supersedes: The Phase 1 build-order step 13 in [architecture.md](./architecture.md) ("OpenClawHarness, then AgentCoreRuntimeHarness (lower priority)"), which sequenced both after Phase 1's deploy-and-verify as a single lower-priority tail rather than as per-phase keystones.

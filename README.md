@@ -53,11 +53,13 @@ A parallel workstream extends agents to participate as signal processors on a sh
 
 ## Agent harness types
 
-| Harness | Description | Build priority |
-|---------|-------------|----------------|
-| AgentCore Managed | Config-driven, AWS-hosted agent loop | 1st (primary test rig) |
-| OpenClaw | External agent assumes a governed role | 2nd (proves agent-agnostic governance) |
-| AgentCore Runtime | Container-based custom agent code | 3rd |
+Each harness type is the keystone of a phase: bringing it into the fleet is how that phase closes, proving governance over a fleet more heterogeneous than the phase before. See the keystone-sequencing decision in [decisions.md](./.initial-planning/decisions.md).
+
+| Harness | Description | Keystone for |
+|---------|-------------|--------------|
+| AgentCore Managed | Config-driven, AWS-hosted agent loop | Phase 1 (IAM governance) -- primary test rig |
+| OpenClaw | External agent assumes a governed role | Phase 2 (telemetry) -- proves agent-agnostic governance over a two-type fleet |
+| AgentCore Runtime | Container-based custom agent code | Phase 3 (hardening) -- three-type fleet |
 
 ## Governance layering
 

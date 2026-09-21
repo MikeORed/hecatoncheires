@@ -94,10 +94,11 @@ Decisions that closed after these lists were written are recorded in [decisions.
 - [ ] Identify AWS service limits that could constrain the design
 
 **Phase 1: Identity + Boundaries + Basic Safety**
-- [ ] `AgentTypeHarness` base construct
+
+> Harness types are distributed as per-phase keystones, not built as a block in Phase 1. The managed harness is Phase 1's keystone; OpenClaw closes Phase 2 and AgentCore Runtime closes Phase 3. What each later phase gates is the live validation against external infra, not the harness code — the stack subclass and seed for OpenClaw and Runtime are cheap and in-project and can be written ahead of their keystone. See the keystone-sequencing decision in [decisions.md](./decisions.md).
+
+- [ ] `AgentTypeHarness` base construct (must generalize past the managed case; the OpenClaw external-principal trust policy is the real test of this)
 - [ ] `AgentCoreManagedHarness` extension (primary test rig -- built first)
-- [ ] `OpenClawHarness` extension (proves agent-agnostic governance)
-- [ ] `AgentCoreRuntimeHarness` extension (container variant -- lower priority, can defer)
 - [ ] IAM roles with condition keys (must use assigned profile + guardrail)
 - [ ] Permission Boundaries on all agent roles
 - [ ] App Inference Profiles (one per config, tagged)
@@ -121,6 +122,7 @@ Decisions that closed after these lists were written are recorded in [decisions.
 - [ ] S3 log retention (lifecycle policy)
 - [ ] S3 log partitioning for Athena query (by date and config)
 - [ ] Additional SNS subscriptions (Slack, PagerDuty, webhook) on the ops-bus delivery rule
+- [ ] Keystone: bring OpenClaw into the fleet — deploy and verify an external agent under governance against a running OpenClaw instance, proving agent-agnostic governance across a two-type fleet
 
 **Phase 3: Advanced Control + Hardening**
 - [ ] Time-boxed capability grants with auto-revocation (grant ledger + expiry sweep)
@@ -131,6 +133,7 @@ Decisions that closed after these lists were written are recorded in [decisions.
 - [ ] Service limit documentation
 - [ ] Operational runbooks
 - [ ] Load testing / quota validation
+- [ ] Keystone: bring AgentCore Runtime into the fleet — deploy and verify container-based custom agent code under governance, proving agent-agnostic governance across a three-type fleet
 
 **Phase 4: Fleet Onboarding + Self-Service Provisioning (future, post-v1)**
 - [ ] Recipe registry: named templates per harness type with default configs

@@ -24,13 +24,15 @@ Source material: [diagrams.md](./diagrams.md) and [Hecatoncheires.md](./Hecatonc
 
 ## Harness development order
 
-Three agent type harnesses, built in the order that most efficiently proves governance concepts.
+Three agent type harnesses, distributed across the phase timeline as keystones. Each phase closes by bringing one more agent type into whatever functionality the platform has reached, so a phase boundary proves the phase's work and proves governance over a fleet more heterogeneous than the phase before. The order runs cheapest external setup first, which lines up with increasing platform maturity. See the keystone-sequencing decision in [decisions.md](./decisions.md).
 
-| Priority | Harness | What it proves | Setup cost |
+| Keystone for | Harness | What it proves | Setup cost |
 |---|---|---|---|
-| 1st | AgentCore Managed Harness | IAM governance, profile enforcement, guardrail binding, breakers, observability, deny-policy mechanism | Minimal. `CfnHarness` + role + `InvokeHarness`. |
-| 2nd | OpenClaw | Agent-agnostic governance (external agent, same IAM model), EventBridge channel | Medium. Running OpenClaw instance needed. |
-| 3rd | AgentCore Runtime | Custom agent code under governance | Higher. Container, ECR, agent framework. |
+| Phase 1 (IAM governance) | AgentCore Managed Harness | IAM governance, profile enforcement, guardrail binding, breakers, observability, deny-policy mechanism | Minimal. `CfnHarness` + role + `InvokeHarness`. |
+| Phase 2 (telemetry) | OpenClaw | Agent-agnostic governance (external agent, same IAM model) across a two-type fleet, EventBridge channel | Medium. Running OpenClaw instance needed. |
+| Phase 3 (hardening) | AgentCore Runtime | Custom agent code under governance across a three-type fleet | Higher. Container, ECR, agent framework. |
+
+The keystone is the live deploy-and-verify against external infra; that is the part gated by external setup and spread across phases. The harness code (stack subclass + seed config) is cheap and in-project, and can be written ahead of its keystone. The OpenClaw subclass is worth writing early: its per-config external-principal trust policy is the case that tells us whether the abstract `AgentConfigStack` base generalizes past the managed harness.
 
 ---
 
@@ -280,8 +282,9 @@ Build order:
 9. `packages/cdk` AgentCoreManagedHarness (composes + CfnHarness)
 10. First AgentConfigStack with a managed harness seed config
 11. `cdk synth` + assertion tests
-12. Deploy to test account, invoke harness, verify governance fires
-13. OpenClawHarness, then AgentCoreRuntimeHarness (lower priority)
+12. Deploy to test account, invoke harness, verify governance fires — this is Phase 1's keystone (the managed harness)
+
+The OpenClaw and AgentCore Runtime harnesses are not part of the Phase 1 build order. They are distributed as the keystones of Phase 2 and Phase 3 respectively; see the keystone-sequencing decision in [decisions.md](./decisions.md). Their harness code can be written ahead of those keystones, but their live validation is what closes each later phase.
 
 ---
 
