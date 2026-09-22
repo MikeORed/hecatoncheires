@@ -82,6 +82,9 @@ export abstract class AgentConfigStack extends cdk.Stack {
   /** The AgentPolicyModulator outputs — alarms exposed for cross-stack references. */
   readonly modulator: AgentPolicyModulatorOutputs;
 
+  /** The guardrail identifier bound to this agent (for harness guardrailConfig). */
+  readonly guardrailId: string;
+
   constructor(scope: Construct, id: string, props: AgentConfigStackProps) {
     super(scope, id, props);
 
@@ -120,12 +123,36 @@ export abstract class AgentConfigStack extends cdk.Stack {
         );
       }
 
+      // ModelSource.CopyFrom requires a full Bedrock ARN
+      // (inference-profile/... or foundation-model/...), not a bare model or
+      // profile ID. A seed modelId like "us.anthropic.claude-sonnet-4-...":
+      // - system/cross-region inference profile IDs (contain a ".") resolve to
+      //   an inference-profile ARN
+      // - bare foundation-model IDs resolve to a foundation-model ARN
+      // Values that are already ARNs are passed through unchanged.
+      const copyFrom = binding.modelId.startsWith('arn:')
+        ? binding.modelId
+        : cdk.Arn.format(
+            {
+              service: 'bedrock',
+              resource: binding.modelId.includes('.')
+                ? 'inference-profile'
+                : 'foundation-model',
+              resourceName: binding.modelId,
+              arnFormat: cdk.ArnFormat.SLASH_RESOURCE_NAME,
+              // Foundation-model ARNs are account-less; inference-profile ARNs
+              // are account-scoped.
+              account: binding.modelId.includes('.') ? this.account : '',
+            },
+            cdk.Stack.of(this),
+          );
+
       const profile = new bedrock.CfnApplicationInferenceProfile(
         this,
         `InferenceProfile-${binding.label}`,
         {
           inferenceProfileName: naming.multiProfileName(configName, binding.label),
-          modelSource: { copyFrom: binding.modelId },
+          modelSource: { copyFrom },
           tags: naming.agentTagsToCfn(configName, { agentType }),
         },
       );
@@ -175,6 +202,7 @@ export abstract class AgentConfigStack extends cdk.Stack {
     });
 
     const guardrailId = guardrail.attrGuardrailId;
+    this.guardrailId = guardrailId;
 
     // --- 5. Instantiate AgentIdentity with resolved profileArns and guardrailId ---
     const agentIdentity = new AgentIdentity(this, 'AgentIdentity', {

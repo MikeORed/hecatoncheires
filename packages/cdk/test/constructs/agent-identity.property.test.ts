@@ -186,42 +186,64 @@ describe('Property 6: Condition key enforcement on Bedrock actions', () => {
               Condition?: Record<string, Record<string, string>>;
             }>;
 
-            // Find statements containing Bedrock inference actions
+            // Find statements containing Bedrock inference actions. Invoking
+            // through an inference profile is now split into two boundary
+            // statements: one scoped to the profile resource(s), one scoped to
+            // the backing foundation models and gated by aws:InferenceProfileArn.
             const inferenceStatements = statements.filter((stmt) => {
               const actions = Array.isArray(stmt.Action) ? stmt.Action : [stmt.Action];
               return bedrockInferenceActions.some((a) => actions.includes(a));
             });
 
-            // There must be at least one inference statement
-            expect(inferenceStatements.length).toBeGreaterThanOrEqual(1);
+            // Two inference statements: profile + foundation-model.
+            expect(inferenceStatements.length).toBe(2);
+
+            const resourcesOf = (stmt: { Resource?: string | string[] } & Record<string, unknown>) =>
+              Array.isArray((stmt as { Resource?: string | string[] }).Resource)
+                ? ((stmt as { Resource: string[] }).Resource)
+                : [(stmt as { Resource?: string }).Resource];
+
+            // The foundation-model statement targets foundation-model/* and is
+            // gated by aws:InferenceProfileArn = the assigned profile.
+            const fmStmt = inferenceStatements.find((s) =>
+              resourcesOf(s).some((r) => typeof r === 'string' && r.includes('foundation-model')),
+            );
+            expect(fmStmt).toBeDefined();
+            expect(fmStmt!.Condition).toBeDefined();
+            const fmForAny = fmStmt!.Condition!['ForAnyValue:StringEquals'];
+            expect(fmForAny['bedrock:InferenceProfileArn']).toBeDefined();
+            const fmProfileVal = fmForAny['bedrock:InferenceProfileArn'];
+            if (Array.isArray(fmProfileVal)) {
+              expect(fmProfileVal).toContain(profileArn);
+            } else {
+              expect(fmProfileVal).toBe(profileArn);
+            }
+
+            // The profile statement targets the profile ARN(s) directly.
+            const profileStmt = inferenceStatements.find(
+              (s) => !resourcesOf(s).some((r) => typeof r === 'string' && r.includes('foundation-model')),
+            );
+            expect(profileStmt).toBeDefined();
+            expect(resourcesOf(profileStmt!)).toContain(profileArn);
 
             for (const stmt of inferenceStatements) {
-              // Must have a Condition block
-              expect(stmt.Condition).toBeDefined();
-
-              // Must have ForAnyValue:StringEquals condition for profile ARNs (multi-profile)
-              expect(stmt.Condition!['ForAnyValue:StringEquals']).toBeDefined();
-
-              const forAnyValueEquals = stmt.Condition!['ForAnyValue:StringEquals'];
-
-              // Must include bedrock:InferenceProfileArn condition key
-              expect(forAnyValueEquals['bedrock:InferenceProfileArn']).toBeDefined();
-              // Value must be an array containing the profileArn passed as props
-              const profileArnValue = forAnyValueEquals['bedrock:InferenceProfileArn'];
-              if (Array.isArray(profileArnValue)) {
-                expect(profileArnValue).toContain(profileArn);
+              // The guardrail IAM condition is enforced at the boundary ONLY for
+              // openclaw (caller-controlled single InvokeModel). Managed/runtime
+              // harnesses must NOT carry it — AWS documents it as incompatible
+              // with APIs that make internal InvokeModel calls, so the harness
+              // enforces the guardrail via request-level guardrailConfig instead.
+              if (agentType === 'openclaw') {
+                expect(stmt.Condition!.StringEquals).toBeDefined();
+                expect(stmt.Condition!.StringEquals['bedrock:GuardrailIdentifier']).toBe(
+                  guardrailId,
+                );
               } else {
-                expect(profileArnValue).toBe(profileArn);
+                const stringEquals = stmt.Condition?.StringEquals;
+                const hasGuardrailCond =
+                  stringEquals !== undefined &&
+                  stringEquals['bedrock:GuardrailIdentifier'] !== undefined;
+                expect(hasGuardrailCond).toBe(false);
               }
-
-              // Must have StringEquals for guardrail condition
-              expect(stmt.Condition!.StringEquals).toBeDefined();
-              const stringEquals = stmt.Condition!.StringEquals;
-
-              // Must include bedrock:GuardrailIdentifier condition key
-              expect(stringEquals['bedrock:GuardrailIdentifier']).toBeDefined();
-              // Value must match the guardrailId passed as props
-              expect(stringEquals['bedrock:GuardrailIdentifier']).toBe(guardrailId);
             }
           }
         },

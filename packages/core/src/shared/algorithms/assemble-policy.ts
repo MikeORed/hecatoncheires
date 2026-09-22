@@ -62,9 +62,22 @@ export function assemblePolicy(
 /**
  * Resolves a core-invocation shape template using profile ARNs from the assembly context.
  *
+ * Invoking THROUGH an inference profile authorizes against BOTH the profile
+ * resource AND each backing foundation-model resource. So each shape statement
+ * expands into two:
+ *   1. invoke on the profile ARN(s)
+ *   2. invoke on foundation-model ARNs, gated by `aws:InferenceProfileArn` so
+ *      the model is only reachable through the assigned profile
+ * Without (2), the model leg of the authorization is denied and managed-harness
+ * ConverseStream calls fail even though the profile is allowed.
+ * See: https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-prereq.html
+ *
  * - Empty profileArns → deny-all statement
- * - Single profile ARN → Resource is a string
- * - Multiple profile ARNs → Resource is a string array
+ * - Single profile ARN → Resource is a string; multiple → string array
+ *
+ * NOTE: the IamStatement Condition schema only allows scalar string values, so
+ * the aws:InferenceProfileArn condition uses the primary (first) profile ARN.
+ * Multi-profile agents would need the schema widened to array condition values.
  */
 function resolveCoreInvocation(
   template: ShapeTemplate,
@@ -74,9 +87,30 @@ function resolveCoreInvocation(
     return [{ Effect: 'Deny', Action: '*', Resource: '*' }];
   }
 
-  return template.statements.map((stmt) => ({
-    Effect: stmt.Effect,
-    Action: stmt.Action,
-    Resource: context.profileArns.length === 1 ? context.profileArns[0] : context.profileArns,
-  }));
+  const profileResource =
+    context.profileArns.length === 1 ? context.profileArns[0] : context.profileArns;
+  const primaryProfileArn = context.profileArns[0];
+
+  const statements: IamStatement[] = [];
+  for (const stmt of template.statements) {
+    // 1. Invoke on the assigned inference profile resource(s).
+    statements.push({
+      Effect: stmt.Effect,
+      Action: stmt.Action,
+      Resource: profileResource,
+    });
+    // 2. Invoke on the backing foundation models, only through this profile.
+    // The request context key is `bedrock:InferenceProfileArn` (NOT
+    // `aws:InferenceProfileArn`, despite some AWS prose) — it is what Bedrock
+    // populates to indicate a model is being called through a profile.
+    statements.push({
+      Effect: stmt.Effect,
+      Action: stmt.Action,
+      Resource: 'arn:aws:bedrock:*::foundation-model/*',
+      Condition: {
+        StringEquals: { 'bedrock:InferenceProfileArn': primaryProfileArn },
+      },
+    });
+  }
+  return statements;
 }

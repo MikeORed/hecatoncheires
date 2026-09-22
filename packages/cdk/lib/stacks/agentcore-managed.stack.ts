@@ -218,6 +218,21 @@ export class AgentCoreManagedStack extends AgentConfigStack {
       tags: naming.agentTagsToCfn(configName, { agentType: props.agentType }),
     });
 
+    // Attach the agent's guardrail to the harness's model config so every
+    // managed Converse call carries it. The CDK CfnHarness type does not yet
+    // expose additionalParams, so set it via a property override. This is where
+    // guardrail enforcement lives for managed harnesses (the permission
+    // boundary cannot carry a bedrock:GuardrailIdentifier condition for this
+    // agent type — see AgentIdentity construct).
+    harness.addPropertyOverride('Model.BedrockModelConfig.ApiFormat', 'converse_stream');
+    harness.addPropertyOverride('Model.BedrockModelConfig.AdditionalParams', {
+      guardrailConfig: {
+        guardrailIdentifier: this.guardrailId,
+        guardrailVersion: 'DRAFT',
+        trace: 'enabled',
+      },
+    });
+
     // Add DependsOn to the AgentIdentity role (ensures role is fully created before harness)
     const roleCfnResource = this.identity.role.node.defaultChild as cdk.CfnResource;
     harness.addDependency(roleCfnResource);

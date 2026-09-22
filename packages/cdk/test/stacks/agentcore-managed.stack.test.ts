@@ -146,12 +146,17 @@ describe('AgentCoreManagedStack — CfnHarness resource creation', () => {
     const { template } = createManagedTestStacks({
       modelBindings: [{ modelId: 'us.anthropic.claude-haiku-3-20240307-v1:0', label: 'default' }],
     });
-    // The inference profile resource uses the seed modelId as its source
+    // CopyFrom must be a full inference-profile ARN (not the bare modelId).
+    // A system-profile modelId (contains '.') resolves to an ARN built with
+    // Fn::Join around the account/region tokens.
     template.hasResourceProperties('AWS::Bedrock::ApplicationInferenceProfile', {
       ModelSource: Match.objectLike({
-        CopyFrom: 'us.anthropic.claude-haiku-3-20240307-v1:0',
+        CopyFrom: Match.objectLike({ 'Fn::Join': Match.anyValue() }),
       }),
     });
+    // And the rendered ARN must carry the inference-profile segment + model id.
+    const rendered = JSON.stringify(template.toJSON());
+    expect(rendered).toContain(':inference-profile/us.anthropic.claude-haiku-3-20240307-v1:0');
     // The harness still references the profile ARN (not the raw modelId)
     template.hasResourceProperties('AWS::BedrockAgentCore::Harness', {
       Model: Match.objectLike({

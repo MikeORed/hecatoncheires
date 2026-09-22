@@ -168,12 +168,14 @@ describe('NamingGenerator property tests', () => {
       );
     });
 
-    it('harnessName matches hecaton-{stage}-{configName}-harness', () => {
+    it('harnessName is underscore-delimited (hecaton_{stage}_{configName}_harness)', () => {
+      // AWS::BedrockAgentCore::Harness HarnessName must match
+      // ^[a-zA-Z][a-zA-Z0-9_]{0,39}$ — hyphens are normalized to underscores.
       fc.assert(
         fc.property(validStage, validConfigName, (stage, configName) => {
           const naming = new NamingGenerator(stage);
           expect(naming.harnessName(configName)).toBe(
-            `hecaton-${stage}-${configName}-harness`,
+            `hecaton_${stage}_${configName}_harness`.replace(/-/g, '_'),
           );
         }),
         { numRuns: 100 },
