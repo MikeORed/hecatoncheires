@@ -101,21 +101,40 @@ async function main() {
   const command = new InvokeHarnessCommand(input);
 
   const response = await client.send(command);
+  console.log(`HTTP ${response.$metadata?.httpStatusCode} (requestId ${response.$metadata?.requestId})\n`);
 
-  // The response streams/returns messages; dump whatever came back.
-  console.log('Raw response keys:', Object.keys(response));
-  if (response.messages) {
-    console.log('\nMessages:');
-    console.log(JSON.stringify(response.messages, null, 2));
+  // InvokeHarness returns an async event stream. Drain it and print each chunk.
+  if (!response.stream) {
+    console.log('No stream on response:', JSON.stringify(response, null, 2));
+    return;
   }
-  if (response.output) {
-    console.log('\nOutput:');
-    console.log(JSON.stringify(response.output, null, 2));
+
+  let sawAny = false;
+  let assembledText = '';
+  for await (const event of response.stream) {
+    sawAny = true;
+    // Each event is a union; log the raw shape and pull out any text deltas.
+    const key = Object.keys(event)[0];
+    const payload = event[key];
+
+    // Common Converse-stream shapes: contentBlockDelta.delta.text, etc.
+    const text =
+      payload?.delta?.text ??
+      payload?.contentBlockDelta?.delta?.text ??
+      payload?.text ??
+      undefined;
+    if (typeof text === 'string') {
+      assembledText += text;
+      process.stdout.write(text);
+    } else {
+      console.log(`\n[event: ${key}] ${JSON.stringify(payload)}`);
+    }
   }
-  if (response.stopReason) console.log(`\nstopReason: ${response.stopReason}`);
-  if (response.usage) console.log(`usage: ${JSON.stringify(response.usage)}`);
-  console.log('\nFull response:');
-  console.log(JSON.stringify(response, null, 2));
+
+  if (!sawAny) console.log('(stream produced no events)');
+  if (assembledText) {
+    console.log(`\n\n--- assembled text ---\n${assembledText}`);
+  }
 }
 
 main().catch((err) => {

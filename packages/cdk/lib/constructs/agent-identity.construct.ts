@@ -85,41 +85,65 @@ export class AgentIdentity extends Construct {
     // See: https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-permissions-id.html
     const enforceGuardrailCondition = agentType === 'openclaw';
 
-    const inferenceConditions: Record<string, Record<string, unknown>> = {
-      'ForAnyValue:StringEquals': {
-        'bedrock:InferenceProfileArn': profileArns,
-      },
-    };
-    if (enforceGuardrailCondition) {
-      inferenceConditions.StringEquals = {
-        'bedrock:GuardrailIdentifier': guardrailId,
-      };
-    }
+    const guardrailCondition = enforceGuardrailCondition
+      ? { StringEquals: { 'bedrock:GuardrailIdentifier': guardrailId } }
+      : {};
+
+    const bedrockInvokeActions = ['bedrock:InvokeModel', 'bedrock:InvokeModelWithResponseStream'];
 
     const permissionBoundary = new iam.ManagedPolicy(this, 'PermissionBoundary', {
       statements: [
-        // Allow Bedrock inference — always bound to the assigned profile;
-        // guardrail condition added only for caller-controlled agent types.
+        // Invoking THROUGH an (application/system) inference profile authorizes
+        // against BOTH the profile resource AND each backing foundation-model
+        // resource (in every region the profile spans). AWS requires two things
+        // for the profile-only path:
+        //   1. Allow invoke on the inference-profile ARN(s).
+        //   2. Allow invoke on the foundation-model ARNs, gated by the
+        //      `aws:InferenceProfileArn` condition key so the model can only be
+        //      reached through the assigned profile.
+        // A single wildcard-resource statement with `bedrock:InferenceProfileArn`
+        // does NOT work — that was the cause of "no permissions boundary allows
+        // InvokeModelWithResponseStream" on harness invokes.
+        // See: https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-prereq.html
+
+        // 1. Invoke on the assigned inference profile resource(s).
         new iam.PolicyStatement({
-          sid: 'BedrockInference',
+          sid: 'BedrockInferenceProfile',
           effect: iam.Effect.ALLOW,
           // Converse/ConverseStream are not IAM actions — they authorize under
           // InvokeModel and InvokeModelWithResponseStream respectively.
-          actions: ['bedrock:InvokeModel', 'bedrock:InvokeModelWithResponseStream'],
-          resources: ['*'],
-          conditions: inferenceConditions,
+          actions: bedrockInvokeActions,
+          resources: profileArns,
+          ...(enforceGuardrailCondition ? { conditions: guardrailCondition } : {}),
         }),
-        // Allow guardrail application
+
+        // 2. Invoke on the backing foundation models, but only when the request
+        // routes through the assigned inference profile (aws:InferenceProfileArn).
+        new iam.PolicyStatement({
+          sid: 'BedrockInferenceFoundationModel',
+          effect: iam.Effect.ALLOW,
+          actions: bedrockInvokeActions,
+          resources: ['arn:aws:bedrock:*::foundation-model/*'],
+          conditions: {
+            // Request context key is `bedrock:InferenceProfileArn` (NOT the
+            // `aws:` prefix some AWS prose shows) — the model can only be
+            // reached through the assigned profile.
+            'ForAnyValue:StringEquals': {
+              'bedrock:InferenceProfileArn': profileArns,
+            },
+            ...guardrailCondition,
+          },
+        }),
+        // Allow guardrail application. For the ApplyGuardrail action the
+        // guardrail is the RESOURCE, not a request condition-key value — a
+        // `bedrock:GuardrailIdentifier` StringEquals condition does not populate
+        // for this action and would deny it (observed: "no permissions boundary
+        // allows bedrock:ApplyGuardrail"). Scope by the guardrail ARN instead.
         new iam.PolicyStatement({
           sid: 'BedrockApplyGuardrail',
           effect: iam.Effect.ALLOW,
           actions: ['bedrock:ApplyGuardrail'],
-          resources: ['*'],
-          conditions: {
-            StringEquals: {
-              'bedrock:GuardrailIdentifier': guardrailId,
-            },
-          },
+          resources: [`arn:aws:bedrock:*:*:guardrail/${guardrailId}`],
         }),
         // Allow describing own inference profile (read-only)
         new iam.PolicyStatement({
@@ -224,13 +248,30 @@ export class AgentIdentity extends Construct {
             ],
             resources: [`arn:aws:bedrock-agentcore:*:*:memory/${naming.projectPrefix}_${stage}_*`],
           }),
+          // Apply the agent's assigned guardrail. The managed harness carries
+          // the guardrail on every Converse call (baked into its model config),
+          // so bedrock:ApplyGuardrail is required on the guardrail resource for
+          // the invocation to succeed. Scoped to this agent's guardrail.
+          new iam.PolicyStatement({
+            sid: 'BedrockApplyGuardrail',
+            effect: iam.Effect.ALLOW,
+            actions: ['bedrock:ApplyGuardrail'],
+            resources: [`arn:aws:bedrock:*:*:guardrail/${guardrailId}`],
+          }),
         ],
       }),
     );
 
     // --- 4. Operating inline policy (deny-by-default) ---
+    // Fixed, deterministic name so the modulator (grant/revoke) and the shared
+    // breaker Lambda — which write the operating policy by name via
+    // OperatingPolicyAdapter.getDefaultPolicyName() — target THIS inline policy
+    // rather than creating a second one. Without a fixed name CDK auto-generates
+    // a per-stack name, and the breaker's deny-all would land on the wrong
+    // policy, leaving the granted Allow in place (agent not halted).
     role.attachInlinePolicy(
       new iam.Policy(this, 'OperatingPolicy', {
+        policyName: naming.operatingPolicyName(),
         statements: [
           new iam.PolicyStatement({
             sid: 'DenyByDefault',

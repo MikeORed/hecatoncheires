@@ -466,8 +466,10 @@ describe('AgentIdentity (via TestAgentConfigStack)', () => {
       const policyDoc = policies[policyLogicalId].Properties.PolicyDocument;
       const statements = policyDoc.Statement as Array<Record<string, unknown>>;
 
-      // Find the Bedrock inference statement
-      const bedrockInferenceStmt = statements.find((stmt) => {
+      // Invoking through an inference profile is split into two boundary
+      // statements: one scoped to the profile resource, one scoped to the
+      // backing foundation models gated by aws:InferenceProfileArn.
+      const inferenceStmts = statements.filter((stmt) => {
         const actions = stmt.Action as string[];
         return (
           Array.isArray(actions) &&
@@ -475,30 +477,40 @@ describe('AgentIdentity (via TestAgentConfigStack)', () => {
           actions.includes('bedrock:InvokeModelWithResponseStream')
         );
       });
-      expect(bedrockInferenceStmt).toBeDefined();
+      expect(inferenceStmts.length).toBe(2);
 
-      // Verify condition keys exist
-      const condition = bedrockInferenceStmt!.Condition as Record<
-        string,
-        Record<string, unknown>
-      >;
-      expect(condition).toBeDefined();
-      // Profile ARN uses ForAnyValue:StringEquals for multi-profile support —
-      // always enforced regardless of agent type.
-      expect(condition['ForAnyValue:StringEquals']).toBeDefined();
-      expect(condition['ForAnyValue:StringEquals']['bedrock:InferenceProfileArn']).toBeDefined();
-      // This is an agentcore-managed agent, so the boundary must NOT carry the
-      // bedrock:GuardrailIdentifier condition on the inference statement — the
-      // managed harness makes internal InvokeModel calls without a guardrail id,
-      // which that condition would deny. Guardrail is enforced via the harness's
+      const resourcesOf = (stmt: Record<string, unknown>): unknown[] =>
+        Array.isArray(stmt.Resource) ? stmt.Resource : [stmt.Resource];
+
+      // Foundation-model statement: gated by aws:InferenceProfileArn.
+      const fmStmt = inferenceStmts.find((s) =>
+        resourcesOf(s).some((r) => typeof r === 'string' && r.includes('foundation-model')),
+      );
+      expect(fmStmt).toBeDefined();
+      const fmCond = fmStmt!.Condition as Record<string, Record<string, unknown>>;
+      expect(fmCond['ForAnyValue:StringEquals']['bedrock:InferenceProfileArn']).toBeDefined();
+
+      // Profile statement: targets the profile resource, no foundation-model.
+      const profileStmt = inferenceStmts.find(
+        (s) => !resourcesOf(s).some((r) => typeof r === 'string' && r.includes('foundation-model')),
+      );
+      expect(profileStmt).toBeDefined();
+
+      // This is an agentcore-managed agent, so NEITHER inference statement may
+      // carry the bedrock:GuardrailIdentifier condition — the managed harness
+      // makes internal InvokeModel calls without a guardrail id, which that
+      // condition would deny. Guardrail is enforced via the harness's
       // request-level guardrailConfig instead.
-      const hasGuardrailCond =
-        condition.StringEquals !== undefined &&
-        condition.StringEquals['bedrock:GuardrailIdentifier'] !== undefined;
-      expect(hasGuardrailCond).toBe(false);
+      for (const stmt of inferenceStmts) {
+        const cond = stmt.Condition as Record<string, Record<string, unknown>> | undefined;
+        const hasGuardrailCond =
+          cond?.StringEquals !== undefined &&
+          cond.StringEquals['bedrock:GuardrailIdentifier'] !== undefined;
+        expect(hasGuardrailCond).toBe(false);
+      }
     });
 
-    it('boundary includes ApplyGuardrail action with guardrail condition key', () => {
+    it('boundary includes ApplyGuardrail action scoped to the guardrail resource', () => {
       const policies = defaultTemplate.findResources('AWS::IAM::ManagedPolicy');
       const policyLogicalId = Object.keys(policies)[0];
       const policyDoc = policies[policyLogicalId].Properties.PolicyDocument;
@@ -512,13 +524,21 @@ describe('AgentIdentity (via TestAgentConfigStack)', () => {
       });
       expect(applyGuardrailStmt).toBeDefined();
 
-      const condition = applyGuardrailStmt!.Condition as Record<
-        string,
-        Record<string, unknown>
-      >;
-      expect(condition).toBeDefined();
-      expect(condition.StringEquals).toBeDefined();
-      expect(condition.StringEquals['bedrock:GuardrailIdentifier']).toBeDefined();
+      // ApplyGuardrail is scoped by the guardrail RESOURCE, not a
+      // bedrock:GuardrailIdentifier condition (that key does not populate for
+      // this action and would deny it). The resource is an Fn::Join of the
+      // guardrail ARN prefix + the guardrail id token, so check the rendered
+      // JSON contains the guardrail ARN prefix.
+      const rendered = JSON.stringify(applyGuardrailStmt!.Resource);
+      expect(rendered).toContain(':guardrail/');
+      // And it must NOT carry a GuardrailIdentifier condition.
+      const cond = applyGuardrailStmt!.Condition as
+        | Record<string, Record<string, unknown>>
+        | undefined;
+      const hasGuardrailCond =
+        cond?.StringEquals !== undefined &&
+        cond.StringEquals['bedrock:GuardrailIdentifier'] !== undefined;
+      expect(hasGuardrailCond).toBe(false);
     });
 
     it('boundary includes GetInferenceProfile action with managed tag condition', () => {

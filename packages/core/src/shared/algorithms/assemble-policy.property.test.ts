@@ -130,9 +130,10 @@ describe('assemblePolicy property tests', () => {
             const expectedCount = grants.reduce((sum, grant) => {
               const template = SHAPE_CATALOG.find((t) => t.shapeName === grant.shapeName)!;
               if (grant.shapeName === 'core-invocation') {
-                // core-invocation produces one statement per template statement
-                // when context has profile ARNs
-                return sum + template.statements.length;
+                // core-invocation now produces TWO statements per template
+                // statement: one for the profile resource and one for the
+                // backing foundation models (gated by aws:InferenceProfileArn).
+                return sum + template.statements.length * 2;
               }
               const resolved = resolveShape(template, grant.parameters);
               return sum + resolved.length;
@@ -211,26 +212,41 @@ describe('assemblePolicy property tests', () => {
         grantedBy: partial.grantedBy,
       }));
 
-    it('single profileArn produces Resource as a string matching that ARN', () => {
+    // Each core-invocation template statement now expands into two Allow
+    // statements: one scoped to the profile ARN(s), and one scoped to the
+    // backing foundation models (arn:aws:bedrock:*::foundation-model/*) gated
+    // by aws:InferenceProfileArn. These helpers pick out each kind.
+    const isProfileStatement = (s: { Resource: string | string[]; Condition?: unknown }) =>
+      s.Condition === undefined;
+    const isFoundationModelStatement = (s: { Resource: string | string[]; Condition?: unknown }) =>
+      s.Condition !== undefined;
+
+    it('single profileArn produces a profile-scoped Resource string matching that ARN', () => {
       fc.assert(
         fc.property(arbCoreInvocationGrant, arbProfileArn, (grant, profileArn) => {
           const context: PolicyAssemblyContext = { profileArns: [profileArn] };
           const policy = assemblePolicy([grant], SHAPE_CATALOG, context);
 
-          // Should have exactly one Allow statement (core-invocation template has one statement)
           const allowStatements = policy.Statement.filter((s) => s.Effect === 'Allow');
-          expect(allowStatements.length).toBe(1);
+          // Two Allow statements per core-invocation template statement.
+          expect(allowStatements.length).toBe(2);
 
-          // Resource should be a string (not an array) matching the single profileArn
-          const resource = allowStatements[0].Resource;
-          expect(typeof resource).toBe('string');
-          expect(resource).toBe(profileArn);
+          const profileStmt = allowStatements.find(isProfileStatement)!;
+          expect(profileStmt).toBeDefined();
+          expect(typeof profileStmt.Resource).toBe('string');
+          expect(profileStmt.Resource).toBe(profileArn);
+
+          // The foundation-model statement is gated by aws:InferenceProfileArn.
+          const fmStmt = allowStatements.find(isFoundationModelStatement)!;
+          expect(fmStmt).toBeDefined();
+          expect(fmStmt.Resource).toBe('arn:aws:bedrock:*::foundation-model/*');
+          expect(fmStmt.Condition!.StringEquals['bedrock:InferenceProfileArn']).toBe(profileArn);
         }),
         { numRuns: 200 },
       );
     });
 
-    it('multiple profileArns produce Resource as an array containing exactly those ARNs', () => {
+    it('multiple profileArns produce a profile-scoped Resource array of exactly those ARNs', () => {
       fc.assert(
         fc.property(
           arbCoreInvocationGrant,
@@ -240,19 +256,18 @@ describe('assemblePolicy property tests', () => {
             const policy = assemblePolicy([grant], SHAPE_CATALOG, context);
 
             const allowStatements = policy.Statement.filter((s) => s.Effect === 'Allow');
-            expect(allowStatements.length).toBe(1);
+            expect(allowStatements.length).toBe(2);
 
-            // Resource should be an array matching profileArns exactly
-            const resource = allowStatements[0].Resource;
-            expect(Array.isArray(resource)).toBe(true);
-            expect(resource).toEqual(profileArns);
+            const profileStmt = allowStatements.find(isProfileStatement)!;
+            expect(Array.isArray(profileStmt.Resource)).toBe(true);
+            expect(profileStmt.Resource).toEqual(profileArns);
           },
         ),
         { numRuns: 200 },
       );
     });
 
-    it('non-empty profileArns produce Resource containing exactly the context ARNs', () => {
+    it('non-empty profileArns produce a profile-scoped Resource of exactly the context ARNs', () => {
       fc.assert(
         fc.property(
           arbCoreInvocationGrant,
@@ -262,11 +277,10 @@ describe('assemblePolicy property tests', () => {
             const policy = assemblePolicy([grant], SHAPE_CATALOG, context);
 
             const allowStatements = policy.Statement.filter((s) => s.Effect === 'Allow');
-            expect(allowStatements.length).toBe(1);
+            expect(allowStatements.length).toBe(2);
 
-            const resource = allowStatements[0].Resource;
-
-            // Normalize to array for comparison regardless of single/multi
+            const profileStmt = allowStatements.find(isProfileStatement)!;
+            const resource = profileStmt.Resource;
             const resourceArray = Array.isArray(resource) ? resource : [resource];
             expect(resourceArray).toEqual(profileArns);
           },

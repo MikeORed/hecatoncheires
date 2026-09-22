@@ -144,6 +144,10 @@ export class SharedInfraStack extends cdk.Stack {
         target: 'node20',
       },
       environment: {
+        // getBreakerDependencies() → getDependencies() requires the grant
+        // ledger var even though the breaker never reads the ledger. Supply it
+        // so the dependency factory does not throw on cold start.
+        [EnvVar.GRANT_LEDGER_TABLE_NAME]: table.tableName,
         [EnvVar.AGENT_REGISTRY_TABLE_NAME]: registryTable.tableName,
         [EnvVar.OPS_BUS_ARN]: bus.eventBusArn,
         [EnvVar.SNS_TOPIC_ARN]: topic.topicArn,

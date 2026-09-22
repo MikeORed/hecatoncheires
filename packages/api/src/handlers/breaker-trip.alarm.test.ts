@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 import { handler } from './breaker-trip.alarm.js';
-import type { CloudWatchAlarmEvent } from './breaker-trip.alarm.js';
+import type { CloudWatchAlarmActionEvent } from './breaker-trip.alarm.js';
 
 vi.mock('../shared/dependencies.js', () => ({
   getBreakerDependencies: vi.fn(),
@@ -43,7 +43,7 @@ function createMockDeps() {
 
 const MOCK_AGENT_RECORD = {
   agentId: 'agent-uuid-123',
-  configName: 'test-agent',
+  configName: 'test-managed',
   roleName: 'test-role',
   profiles: [
     {
@@ -59,28 +59,22 @@ const MOCK_AGENT_RECORD = {
   breakerState: 'armed',
 };
 
-function makeAlarmEvent(
+/**
+ * Direct Lambda alarm-action payload (composite alarm → Lambda) — the real
+ * shape CloudWatch delivers, with alarm details nested under `alarmData`.
+ */
+function makeActionEvent(
   stateValue: 'ALARM' | 'OK' | 'INSUFFICIENT_DATA',
-  dimensions?: Record<string, string>,
-): CloudWatchAlarmEvent {
+  alarmName = 'hecaton-dev-test-managed-composite',
+): CloudWatchAlarmActionEvent {
   return {
     source: 'aws.cloudwatch',
-    detail: {
-      alarmName: 'hecaton-test-agent-token-alarm',
+    alarmArn: `arn:aws:cloudwatch:us-east-1:123456789012:alarm:${alarmName}`,
+    alarmData: {
+      alarmName,
       state: {
         value: stateValue,
         reason: 'Threshold crossed: token usage exceeded limit',
-      },
-      configuration: {
-        metrics: [
-          {
-            metricStat: {
-              metric: {
-                dimensions: dimensions ?? { InferenceProfileId: 'profile-entity-abc' },
-              },
-            },
-          },
-        ],
       },
     },
   };
@@ -100,8 +94,8 @@ describe('breaker-trip.alarm handler', () => {
       const mockDeps = createMockDeps();
       vi.mocked(getBreakerDependencies).mockReturnValue(mockDeps);
 
-      await handler(makeAlarmEvent('OK'));
-      expect(mockDeps.agentRegistry.getByProfileEntityId).not.toHaveBeenCalled();
+      await handler(makeActionEvent('OK'));
+      expect(mockDeps.agentRegistry.getByConfigName).not.toHaveBeenCalled();
       expect(mockDeps.operatingPolicy.writePolicy).not.toHaveBeenCalled();
     });
 
@@ -109,56 +103,25 @@ describe('breaker-trip.alarm handler', () => {
       const mockDeps = createMockDeps();
       vi.mocked(getBreakerDependencies).mockReturnValue(mockDeps);
 
-      await handler(makeAlarmEvent('INSUFFICIENT_DATA'));
-      expect(mockDeps.agentRegistry.getByProfileEntityId).not.toHaveBeenCalled();
+      await handler(makeActionEvent('INSUFFICIENT_DATA'));
+      expect(mockDeps.agentRegistry.getByConfigName).not.toHaveBeenCalled();
       expect(mockDeps.operatingPolicy.writePolicy).not.toHaveBeenCalled();
     });
   });
 
-  describe('profileEntityId extraction failures', () => {
-    it('logs and returns when InferenceProfileId dimension is missing', async () => {
+  describe('configName extraction failures', () => {
+    it('logs and returns when the alarm name is not a composite alarm name', async () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       const mockDeps = createMockDeps();
       vi.mocked(getBreakerDependencies).mockReturnValue(mockDeps);
 
-      await handler(makeAlarmEvent('ALARM', { SomeOtherDimension: 'value' }));
-      expect(mockDeps.agentRegistry.getByProfileEntityId).not.toHaveBeenCalled();
+      await handler(makeActionEvent('ALARM', 'some-unrelated-alarm'));
+      expect(mockDeps.agentRegistry.getByConfigName).not.toHaveBeenCalled();
       expect(mockDeps.operatingPolicy.writePolicy).not.toHaveBeenCalled();
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Cannot extract profileEntityId from alarm event',
+        'Cannot extract configName from alarm name',
         expect.any(String),
       );
-      consoleSpy.mockRestore();
-    });
-
-    it('logs and returns when dimensions are empty', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      const mockDeps = createMockDeps();
-      vi.mocked(getBreakerDependencies).mockReturnValue(mockDeps);
-
-      await handler(makeAlarmEvent('ALARM', {}));
-      expect(mockDeps.agentRegistry.getByProfileEntityId).not.toHaveBeenCalled();
-      expect(mockDeps.operatingPolicy.writePolicy).not.toHaveBeenCalled();
-      expect(consoleSpy).toHaveBeenCalled();
-      consoleSpy.mockRestore();
-    });
-
-    it('logs and returns when configuration.metrics is missing entirely', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      const mockDeps = createMockDeps();
-      vi.mocked(getBreakerDependencies).mockReturnValue(mockDeps);
-
-      const event: CloudWatchAlarmEvent = {
-        source: 'aws.cloudwatch',
-        detail: {
-          alarmName: 'test-alarm',
-          state: { value: 'ALARM', reason: 'threshold crossed' },
-        },
-      };
-      await handler(event);
-      expect(mockDeps.agentRegistry.getByProfileEntityId).not.toHaveBeenCalled();
-      expect(mockDeps.operatingPolicy.writePolicy).not.toHaveBeenCalled();
-      expect(consoleSpy).toHaveBeenCalled();
       consoleSpy.mockRestore();
     });
   });
@@ -167,32 +130,28 @@ describe('breaker-trip.alarm handler', () => {
     it('logs and returns when registry lookup returns null', async () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       const mockDeps = createMockDeps();
-      mockDeps.agentRegistry.getByProfileEntityId.mockResolvedValue(null);
+      mockDeps.agentRegistry.getByConfigName.mockResolvedValue(null);
       vi.mocked(getBreakerDependencies).mockReturnValue(mockDeps);
 
-      await handler(makeAlarmEvent('ALARM'));
-      expect(mockDeps.agentRegistry.getByProfileEntityId).toHaveBeenCalledWith(
-        'profile-entity-abc',
-      );
+      await handler(makeActionEvent('ALARM'));
+      expect(mockDeps.agentRegistry.getByConfigName).toHaveBeenCalledWith('test-managed');
       expect(mockDeps.operatingPolicy.writePolicy).not.toHaveBeenCalled();
-      expect(consoleSpy).toHaveBeenCalledWith('Cannot resolve profileEntityId to agent', {
-        profileEntityId: 'profile-entity-abc',
+      expect(consoleSpy).toHaveBeenCalledWith('Cannot resolve configName to agent', {
+        configName: 'test-managed',
       });
       consoleSpy.mockRestore();
     });
   });
 
   describe('happy path', () => {
-    it('resolves agent via registry and invokes trip-breaker use-case', async () => {
+    it('resolves agent via registry (by configName) and invokes trip-breaker', async () => {
       const mockDeps = createMockDeps();
-      mockDeps.agentRegistry.getByProfileEntityId.mockResolvedValue(MOCK_AGENT_RECORD);
+      mockDeps.agentRegistry.getByConfigName.mockResolvedValue(MOCK_AGENT_RECORD);
       vi.mocked(getBreakerDependencies).mockReturnValue(mockDeps);
 
-      await handler(makeAlarmEvent('ALARM'));
+      await handler(makeActionEvent('ALARM'));
 
-      expect(mockDeps.agentRegistry.getByProfileEntityId).toHaveBeenCalledWith(
-        'profile-entity-abc',
-      );
+      expect(mockDeps.agentRegistry.getByConfigName).toHaveBeenCalledWith('test-managed');
       expect(mockDeps.operatingPolicy.writePolicy).toHaveBeenCalledWith(
         'test-role',
         'hecaton-operating-policy',
@@ -208,36 +167,38 @@ describe('breaker-trip.alarm handler', () => {
       );
       expect(mockDeps.busEmitter.emit).toHaveBeenCalled();
       expect(mockDeps.snsNotifier.publish).toHaveBeenCalledWith(
-        'Breaker tripped: test-agent',
-        expect.stringContaining('test-agent'),
+        'Breaker tripped: test-managed',
+        expect.stringContaining('test-managed'),
       );
     });
 
-    it('passes alarmName and reason to the use-case', async () => {
+    it('accepts the EventBridge envelope shape as a fallback', async () => {
       const mockDeps = createMockDeps();
-      mockDeps.agentRegistry.getByProfileEntityId.mockResolvedValue(MOCK_AGENT_RECORD);
+      mockDeps.agentRegistry.getByConfigName.mockResolvedValue(MOCK_AGENT_RECORD);
       vi.mocked(getBreakerDependencies).mockReturnValue(mockDeps);
 
-      const event = makeAlarmEvent('ALARM');
+      const event: CloudWatchAlarmActionEvent = {
+        source: 'aws.cloudwatch',
+        detail: {
+          alarmName: 'hecaton-dev-test-managed-composite',
+          state: { value: 'ALARM', reason: 'threshold crossed' },
+        },
+      };
       await handler(event);
 
-      // The use-case emits an event containing the alarm details
-      expect(mockDeps.busEmitter.emit).toHaveBeenCalledWith(
-        expect.objectContaining({
-          detailType: 'BreakerTripped',
-        }),
-      );
+      expect(mockDeps.agentRegistry.getByConfigName).toHaveBeenCalledWith('test-managed');
+      expect(mockDeps.operatingPolicy.writePolicy).toHaveBeenCalled();
     });
   });
 
   describe('error propagation', () => {
     it('propagates IAM write failure for Lambda retry', async () => {
       const mockDeps = createMockDeps();
-      mockDeps.agentRegistry.getByProfileEntityId.mockResolvedValue(MOCK_AGENT_RECORD);
+      mockDeps.agentRegistry.getByConfigName.mockResolvedValue(MOCK_AGENT_RECORD);
       mockDeps.operatingPolicy.writePolicy.mockRejectedValue(new Error('IAM write failed'));
       vi.mocked(getBreakerDependencies).mockReturnValue(mockDeps);
 
-      await expect(handler(makeAlarmEvent('ALARM'))).rejects.toThrow('IAM write failed');
+      await expect(handler(makeActionEvent('ALARM'))).rejects.toThrow('IAM write failed');
     });
   });
 });
