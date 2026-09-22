@@ -415,6 +415,55 @@ describe('AgentPolicyModulator construct', () => {
     });
   });
 
+  // -------------------------------------------------------------------------
+  // Token-alarm metric contract — the static substitute for the deferred
+  // live natural-breach test (deploy-verify-agentcore-harness.tmp.md, Task 9).
+  //
+  // Task 9 would have driven real Bedrock traffic until OutputTokenCount
+  // crossed the threshold and waited for the alarm to fire on its own. That
+  // path exercises AWS's own metric aggregation, not our logic, and costs an
+  // hour of latency. The one genuinely-ours thing it validates is that the
+  // token alarm is wired to the exact metric identity Bedrock emits. This
+  // asserts that contract as a single coherent unit so a drift in namespace,
+  // metric name, dimension key, statistic, period, comparison, or
+  // missing-data handling fails here instead of silently never firing live.
+  // -------------------------------------------------------------------------
+  describe('Token-alarm metric contract (Task 9 substitute)', () => {
+    it('matches the OutputTokenCount metric identity Bedrock emits, as one contract', () => {
+      const binding: ProfileBinding = {
+        ...defaultBinding,
+        profileEntityId: 'contract-profile-id',
+      };
+      const template = createTemplate({
+        profileBindings: [binding],
+        thresholds: {
+          // The real seed (example-agentcore-managed.json) uses 500.
+          outputTokensPerHour: 500,
+          guardrailBlocksPer10Min: 3,
+          guardrailObservationsPerHour: 20,
+        },
+      });
+
+      template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+        Namespace: 'AWS/Bedrock',
+        MetricName: 'OutputTokenCount',
+        Dimensions: Match.arrayWith([
+          { Name: 'InferenceProfileId', Value: 'contract-profile-id' },
+        ]),
+        Statistic: 'Sum',
+        Period: 3600,
+        Threshold: 500,
+        ComparisonOperator: 'GreaterThanOrEqualToThreshold',
+        EvaluationPeriods: 1,
+        DatapointsToAlarm: 1,
+        // A quiet profile must stay OK; the alarm only trips on real token
+        // volume (or a forced state). If this flips to 'breaching', a brand
+        // new agent would trip its own breaker before ever running.
+        TreatMissingData: 'notBreaching',
+      });
+    });
+  });
+
   describe('Alarm naming (per-profile pattern)', () => {
     it('names the token alarm using per-profile pattern', () => {
       const template = createTemplate({ configName: 'test-agent' });
